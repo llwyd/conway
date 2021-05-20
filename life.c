@@ -13,6 +13,7 @@
 
 static Display * d;
 static int screen;
+static Window w;
 static GC gc;
 
 /* bitmap of whether cell is alive or dead */
@@ -26,7 +27,7 @@ void Life_Init( void )
     unsigned long black = BlackPixel( d, screen );
     unsigned long white = WhitePixel( d, screen );
 
-    Window w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, H_RES, V_RES, 1, white, black);
+    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, H_RES, V_RES, 1, white, black);
     XSetStandardProperties( d, w, "game of life", "game of life", None, NULL, 0, NULL );
 
     XSelectInput( d, w , ExposureMask | KeyPressMask | ButtonPressMask );
@@ -39,6 +40,18 @@ void Life_Init( void )
     XFlush( d );
 }
 
+void Life_Click( int x, int y )
+{
+    printf("Mouse Click\n");
+    printf("Clicked at %d, %d\n", x, y );
+   
+    XFillRectangle( d, w, gc, x, y, 80, 80 );
+}
+
+void Life_Tick( void )
+{
+
+}
 
 uint8_t main( void )
 {
@@ -51,7 +64,20 @@ uint8_t main( void )
         if( XPending( d ) )
         {
             XNextEvent( d, &e );
-            printf("Event!\n");
+            switch( e.type )
+            {
+                case ButtonPress:
+                    Life_Click( e.xbutton.x, e.xbutton.y );
+                    break;
+                default:
+                    printf("Unhandled Event\n");
+                    break;
+            }
+
+        }
+        else
+        {
+
         }
 
         usleep( 1000 );
