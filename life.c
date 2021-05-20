@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -28,15 +29,15 @@ void Life_Init( void )
     unsigned long black = BlackPixel( d, screen );
     unsigned long white = WhitePixel( d, screen );
 
-    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, H_RES, V_RES, 1, white, black);
+    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, H_RES, V_RES, 1, black, white );
     XSetStandardProperties( d, w, "game of life", "game of life", None, NULL, 0, NULL );
 
     XSelectInput( d, w , ExposureMask | KeyPressMask | ButtonPressMask );
 
     gc = XCreateGC( d, w, 0, 0 );
 
-    XSetBackground( d, gc, black);
-    XSetForeground( d, gc, white);
+    XSetBackground( d, gc, white );
+    XSetForeground( d, gc, black );
     XMapWindow( d, w);
     XFlush( d );
 }
@@ -58,6 +59,13 @@ void Life_Click( int x, int y )
     y = true_y * 8 * 10;
 
     XFillRectangle( d, w, gc, x, y, 80, 80 );
+
+    uint64_t shift_x = 0x1 << true_x;
+    uint64_t shift_y = shift_x << ( true_y * 8 );
+
+    status |= shift_y;
+
+    printf("Live: 0x%" PRIx64 "\n", status);
 }
 
 void Life_Tick( void )
