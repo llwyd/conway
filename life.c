@@ -10,6 +10,7 @@
 #define H_RES  ( 640 )
 #define V_RES  ( 640 )
 
+/* 8x8 grid for game of life */
 
 static Display * d;
 static int screen;
@@ -44,7 +45,18 @@ void Life_Click( int x, int y )
 {
     printf("Mouse Click\n");
     printf("Clicked at %d, %d\n", x, y );
-   
+ 
+    x/=10;
+    y/=10;
+
+    uint8_t true_x = ( uint8_t )( x >> 3 );
+    uint8_t true_y = ( uint8_t )( y >> 3 );
+
+    printf("%d,%d\n", true_x, true_y );
+
+    x = true_x * 8 * 10;
+    y = true_y * 8 * 10;
+
     XFillRectangle( d, w, gc, x, y, 80, 80 );
 }
 
