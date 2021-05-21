@@ -65,12 +65,47 @@ void Life_Click( int x, int y )
 
     status |= shift_y;
 
+    uint16_t val = true_x + ( true_y * 8);
+
+    printf("Val: %d\n", val); 
+    printf("Bit : 0x%" PRIx64 "\n", shift_y);
     printf("Live: 0x%" PRIx64 "\n", status);
 }
 
 void Life_Tick( void )
 {
+    for( int i = 0; i < 8; i++ )
+    {
+        for( int j = 0; j < 8; j++ )
+        {
+            uint64_t current_bitmask = 0U;
+            /* Create bit mask */
+            uint64_t start_x = ( 0x1 << i );
+            uint64_t start_mid = start_x << ( j * 8 );
 
+            uint64_t start_abv = start_mid << ( 8 );
+            uint64_t start_blw = start_mid >> ( 8 );
+
+            printf("( 0x% " PRIx64 ")", start_mid);
+           
+            /* current_bitmask |= ( start_mid );*/ 
+            
+            current_bitmask |= ( start_mid << 1 );
+            current_bitmask |= ( start_mid >> 1 );
+            
+            current_bitmask |= ( start_abv );
+            current_bitmask |= ( start_abv << 1 );
+            current_bitmask |= ( start_abv >> 1 );
+            
+            current_bitmask |= ( start_blw );
+            current_bitmask |= ( start_blw << 1 );
+            current_bitmask |= ( start_blw >> 1 );
+
+
+            printf("Live: 0x%" PRIx64 "\n", current_bitmask );
+
+        } 
+    }
 }
 
 uint8_t main( void )
@@ -88,6 +123,7 @@ uint8_t main( void )
             {
                 case ButtonPress:
                     Life_Click( e.xbutton.x, e.xbutton.y );
+                    Life_Tick();
                     break;
                 default:
                     printf("Unhandled Event\n");
