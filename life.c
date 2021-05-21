@@ -21,6 +21,8 @@ static GC gc;
 /* bitmap of whether cell is alive or dead */
 static uint64_t status = 0x0;
 
+uint64_t Life_CalculateLiveBits( int x, int y );
+
 void Life_Init( void )
 {
     d = XOpenDisplay( 0 );
@@ -70,45 +72,54 @@ void Life_Click( int x, int y )
     printf("Val: %d\n", val); 
     printf("Bit : 0x%" PRIx64 "\n", shift_y);
     printf("Live: 0x%" PRIx64 "\n", status);
+    
+    uint64_t live_mask = Life_CalculateLiveBits( true_x, true_y);
+    printf("LiveMask: 0x%" PRIx64 "\n", live_mask );
+}
+
+/* This function calculates the bit mask of bits to check for a given bit */
+uint64_t Life_CalculateLiveBits( int x, int y )
+{
+    uint64_t current_bitmask = 0U;
+    /* Create bit mask */
+    uint64_t start_x = ( 0x1 << x );
+    uint64_t start_mid = start_x << ( y * 8 );
+
+    
+    /* Cant shift more than 32 bits */ 
+    uint64_t mask_mid = 0xFF;
+    for(int i = 0; i < y; i++)
+    {
+        mask_mid <<= 8U;
+    }
+
+    uint64_t mask_blw = ( mask_mid >> 8 );
+    uint64_t mask_abv = ( mask_mid << 8 );
+
+    uint64_t start_abv = start_mid << ( 8 );
+    uint64_t start_blw = start_mid >> ( 8 ); 
+            
+    current_bitmask |= ( ( start_mid << 1 ) & mask_mid );
+    current_bitmask |= ( ( start_mid >> 1 ) & mask_mid );
+            
+    current_bitmask |= ( start_abv );
+    current_bitmask |= ( ( start_abv << 1 ) & mask_abv );
+    current_bitmask |= ( ( start_abv >> 1 ) & mask_abv );
+            
+    current_bitmask |= ( start_blw );
+    current_bitmask |= ( ( start_blw << 1 ) & mask_blw );
+    current_bitmask |= ( ( start_blw >> 1 ) & mask_blw );
+
+    return current_bitmask;
 }
 
 void Life_Tick( void )
 {
+    /* Go through each square, work out how many are alive */
     for( int i = 0; i < 8; i++ )
     {
         for( int j = 0; j < 8; j++ )
         {
-            uint64_t current_bitmask = 0U;
-            /* Create bit mask */
-            uint64_t start_x = ( 0x1 << i );
-            uint64_t start_mid = start_x << ( j * 8 );
-
-            
-            uint64_t mask_mid = ( 0xFF << ( j * 8 ) );
-            uint64_t mask_blw = ( mask_mid >> 8 );
-            uint64_t mask_abv = ( mask_mid << 8 );
-
-            uint64_t start_abv = start_mid << ( 8 );
-            uint64_t start_blw = start_mid >> ( 8 );
-
-            printf("( 0x% " PRIx64 ")", start_mid);
-           
-            /* current_bitmask |= ( start_mid );*/ 
-            
-            current_bitmask |= ( ( start_mid << 1 ) & mask_mid );
-            current_bitmask |= ( ( start_mid >> 1 ) & mask_mid );
-            
-            current_bitmask |= ( start_abv );
-            current_bitmask |= ( ( start_abv << 1 ) & mask_abv );
-            current_bitmask |= ( ( start_abv >> 1 ) & mask_abv );
-            
-            current_bitmask |= ( start_blw );
-            current_bitmask |= ( ( start_blw << 1 ) & mask_blw );
-            current_bitmask |= ( ( start_blw >> 1 ) & mask_blw );
-
-
-            printf("Live: 0x%" PRIx64 "\n", current_bitmask );
-
         } 
     }
 }
