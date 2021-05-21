@@ -83,6 +83,11 @@ void Life_Tick( void )
             uint64_t start_x = ( 0x1 << i );
             uint64_t start_mid = start_x << ( j * 8 );
 
+            
+            uint64_t mask_mid = ( 0xFF << ( j * 8 ) );
+            uint64_t mask_blw = ( mask_mid >> 8 );
+            uint64_t mask_abv = ( mask_mid << 8 );
+
             uint64_t start_abv = start_mid << ( 8 );
             uint64_t start_blw = start_mid >> ( 8 );
 
@@ -90,16 +95,16 @@ void Life_Tick( void )
            
             /* current_bitmask |= ( start_mid );*/ 
             
-            current_bitmask |= ( start_mid << 1 );
-            current_bitmask |= ( start_mid >> 1 );
+            current_bitmask |= ( ( start_mid << 1 ) & mask_mid );
+            current_bitmask |= ( ( start_mid >> 1 ) & mask_mid );
             
             current_bitmask |= ( start_abv );
-            current_bitmask |= ( start_abv << 1 );
-            current_bitmask |= ( start_abv >> 1 );
+            current_bitmask |= ( ( start_abv << 1 ) & mask_abv );
+            current_bitmask |= ( ( start_abv >> 1 ) & mask_abv );
             
             current_bitmask |= ( start_blw );
-            current_bitmask |= ( start_blw << 1 );
-            current_bitmask |= ( start_blw >> 1 );
+            current_bitmask |= ( ( start_blw << 1 ) & mask_blw );
+            current_bitmask |= ( ( start_blw >> 1 ) & mask_blw );
 
 
             printf("Live: 0x%" PRIx64 "\n", current_bitmask );
