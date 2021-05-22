@@ -22,6 +22,7 @@ static GC gc;
 static uint64_t status = 0x0;
 
 uint64_t Life_CalculateLiveBits( int x, int y );
+uint64_t Life_Coordinate2Bit64( int x, int y);
 
 void Life_Init( void )
 {
@@ -77,6 +78,19 @@ void Life_Click( int x, int y )
     printf("LiveMask: 0x%" PRIx64 "\n", live_mask );
 }
 
+uint64_t Life_Coordinate2Bit64( int x, int y)
+{
+    uint64_t bit = ( 0x1 << x );
+    bit = bit << ( y * 8 );
+    return bit;
+}
+
+bool Life_IsCellAlive( uint64_t x )
+{
+    bool alive = ((x & status) == x);
+    return alive;
+}
+
 /* This function calculates the bit mask of bits to check for a given bit */
 uint64_t Life_CalculateLiveBits( int x, int y )
 {
@@ -113,6 +127,59 @@ uint64_t Life_CalculateLiveBits( int x, int y )
     return current_bitmask;
 }
 
+bool Life_DetermineFate( bool alive, uint64_t mask )
+{
+   bool fate = false;
+   uint64_t current_live = status & mask;
+   uint32_t num_alive = __builtin_popcountll( current_live );
+   //printf("num_alive = %d\n", num_alive);
+   if( alive )
+   {
+       /* Rule 1,2 and 3. */
+       if( ( num_alive < 2 ) || ( num_alive > 3 ) )
+       {
+            fate = false;
+       }
+       else
+       {
+            fate = true;
+       }
+   }
+   else
+   {
+        /* Rule 4. */
+        if( num_alive == 3U)
+        {
+            fate = true;
+        }
+   }
+
+   return fate; 
+}
+
+void Life_Set( int true_x, int true_y, bool alive )
+{
+    x = true_x * 8 * 10;
+    y = true_y * 8 * 10;
+
+    XFillRectangle( d, w, gc, x, y, 80, 80 );
+
+    uint64_t shift_x = 0x1 << true_x;
+    uint64_t shift_y = shift_x << ( true_y * 8 );
+
+    status |= shift_y;
+
+    uint16_t val = true_x + ( true_y * 8);
+
+    printf("Val: %d\n", val); 
+    printf("Bit : 0x%" PRIx64 "\n", shift_y);
+    printf("Live: 0x%" PRIx64 "\n", status);
+    
+    uint64_t live_mask = Life_CalculateLiveBits( true_x, true_y);
+    printf("LiveMask: 0x%" PRIx64 "\n", live_mask );
+
+}
+
 void Life_Tick( void )
 {
     /* Go through each square, work out how many are alive */
@@ -120,6 +187,11 @@ void Life_Tick( void )
     {
         for( int j = 0; j < 8; j++ )
         {
+            uint64_t current_cell = Life_Coordinate2Bit64( j, i );
+            bool currently_alive = Life_IsCellAlive( current_cell );
+            uint64_t current_mask = Life_CalculateLiveBits( j, i );
+            bool next_state = Life_DetermineFate( currently_alive, current_mask); 
+            printf("Cell (%d,%d) status = %d next_state = %d\n",j,i, currently_alive, next_state);
         } 
     }
 }
@@ -129,6 +201,8 @@ uint8_t main( void )
     XEvent e;
     Life_Init();
     XNextEvent( d, &e );
+
+    bool running = false;
 
     while(1)
     {
@@ -140,6 +214,17 @@ uint8_t main( void )
                 case ButtonPress:
                     Life_Click( e.xbutton.x, e.xbutton.y );
                     Life_Tick();
+                    break;
+                case KeyPress:
+                    if( running )
+                    {
+                        running = false;
+                    }
+                    else
+                    {
+                        running = true;
+                    }
+                    printf("Running: %d\n", running);
                     break;
                 default:
                     printf("Unhandled Event\n");
