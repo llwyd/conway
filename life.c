@@ -1,5 +1,4 @@
 #include <inttypes.h>
-#include <limits.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -11,25 +10,6 @@
 
 #define H_RES  ( 640 )
 #define V_RES  ( 640 )
-
-#define CELL_SIZE ( 4 )
-#define NUM_CELLS ( ( 640 / 10 ) / CELL_SIZE )
-
-_Static_assert( ( H_RES % CELL_SIZE == 0U), "Cell size not divisor of h_res");
-_Static_assert( ( V_RES % CELL_SIZE == 0U), "Cell size not divisor of v_res");
-
-_Static_assert( ( NUM_CELLS * 10 * CELL_SIZE) == H_RES, "Resolution error");
-_Static_assert( ( NUM_CELLS * 10 * CELL_SIZE) == V_RES, "Resolution error");
-
-
-#define X_SIZE ( NUM_CELLS / CHAR_BIT )
-#define Y_SIZE ( NUM_CELLS / CHAR_BIT )
-
-#define BUFF_SIZE ( ( NUM_CELLS*NUM_CELLS ) / CHAR_BIT )
-
-_Static_assert( CHAR_BIT == 8U, "char bit mismatch");
-static uint8_t liveStatus   [ BUFF_SIZE ] = {0};
-static uint8_t liveMask     [ BUFF_SIZE ] = {0};
 
 /* 8x8 grid for game of life */
 
@@ -49,12 +29,6 @@ uint64_t Life_Coordinate2Bit64( int x, int y);
 
 void Life_Init( void )
 {
-    printf("Num_cells: %d\n", NUM_CELLS);
-    printf("CHAR_BIT: %d\n", CHAR_BIT);
-    printf("X_SIZE: %d\n", X_SIZE);
-    printf("Y_SIZE: %d\n", Y_SIZE);
-    printf("BUFF_SIZE: %d\n", BUFF_SIZE);
-
     d = XOpenDisplay( 0 );
     screen = DefaultScreen( d );
 
@@ -82,34 +56,28 @@ void Life_Click( int x, int y )
     x/=10;
     y/=10;
 
-    uint8_t true_x = ( uint8_t )( x >> 2 );
-    uint8_t true_y = ( uint8_t )( y >> 2 );
+    uint8_t true_x = ( uint8_t )( x >> 3 );
+    uint8_t true_y = ( uint8_t )( y >> 3 );
 
     printf("%d,%d\n", true_x, true_y );
 
-    x = true_x * CELL_SIZE * 10;
-    y = true_y * CELL_SIZE * 10;
+    x = true_x * 8 * 10;
+    y = true_y * 8 * 10;
 
     XSetForeground( d, gc, black );
-    XFillRectangle( d, w, gc, x, y, CELL_SIZE * 10, CELL_SIZE * 10 );
+    XFillRectangle( d, w, gc, x, y, 80, 80 );
 
-    uint16_t bit = ( true_y * NUM_CELLS ) + true_x;
-    printf("bit: %d\n", bit);
+    uint64_t shift_x = 0x1 << true_x;
+    uint64_t shift_y = shift_x << ( true_y * 8 );
 
-    uint8_t transposed_bit = ( 0x1 << ( bit % CHAR_BIT ) );
-    uint16_t idx = bit >> 3;
+    status |= shift_y;
 
-    printf("IDX: %d, bit: %x\n",idx, bit); 
+    uint16_t val = true_x + ( true_y * 8);
 
-    liveStatus[idx] |= transposed_bit;
-
-    /* Transpose data into array */
-    for(int i =0; i < BUFF_SIZE; i++)
-    {
-        printf("live[%d]=0x%x\n", i, liveStatus[i]);
-    }
-
-
+    printf("Val: %d\n", val); 
+    printf("Bit : 0x%" PRIx64 "\n", shift_y);
+    printf("Live: 0x%" PRIx64 "\n", status);
+    
     uint64_t live_mask = Life_CalculateLiveBits( true_x, true_y);
     printf("LiveMask: 0x%" PRIx64 "\n", live_mask );
 }
@@ -287,7 +255,7 @@ uint8_t main( void )
         {
             if( running )
             {
-                //Life_Tick();
+                Life_Tick();
                 usleep(1000 * 250);
             }
         }
