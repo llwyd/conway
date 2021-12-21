@@ -99,6 +99,8 @@ void Life_DetermineSurroundingCells( uint8_t x, uint8_t y )
 
     for( uint8_t idx = 0U; idx < 8; idx++ )
     {
+        cells[idx].x %= LCD_COLUMNS;
+        cells[idx].y %= LCD_ROWS * LCD_PAGES;
         printf("[%d]: %d,%d\n", idx, cells[idx].x, cells[idx].y);
     }
 }
