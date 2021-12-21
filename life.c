@@ -8,10 +8,20 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#define H_RES  ( 640 )
-#define V_RES  ( 640 )
+/* These parameters are for the SSD1306 Display */
+#define LCD_COLUMNS (128 )
+#define LCD_ROWS    ( 8 )
+#define LCD_PAGES   ( 8)
 
-/* 8x8 grid for game of life */
+typedef struct
+{
+    uint8_t x;
+    uint8_t y;
+}
+point_t;
+
+/* Store cell format in same format as LCD display for ease */
+uint8_t cell_status [ LCD_COLUMNS ] [ LCD_PAGES ] = { 0x00 };
 
 static Display * d;
 static int screen;
@@ -35,7 +45,7 @@ void Life_Init( void )
     black = BlackPixel( d, screen );
     white = WhitePixel( d, screen );
 
-    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, H_RES, V_RES, 1, black, white );
+    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, LCD_COLUMNS, LCD_ROWS * LCD_PAGES, 1, black, white );
     XSetStandardProperties( d, w, "game of life", "game of life", None, NULL, 0, NULL );
 
     XSelectInput( d, w , ExposureMask | KeyPressMask | ButtonPressMask );
@@ -48,38 +58,72 @@ void Life_Init( void )
     XFlush( d );
 }
 
+void Life_DetermineSurroundingCells( uint8_t x, uint8_t y )
+{
+    /* Surrounding cells */
+    point_t cells [ 8 ];
+
+    /* N */
+    cells[ 0 ].x = x;
+    cells[ 0 ].y = y - 1U;
+
+    /* NE */
+    cells[ 1 ].x = x + 1U;
+    cells[ 1 ].y = y - 1U;
+    
+    /* E */
+    cells[ 2 ].x = x + 1U;
+    cells[ 2 ].y = y;
+    
+    /* SE */
+    cells[ 3 ].x = x + 1U;
+    cells[ 3 ].y = y + 1U;
+    
+    /* S */
+    cells[ 4 ].x = x;
+    cells[ 4 ].y = y + 1U;
+    
+    /* SW */
+    cells[ 5 ].x = x - 1U;
+    cells[ 5 ].y = y + 1U;
+    
+    /* W */
+    cells[ 6 ].x = x - 1U;
+    cells[ 6 ].y = y;
+    
+    /* NW */
+    cells[ 7 ].x = x - 1U;
+    cells[ 7 ].y = y - 1U;
+
+    printf("Surrounding Cells for %d,%d:\n", x, y);
+
+    for( uint8_t idx = 0U; idx < 8; idx++ )
+    {
+        printf("[%d]: %d,%d\n", idx, cells[idx].x, cells[idx].y);
+    }
+}
+
 void Life_Click( int x, int y )
 {
     printf("Mouse Click\n");
     printf("Clicked at %d, %d\n", x, y );
  
-    x/=10;
-    y/=10;
-
-    uint8_t true_x = ( uint8_t )( x >> 3 );
-    uint8_t true_y = ( uint8_t )( y >> 3 );
-
-    printf("%d,%d\n", true_x, true_y );
-
-    x = true_x * 8 * 10;
-    y = true_y * 8 * 10;
-
-    XSetForeground( d, gc, black );
-    XFillRectangle( d, w, gc, x, y, 80, 80 );
-
-    uint64_t shift_x = 0x1 << true_x;
-    uint64_t shift_y = shift_x << ( true_y * 8 );
-
-    status |= shift_y;
-
-    uint16_t val = true_x + ( true_y * 8);
-
-    printf("Val: %d\n", val); 
-    printf("Bit : 0x%" PRIx64 "\n", shift_y);
-    printf("Live: 0x%" PRIx64 "\n", status);
     
-    uint64_t live_mask = Life_CalculateLiveBits( true_x, true_y);
-    printf("LiveMask: 0x%" PRIx64 "\n", live_mask );
+    XSetForeground( d, gc, black );
+    XFillRectangle( d, w, gc, x, y, 1, 1 );
+   
+    /* Set bit in cell status */
+    uint8_t x_loc = x;
+    uint8_t y_page = y >> 3;
+    uint8_t y_bit   = y % LCD_ROWS;
+
+    cell_status[ x ][ y_page ] = ( 0x1 << y_bit );   
+
+    printf("x_loc: %d\n", x_loc);
+    printf("y_page: %d\n", y_page);
+    printf("y_bit: %d\n", y_bit);
+    
+    Life_DetermineSurroundingCells( x, y );
 }
 
 uint64_t Life_Coordinate2Bit64( int x, int y)
