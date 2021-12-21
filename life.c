@@ -43,6 +43,18 @@ static uint64_t status = 0x0;
 uint64_t Life_CalculateLiveBits( int x, int y );
 uint64_t Life_Coordinate2Bit64( int x, int y);
 
+
+/* (Thanks wikipedia :) ) */
+uint32_t xorshift32( uint32_t x )
+{
+    x ^= x << 13U;
+    x ^= x >> 17U;
+    x ^= x << 5U;
+
+    return x;
+}
+
+
 void Life_Init( void )
 {
     d = XOpenDisplay( 0 );
@@ -65,6 +77,18 @@ void Life_Init( void )
 
     ping = ping_status;
     pong = pong_status;
+
+    uint32_t seed = 0x12345678;
+    uint32_t rnd = xorshift32( seed );
+
+    for( int i = 0; i < LCD_COLUMNS; i++ )
+    {
+        for( int j = 0; j < LCD_PAGES; j++ )
+        {
+            rnd = xorshift32( rnd );
+            ping[i][j] = (uint8_t)rnd;
+        }
+    }
 }
 
 void Life_DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y )
