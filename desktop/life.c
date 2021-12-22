@@ -265,6 +265,8 @@ void Life_Tick( void )
     uint8_t (*temp)[LCD_PAGES] = ping;
     ping = pong;
     pong = temp;
+
+    memset( pong, 0x00, sizeof( pong_status ) );
 }
 
 uint8_t main( void )
