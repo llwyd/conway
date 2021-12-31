@@ -1,6 +1,5 @@
 #include "i2c.h"
 
-
 /* Naff way of doing it but whatever */
 #define RCC_APB1ENR1    ( *((volatile unsigned int *) 0x40021058 ) )
 #define RCC_AHB2ENR     ( *((volatile unsigned int *) 0x4002104C ) )
@@ -16,7 +15,9 @@
 #define I2C_CR2       ( *((volatile unsigned int *) 0x40005404 ) )
 #define I2C_TIMNGR    ( *((volatile unsigned int *) 0x40005410 ) )
 #define I2C_ISR       ( *((volatile unsigned int *) 0x40005418 ) )
+#define I2C_ICR       ( *((volatile unsigned int *) 0x4000541C ) )
 #define I2C_RXDR      ( *((volatile unsigned int *) 0x40005424 ) )
+#define I2C_TXDR      ( *((volatile unsigned int *) 0x40005428 ) )
 
 void I2C_TMP102( void )
 {
@@ -56,10 +57,46 @@ void I2C_TMP102( void )
     }
 }
 
+
+void I2C_Write( unsigned char address, unsigned char * data, unsigned char len )
+{
+    /* Tear down previous settings */
+    I2C_CR2 = 0x00;
+    
+    /* 1. Set addressing mode */
+    I2C_CR2 |= ( 1 << 25 ); 
+    /* 2. Slave address */
+    I2C_CR2 |= ( address << 1 );
+    /* 3. Transfer Direction */
+    I2C_CR2 &= ~( 1 << 10 );
+    /* 4. Number of bytes */
+    I2C_CR2 |= ( len << 16 );
+
+    /* Send start condition */
+    I2C_CR2 |= ( 1 << 13 );
+
+
+    /* Write data */
+    for( unsigned char idx = 0; idx < len; idx++ )
+    {
+        while( ( I2C_ISR & ( 1 << 1 ) ) != ( 1 << 1 ) );
+        I2C_TXDR = data[ idx ];
+    }
+ 
+    /* Wait for stop condition */
+    while( ( I2C_ISR & ( 1 << 5 ) ) != ( 1 << 5 ) );
+
+    /* Clear stop detection flag */
+    I2C_ICR |= ( 1 << 5 );
+    
+}
+
 void I2C_Init( void )
 {
     /* Enable GPIOA */
     RCC_AHB2ENR |= 0x1;
+    
+    I2C_CR1 &= ~0x1;
 
     /* GPIO Config */
     /* Set Alternative Function*/
@@ -81,8 +118,6 @@ void I2C_Init( void )
     /* Enable I2C1 Clock */
     RCC_APB1ENR1 |= ( 0x1 << 21 );
     
-    /* configure I2C CR1 and 2 */
-    //I2C_CR2 |= ( 0x1 << 25U ); /* Automatically send stop bit after n bytes */ 
     /* Rise time */
     I2C_TIMNGR |= ( 0x13 << 0 );
     I2C_TIMNGR |= ( 0xF << 8 );

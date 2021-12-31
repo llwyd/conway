@@ -3,6 +3,7 @@
  * */
 
 #include "i2c.h"
+#include "display.h"
 
 /* Volatile because these are memory registers */
 #define RCC ( *( ( volatile unsigned int *)0x4002104C ) )
@@ -24,11 +25,21 @@ void _sysTick( void )
 {
     *pin ^= pin_num;
     counter++;
+   
+    unsigned char data[2] = {0x40, 0xFF};
+    I2C_Write( 0x3C, data, 2 );
+    for( int i = 0; i < 1023; i++ )
+    {
+        //I2C_Write( 0x3C, &data[1], 1 );
+        I2C_Write( 0x3C, data, 2 );
+    }
 }
 
 int main ( void )
 {
     I2C_Init();
+    Display_Init();
+    
     /* enable port b*/
     RCC |=  0x2; 
     /* set gpio b to output */
@@ -42,13 +53,13 @@ int main ( void )
     /* 500ms blink */
     *stk_load |= 0x1e8480;
     /* turn on interrupt */
-    *stk_ctrl |= 0x7;
-
+    *stk_ctrl |= 0x7;    
+    
     asm("CPSIE IF");
 
     while(1)
     {
-        I2C_TMP102();
+        /* Nowt */
     }
 
     return 0;
