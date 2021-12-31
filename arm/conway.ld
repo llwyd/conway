@@ -30,6 +30,7 @@ SECTIONS
     {
         _sdata = .;
         *(.data*)
+        . = ALIGN(4);
         _edata = .;
     } > RAM AT > ROM
     
@@ -38,6 +39,7 @@ SECTIONS
     { 
         _sbss = .;
         *(.bss*)
+        . = ALIGN(4);
         _ebss = .;
     } > RAM AT > ROM  
 

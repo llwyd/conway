@@ -20,8 +20,8 @@ _reset:
     bl copytoram
 
     /* Clear BSS Region */
-clearbss:
     ldr r1, = _sbss
+clearbss:
     ldr r2, = _ebss
     mov r0, #0x00
     /* Store 0x0 in location held in r1 */

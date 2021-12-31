@@ -18,21 +18,21 @@ static volatile unsigned int * stk_calib    = (unsigned int *)0xE000E01C;
 
 static const unsigned int pin_num = 0x8;
 
-static unsigned int counter = 0U;
+static unsigned char counter = 0U;
 
 __attribute__((section(".fastdata")))
 void _sysTick( void )
 {
     *pin ^= pin_num;
-    counter++;
    
     unsigned char data[2] = {0x40, 0xFF};
-    I2C_Write( 0x3C, data, 2 );
-    for( int i = 0; i < 1023; i++ )
+    data[1] = counter;
+    for( int i = 0; i < 1024; i++ )
     {
-        //I2C_Write( 0x3C, &data[1], 1 );
         I2C_Write( 0x3C, data, 2 );
     }
+    counter <<=1;
+    counter |= 1;
 }
 
 int main ( void )
