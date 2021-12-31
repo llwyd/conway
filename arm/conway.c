@@ -26,18 +26,6 @@ void _sysTick( void )
 {
     *pin ^= pin_num;
    
-    Life_Tick();
-   
-    unsigned char (*buffer)[LCD_PAGES] = Life_GetBuffer();
-    unsigned char data[2] = { 0x40, 0x00};
-    for( int i = 0; i < LCD_PAGES; i++ )
-    {
-        for( int j = 0; j < LCD_COLUMNS; j++ )
-        {
-            data[1] = buffer[j][i];
-            I2C_Write( 0x3C, data, 2 );
-        }
-    }
 }
 
 int main ( void )
@@ -66,6 +54,18 @@ int main ( void )
     while(1)
     {
         /* Nowt */
+    Life_Tick();
+   
+    unsigned char (*buffer)[LCD_PAGES] = Life_GetBuffer();
+    unsigned char data[2] = { 0x40, 0x00};
+    for( int i = 0; i < LCD_PAGES; i++ )
+    {
+        for( int j = 0; j < LCD_COLUMNS; j++ )
+        {
+            data[1] = buffer[j][i];
+            I2C_Write( 0x3C, data, 2 );
+        }
+    }
     }
 
     return 0;
