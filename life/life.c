@@ -57,13 +57,11 @@ void Life_Init( void )
         for( int j = 0; j < LCD_PAGES; j++ )
         {
             rnd = xorshift32( rnd );
-            //ping[i][j] = ( unsigned char )rnd;
-            ping[i][j] = 0x00;
+            ping[i][j] = ( unsigned char )rnd;
             pong[i][j] = 0x00;
         }
     }
 
-    ping[4][4] = 0x7;
 }
 
 static void ClearBuffer( uint8_t (*life_cells)[LCD_PAGES] )
@@ -227,5 +225,4 @@ void Life_Tick( void )
     ping = pong;
     pong = temp;
 
-    ClearBuffer( pong );
 }

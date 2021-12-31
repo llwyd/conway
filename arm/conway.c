@@ -30,11 +30,11 @@ void _sysTick( void )
    
     unsigned char (*buffer)[LCD_PAGES] = Life_GetBuffer();
     unsigned char data[2] = { 0x40, 0x00};
-    for( int i = 0; i < LCD_COLUMNS; i++ )
+    for( int i = 0; i < LCD_PAGES; i++ )
     {
-        for( int j = 0; j < LCD_PAGES; j++ )
+        for( int j = 0; j < LCD_COLUMNS; j++ )
         {
-            data[1] = buffer[i][j];
+            data[1] = buffer[j][i];
             I2C_Write( 0x3C, data, 2 );
         }
     }
