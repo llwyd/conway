@@ -4,6 +4,7 @@
 
 #include "i2c.h"
 #include "display.h"
+#include "life.h"
 
 /* Volatile because these are memory registers */
 #define RCC ( *( ( volatile unsigned int *)0x4002104C ) )
@@ -25,21 +26,26 @@ void _sysTick( void )
 {
     *pin ^= pin_num;
    
-    unsigned char data[2] = {0x40, 0xFF};
-    data[1] = counter;
-    for( int i = 0; i < 1024; i++ )
+    Life_Tick();
+   
+    unsigned char (*buffer)[LCD_PAGES] = Life_GetBuffer();
+    unsigned char data[2] = { 0x40, 0x00};
+    for( int i = 0; i < LCD_COLUMNS; i++ )
     {
-        I2C_Write( 0x3C, data, 2 );
+        for( int j = 0; j < LCD_PAGES; j++ )
+        {
+            data[1] = buffer[i][j];
+            I2C_Write( 0x3C, data, 2 );
+        }
     }
-    counter <<=1;
-    counter |= 1;
 }
 
 int main ( void )
 {
     I2C_Init();
     Display_Init();
-    
+    Life_Init();
+
     /* enable port b*/
     RCC |=  0x2; 
     /* set gpio b to output */

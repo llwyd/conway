@@ -1,10 +1,6 @@
 
 #include "i2c.h"
 
-static unsigned char rowfill[129] = { 0xFF };
-
-static unsigned char lcd_buffer[ 1025 ] = { 0x40, 0xFF };
-
 static void Configure( unsigned char command )
 {
     unsigned char commands[2] = { 0x00, 0x00};

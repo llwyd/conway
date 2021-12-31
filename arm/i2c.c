@@ -19,45 +19,6 @@
 #define I2C_RXDR      ( *((volatile unsigned int *) 0x40005424 ) )
 #define I2C_TXDR      ( *((volatile unsigned int *) 0x40005428 ) )
 
-void I2C_TMP102( void )
-{
-    unsigned char address = 0x48;
-    unsigned char data[2] = {0x00, 0x00};
-    unsigned char num_bytes = 2U;
-
-    /* 1. Set addressing mode */
-    I2C_CR2 |= ( 1 << 25 ); 
-    /* 2. Slave address */
-    I2C_CR2 |= ( address << 1 );
-    /* 3. Transfer Direction */
-    I2C_CR2 |= ( 1 << 10 );
-    /* 4. Number of bytes */
-    I2C_CR2 |= ( num_bytes << 16 );
-
-    /* Send start condition */
-    I2C_CR2 |= ( 1 << 13 );
-
-
-    /* Read data */
-    unsigned char bytes_received = 0;
-    unsigned char idx = 0;
-    while( bytes_received < num_bytes )
-    {
-        if( I2C_ISR & ( 1 << 2 ) )
-        {
-            data[ idx++ ] = I2C_RXDR;
-            bytes_received++;
-        }
-    }
-
-    /* Stop condition */
-    if( I2C_ISR & ( 1 << 6 ) )
-    {
-        I2C_CR1 |= ( 1 << 14 );
-    }
-}
-
-
 void I2C_Write( unsigned char address, unsigned char * data, unsigned char len )
 {
     /* Tear down previous settings */
