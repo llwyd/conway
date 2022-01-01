@@ -80,10 +80,10 @@ void I2C_Init( void )
     RCC_APB1ENR1 |= ( 0x1 << 21 );
     
     /* Rise time */
-    I2C_TIMNGR |= ( 0x13 << 0 );
-    I2C_TIMNGR |= ( 0xF << 8 );
-    I2C_TIMNGR |= ( 0x2 << 16 );
-    I2C_TIMNGR |= ( 0x4 << 20 );
+    I2C_TIMNGR |= ( 0x9 << 0 );
+    I2C_TIMNGR |= ( 0x3 << 8 );
+    I2C_TIMNGR |= ( 0x1 << 16 );
+    I2C_TIMNGR |= ( 0x3 << 20 );
 
     /* Enable */
     I2C_CR1 |= 0x1;
