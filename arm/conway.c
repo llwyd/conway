@@ -17,6 +17,13 @@ static volatile unsigned int * stk_load     = (unsigned int *)0xE000E014;
 static volatile unsigned int * stk_val      = (unsigned int *)0xE000E018;
 static volatile unsigned int * stk_calib    = (unsigned int *)0xE000E01C;
 
+/* RCC Base -> 0x40021000 */
+#define RCC_CR              ( *((volatile unsigned int *) 0x40021000 ) )
+#define RCC_CFGR            ( *((volatile unsigned int *) 0x40021008 ) )
+#define RCC_PLLCFGR         ( *((volatile unsigned int *) 0x4002100C ) )
+#define RCC_PLLSAI1         ( *((volatile unsigned int *) 0x40021010 ) )
+
+
 static const unsigned int pin_num = 0x8;
 
 static unsigned char counter = 0U;
@@ -28,8 +35,26 @@ void _sysTick( void )
    
 }
 
+void ConfigureClocks( void )
+{
+    RCC_PLLCFGR |= ( 1 << 24 );
+    
+    RCC_PLLSAI1 |= ( 1 << 24 );
+    
+    RCC_PLLCFGR |= ( 1 << 16 );
+    RCC_PLLCFGR |= ( 1 << 0 );
+
+    RCC_CR |= ( 1 << 24 );
+    RCC_CR |= ( 1 << 26 );
+
+    RCC_CFGR |= 0x3;
+
+}
+
 int main ( void )
 {
+    ConfigureClocks();
+
     I2C_Init();
     Display_Init();
     Life_Init();
