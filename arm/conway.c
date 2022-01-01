@@ -70,7 +70,7 @@ int main ( void )
     *stk_calib |= 0x100270F;
 
     /* 500ms blink */
-    *stk_load |= 0x1e8480;
+    *stk_load |= 0x1e8480 << 3;
     /* turn on interrupt */
     *stk_ctrl |= 0x7;    
     
