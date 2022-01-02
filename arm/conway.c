@@ -51,6 +51,20 @@ void ConfigureClocks( void )
 
 }
 
+void UpdateDisplay ( void )
+{
+    unsigned char (*buffer)[LCD_PAGES] = Life_GetBuffer();
+    unsigned char data[2] = { 0x40, 0x00};
+    for( int i = 0; i < LCD_PAGES; i++ )
+    {
+        for( int j = 0; j < LCD_COLUMNS; j++ )
+        {
+            data[1] = buffer[j][i];
+            I2C_Write( 0x3C, data, 2 );
+        }
+    }
+}
+
 int main ( void )
 {
     ConfigureClocks();
@@ -58,6 +72,7 @@ int main ( void )
     I2C_Init();
     Display_Init();
     Life_Init();
+    UpdateDisplay();
 
     /* enable port b*/
     RCC |=  0x2; 
@@ -79,18 +94,8 @@ int main ( void )
     while(1)
     {
         /* Nowt */
-    Life_Tick();
-   
-    unsigned char (*buffer)[LCD_PAGES] = Life_GetBuffer();
-    unsigned char data[2] = { 0x40, 0x00};
-    for( int i = 0; i < LCD_PAGES; i++ )
-    {
-        for( int j = 0; j < LCD_COLUMNS; j++ )
-        {
-            data[1] = buffer[j][i];
-            I2C_Write( 0x3C, data, 2 );
-        }
-    }
+        Life_Tick();
+        UpdateDisplay();
     }
 
     return 0;
