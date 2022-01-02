@@ -19,7 +19,7 @@
     .word 0x0           /* 0x34 Reserved */
     .word _pEndSV       /* 0x38 Pendable request for system service */
     .word _sysTick      /* 0x3C SysTick timer */
-
+    .string "Conway's Game of Life"
 .text
 .weak _reset
 .thumb_set _reset, dead
