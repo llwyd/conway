@@ -23,7 +23,7 @@ static unsigned char (*pong)[LCD_PAGES];
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
 static bool DetermineFate( bool alive, uint8_t num_alive );
-static void Set( uint8_t (*life_cells)[LCD_PAGES], bool alive, point_t current_pos );
+static void Set( uint8_t (*life_cells)[LCD_PAGES], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
 static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_PAGES], point_t * surrounding_cells );
 static void ClearBuffer( uint8_t (*life_cells)[LCD_PAGES] );
 
@@ -151,12 +151,8 @@ static bool DetermineFate( bool alive, uint8_t num_alive )
    return fate; 
 }
 
-static void Set( uint8_t (*life_cells)[LCD_PAGES], bool alive, point_t current_pos )
+static void Set( uint8_t (*life_cells)[LCD_PAGES], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit )
 {    
-    uint8_t x_loc   = current_pos.x;
-    uint8_t y_page  = current_pos.y >> 3;
-    uint8_t y_bit   = current_pos.y % LCD_ROWS;
-    
     uint8_t bitmap  = ( 1U << y_bit );
 
     if( alive )
@@ -215,7 +211,7 @@ void Life_Tick( void )
                 uint8_t num_alive = CountLiveSurroundingCells( ping, cells );
                 bool fate = DetermineFate( alive, num_alive );
 
-                Set( pong, fate, current_pos );
+                Set( pong, fate, i, j, k );
             }    
         } 
     }
