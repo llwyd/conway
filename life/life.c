@@ -25,8 +25,6 @@ static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
 static bool DetermineFate( bool alive, uint8_t num_alive );
 static void Set( uint8_t (*life_cells)[LCD_PAGES], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
 static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_PAGES], point_t * surrounding_cells );
-static void ClearBuffer( uint8_t (*life_cells)[LCD_PAGES] );
-
 
 unsigned char (*Life_GetBuffer( void ))[LCD_PAGES]
 {

@@ -14,7 +14,6 @@ static volatile unsigned int * pin      = (unsigned int *)0x48000414;
 /* Systick registers */
 static volatile unsigned int * stk_ctrl     = (unsigned int *)0xE000E010;
 static volatile unsigned int * stk_load     = (unsigned int *)0xE000E014;
-static volatile unsigned int * stk_val      = (unsigned int *)0xE000E018;
 static volatile unsigned int * stk_calib    = (unsigned int *)0xE000E01C;
 
 /* RCC Base -> 0x40021000 */
@@ -25,8 +24,6 @@ static volatile unsigned int * stk_calib    = (unsigned int *)0xE000E01C;
 
 
 static const unsigned int pin_num = 0x8;
-
-static unsigned char counter = 0U;
 
 __attribute__((section(".fastdata")))
 void _sysTick( void )
