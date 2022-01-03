@@ -64,16 +64,6 @@ void Life_Init( void )
 
 }
 
-static void ClearBuffer( uint8_t (*life_cells)[LCD_PAGES] )
-{
-    for( int i = 0; i < LCD_COLUMNS; i++ )
-    {
-        for( int j = 0; j < LCD_PAGES; j++ )
-        {
-            life_cells[i][j] = 0x00;
-        }
-    }
-}
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y )
 {
