@@ -29,6 +29,8 @@ __attribute__((section(".fastdata")))
 void _sysTick( void )
 {
     *pin ^= pin_num;
+     Life_Tick();
+     UpdateDisplay();
    
 }
 
@@ -84,7 +86,7 @@ int main ( void )
     *stk_calib |= 0x100270F;
 
     /* 500ms blink */
-    *stk_load |= 0x1e8480 << 3;
+    *stk_load |= 0x1e8480;
     /* turn on interrupt */
     *stk_ctrl |= 0x7;    
     
@@ -93,8 +95,6 @@ int main ( void )
     while(1)
     {
         /* Nowt */
-        Life_Tick();
-        UpdateDisplay();
     }
 
     return 0;
