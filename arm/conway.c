@@ -49,6 +49,7 @@ void ConfigureClocks( void )
     while( ( RCC_CR & ( 1 << 27 ) ) != ( 1 << 27 ));
 
     RCC_CFGR |= 0x3;
+    while( ( RCC_CFGR & ( 0x3 << 2 ) ) != ( 0x3 << 2 ));
 
 }
 
