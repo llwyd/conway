@@ -65,13 +65,6 @@ void Life_Init( void )
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y )
 {
-
-    for( uint8_t idx = 0; idx < 8U; idx++ )
-    {
-        cells[ idx ].x = 0x00;
-        cells[ idx ].y = 0x00;
-    }
-
     /* N */
     cells[ 0 ].x = x;
     cells[ 0 ].y = y - 1U;
