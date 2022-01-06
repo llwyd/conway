@@ -14,7 +14,7 @@ display.o: display.c
 life.o: ../life/life.c
 	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -lgcc -mcpu=cortex-m4 -mthumb -c ../life/life.c -o life.o -ffreestanding
 i2c.o: i2c.c
-	arm-none-eabi-gcc -Wall  -g -nostartfiles -mcpu=cortex-m4 -mthumb -c i2c.c -o i2c.o
+	arm-none-eabi-gcc -O3 -Wall  -g -nostartfiles -mcpu=cortex-m4 -mthumb -c i2c.c -o i2c.o
 clean:
 	rm startup.o conway.elf conway.bin conway.o conway.map vectors.o i2c.o display.o life.o
 debug:
