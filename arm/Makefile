@@ -12,7 +12,7 @@ conway.o: conway.c
 display.o: display.c
 	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c display.c -o display.o
 life.o: ../life/life.c
-	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -lgcc -mcpu=cortex-m4 -mthumb -c ../life/life.c -o life.o
+	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -lgcc -mcpu=cortex-m4 -mthumb -c ../life/life.c -o life.o -ffreestanding
 i2c.o: i2c.c
 	arm-none-eabi-gcc -Wall  -g -nostartfiles -mcpu=cortex-m4 -mthumb -c i2c.c -o i2c.o
 clean:
