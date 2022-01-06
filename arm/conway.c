@@ -7,14 +7,14 @@
 #include "life.h"
 
 /* Volatile because these are memory registers */
-#define RCC ( *( ( volatile unsigned int *)0x4002104C ) )
-static volatile unsigned int * gpio_b   = (unsigned int *)0x48000400;
-static volatile unsigned int * pin      = (unsigned int *)0x48000414;
+#define RCC     ( *( ( volatile unsigned int *)0x4002104C ) )
+#define GPIO_B  ( *( ( volatile unsigned int *)0x48000400 ) )
+#define PIN     ( *( ( volatile unsigned int *)0x48000414 ) )
 
 /* Systick registers */
-static volatile unsigned int * stk_ctrl     = (unsigned int *)0xE000E010;
-static volatile unsigned int * stk_load     = (unsigned int *)0xE000E014;
-static volatile unsigned int * stk_calib    = (unsigned int *)0xE000E01C;
+#define STK_CTRL     ( *( ( volatile unsigned int *)0xE000E010 ) )
+#define STK_LOAD     ( *( ( volatile unsigned int *)0xE000E014 ) )
+#define STK_CALIB    ( *( ( volatile unsigned int *)0xE000E01C ) )
 
 /* RCC Base -> 0x40021000 */
 #define RCC_CR              ( *((volatile unsigned int *) 0x40021000 ) )
@@ -22,13 +22,14 @@ static volatile unsigned int * stk_calib    = (unsigned int *)0xE000E01C;
 #define RCC_PLLCFGR         ( *((volatile unsigned int *) 0x4002100C ) )
 #define RCC_PLLSAI1         ( *((volatile unsigned int *) 0x40021010 ) )
 
+#define LED_PIN ( 0x8 )
 
-static const unsigned int pin_num = 0x8;
+void UpdateDisplay ( void );
 
 __attribute__((section(".fastdata")))
 void _sysTick( void )
 {
-    *pin ^= pin_num;
+     PIN ^= LED_PIN;
      Life_Tick();
      UpdateDisplay(); 
 }
@@ -78,17 +79,17 @@ int main ( void )
     /* enable port b*/
     RCC |=  0x2; 
     /* set gpio b to output */
-    *gpio_b &= 0xFFFFFF3F;
-    *gpio_b |= 0x40;
+    GPIO_B &= 0xFFFFFF3F;
+    GPIO_B |= 0x40;
 
     /* Configure systick */
     /* Calibration Value from datasheet */
-    *stk_calib |= 0x100270F;
+    STK_CALIB |= 0x100270F;
 
     /* 500ms blink */
-    *stk_load |= 0x1e8480;
+    STK_LOAD |= 0x1e8480;
     /* turn on interrupt */
-    *stk_ctrl |= 0x7;    
+    STK_CTRL |= 0x7;    
     
     asm("CPSIE IF");
 
