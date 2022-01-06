@@ -12,13 +12,19 @@ _reset:
 
     ldr r1, = _sfastdata
     ldr r2, = _efastdata
+    cmp r1, r2
+    beq copiedfastdata
     bl copytoram
 
+copiedfastdata:
     /* Copy Data values from ROM -> SRAM */
     ldr r1, = _sdata
     ldr r2, = _edata
+    cmp r1, r2
+    beq copieddata
     bl copytoram
 
+copieddata:
     /* Clear BSS Region */
     ldr r1, = _sbss
 clearbss:

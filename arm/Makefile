@@ -19,6 +19,8 @@ clean:
 	rm startup.o conway.elf conway.bin conway.o conway.map vectors.o i2c.o display.o life.o
 debug:
 	openocd -f /usr/share/openocd/scripts/interface/stlink-v2-1.cfg -f /usr/share/openocd/scripts/target/stm32l4x.cfg
+flash:
+	openocd -f /usr/share/openocd/scripts/interface/stlink-v2-1.cfg -f /usr/share/openocd/scripts/target/stm32l4x.cfg -c "program conway.bin exit 0x08000000 verify reset"
 gdb:
 	arm-none-eabi-gdb -ex "target remote localhost:3333" conway.elf
 ezflash:

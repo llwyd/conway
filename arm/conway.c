@@ -30,8 +30,7 @@ void _sysTick( void )
 {
     *pin ^= pin_num;
      Life_Tick();
-     UpdateDisplay();
-   
+     UpdateDisplay(); 
 }
 
 void ConfigureClocks( void )
