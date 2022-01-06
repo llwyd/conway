@@ -8,7 +8,7 @@ startup.o: startup.s
 vectors.o: vectors.s
 	arm-none-eabi-as -g -mcpu=cortex-m4 -mthumb  vectors.s -o vectors.o
 conway.o: conway.c
-	arm-none-eabi-gcc  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -I../life -mthumb -c conway.c -o conway.o
+	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -I../life -mthumb -c conway.c -o conway.o
 display.o: display.c
 	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c display.c -o display.o
 life.o: ../life/life.c
