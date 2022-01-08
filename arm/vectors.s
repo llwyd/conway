@@ -19,7 +19,16 @@
     .word 0x0           /* 0x34 Reserved */
     .word _pEndSV       /* 0x38 Pendable request for system service */
     .word _sysTick      /* 0x3C SysTick timer */
-    .string "Conway's Game of Life"
+    
+    .word 0x0           /* 0x40 WWDG */
+    .word 0x0           /* 0x44 PVD */
+    .word 0x0           /* 0x48 RTC */
+    .word 0x0           /* 0x4C RTC */
+    .word 0x0           /* 0x50 FLASH */
+    .word 0x0           /* 0x54 RCC */
+
+    .word _exti0        /* 0x58 EXTI0*/
+
 .text
 .weak _reset
 .thumb_set _reset, dead
@@ -50,6 +59,9 @@
 
 .weak _sysTick
 .thumb_set _sysTick, dead
+
+.weak _exti0
+.thumb_set _exti0, dead
 
 .thumb_func
 dead:

@@ -23,6 +23,27 @@
 #define RCC_PLLCFGR         ( *((volatile unsigned int *) 0x4002100C ) )
 #define RCC_PLLSAI1         ( *((volatile unsigned int *) 0x40021010 ) )
 
+/* Base address for GPIOA is 0x48000000 */
+#define GPIOA_MODER     ( *((volatile unsigned int *) 0x48000000 ) )
+#define GPIOA_OTYPER    ( *((volatile unsigned int *) 0x48000004 ) )
+#define GPIOA_SPEEDER   ( *((volatile unsigned int *) 0x48000008 ) )
+#define GPIOA_PUPDR     ( *((volatile unsigned int *) 0x4800000C ) )
+#define GPIOA_AFR       ( *((volatile unsigned int *) 0x48000024 ) )
+
+/* SYSCFG / EXTI */
+/* SYSCFG base  -> 0x40010000 */
+/* EXTI base    -> 0x40010400 */
+#define SYSCFG_EXTICR1  ( *((volatile unsigned int *) 0x40010008 ) )
+#define EXTI_IMR        ( *((volatile unsigned int *) 0x40010400 ) )
+#define EXTI_EMR        ( *((volatile unsigned int *) 0x40010404 ) )
+#define EXTI_RTSR       ( *((volatile unsigned int *) 0x40010408 ) )
+#define EXTI_FTSR       ( *((volatile unsigned int *) 0x4001040C ) )
+#define EXTI_PR         ( *((volatile unsigned int *) 0x40010414 ) )
+
+/* NVIC base    -> 0xE000E100 */
+#define NVIC_ISER0      ( *((volatile unsigned int *) 0xE000E100 ) )
+#define NVIC_ICPR0      ( *((volatile unsigned int *) 0xE000E280 ) )
+
 #define LED_PIN ( 0x8 )
 
 void UpdateDisplay ( void );
@@ -30,7 +51,7 @@ void UpdateDisplay ( void );
 __attribute__((section(".fastdata")))
 void _sysTick( void )
 {
-    PIN ^= LED_PIN;
+    //PIN ^= LED_PIN;
     Task_Add( &Life_Tick );
     Task_Add( &UpdateDisplay );
 }
@@ -68,12 +89,46 @@ void UpdateDisplay ( void )
     }
 }
 
+void _exti0( void )
+{
+    /* Acknowledge interrupt */
+    NVIC_ICPR0 |= ( 0x1 << 6 );
+    EXTI_PR |= ( 0x1 );
+
+    /* Led for debugging */
+    PIN ^= LED_PIN;
+}
+
+void ConfigureInputSwitch( void )
+{
+    /* PA0 for switch input */
+
+    /* GPIOA RCC Already set by I2C Init() */
+
+    /* Set input mode */
+    GPIOA_MODER &= ~( 0x3 );
+
+    /* Set Pull up */
+    GPIOA_PUPDR |= 0x1;
+
+    /* SYSCFG default is correct */    
+
+    /* Configure EXTI 0 */
+    EXTI_IMR    |= 0x1;
+    EXTI_FTSR   |= 0x1;
+
+    /* Enable in NVIC */
+    NVIC_ISER0  |= ( 0x1 << 6 );
+}
+
 int main ( void )
 {
     ConfigureClocks();
 
     I2C_Init();
     Display_Init();
+    ConfigureInputSwitch();
+    
     Life_Init();
     UpdateDisplay();
 
