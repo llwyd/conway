@@ -28,7 +28,7 @@ void Task_Add( void ( *fn)( void ) )
     {
         task.fn[task.write_index++] = fn;
         task.fill++;
-        task.fill %= BUFFER_SIZE;
+        task.write_index %= BUFFER_SIZE;
     } 
  
     /* Exit critical Section */
@@ -44,6 +44,7 @@ void Task_Get( void )
     {
         task.fn[task.read_index++]();
         task.fill--;
+        task.read_index %= BUFFER_SIZE;
     } 
  
     /* Exit critical Section */
