@@ -5,6 +5,7 @@
 #include "i2c.h"
 #include "display.h"
 #include "life.h"
+#include "buffer.h"
 
 /* Volatile because these are memory registers */
 #define RCC     ( *( ( volatile unsigned int *)0x4002104C ) )
@@ -29,9 +30,9 @@ void UpdateDisplay ( void );
 __attribute__((section(".fastdata")))
 void _sysTick( void )
 {
-     PIN ^= LED_PIN;
-     Life_Tick();
-     UpdateDisplay(); 
+    PIN ^= LED_PIN;
+    Task_Add( &Life_Tick );
+    Task_Add( &UpdateDisplay );
 }
 
 void ConfigureClocks( void )
@@ -96,6 +97,7 @@ int main ( void )
     while(1)
     {
         /* Nowt */
+        Task_Get();
     }
 
     return 0;
