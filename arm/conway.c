@@ -97,6 +97,9 @@ void _exti0( void )
 
     /* Led for debugging */
     PIN ^= LED_PIN;
+    
+    Task_Add( &Life_Init );
+    Task_Add( &UpdateDisplay );
 }
 
 void ConfigureInputSwitch( void )

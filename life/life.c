@@ -46,8 +46,8 @@ void Life_Init( void )
 {
     ping = ping_status;
     pong = pong_status;
+    static unsigned int seed = 0x12345678;    
     
-    unsigned int seed = 0x12345678;
     unsigned int rnd = xorshift32( seed );
 
     for( int i = 0; i < LCD_PAGES; i++ )
@@ -59,7 +59,7 @@ void Life_Init( void )
             pong[i][j] = 0x00;
         }
     }
-
+    seed = rnd;
 }
 
 
