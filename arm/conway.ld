@@ -25,14 +25,14 @@ SECTIONS
         _efastdata = .;
     } > RAM2 AT > ROM
 
-    . = ORIGIN(RAM);
+    . = ORIGIN(RAM2);
     .data :
     {
         _sdata = .;
         *(.data*)
         . = ALIGN(4);
         _edata = .;
-    } > RAM AT > ROM
+    } > RAM2 AT > ROM
     
     . = ALIGN(4);
     .bss :
@@ -41,7 +41,7 @@ SECTIONS
         *(.bss*)
         . = ALIGN(4);
         _ebss = .;
-    } > RAM AT > ROM  
+    } > RAM2 AT > ROM  
 
     . = ALIGN(4);
     .stack :
@@ -49,5 +49,5 @@ SECTIONS
         . += STACK_SIZE;
         . = ALIGN(4);
         _estack = .;
-    } > RAM
+    } > RAM2
 }

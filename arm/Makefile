@@ -8,15 +8,15 @@ startup.o: startup.s
 vectors.o: vectors.s
 	arm-none-eabi-as -g -mcpu=cortex-m4 -mthumb  vectors.s -o vectors.o
 conway.o: conway.c
-	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -I../life -mthumb -c conway.c -o conway.o
+	arm-none-eabi-gcc -O3  -Wall -g -nostdlib -nostartfiles -mcpu=cortex-m4 -I../life -mthumb -c conway.c -o conway.o
 buffer.o: buffer.c
-	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c buffer.c -o buffer.o
+	arm-none-eabi-gcc -O3  -Wall -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c buffer.c -o buffer.o
 display.o: display.c
-	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c display.c -o display.o
+	arm-none-eabi-gcc -O3  -Wall -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c display.c -o display.o
 life.o: ../life/life.c
-	arm-none-eabi-gcc -O3  -Wall  -g -nostdlib -nostartfiles -lgcc -mcpu=cortex-m4 -mthumb -c ../life/life.c -o life.o -ffreestanding
+	arm-none-eabi-gcc -O3  -Wall -g -nostdlib -nostartfiles -lgcc -mcpu=cortex-m4 -mthumb -c ../life/life.c -o life.o -ffreestanding
 i2c.o: i2c.c
-	arm-none-eabi-gcc -O3 -Wall  -g -nostartfiles -mcpu=cortex-m4 -mthumb -c i2c.c -o i2c.o
+	arm-none-eabi-gcc -O3 -Wall  -g -nostdlib -nostartfiles -mcpu=cortex-m4 -mthumb -c i2c.c -o i2c.o
 clean:
 	rm startup.o conway.elf conway.bin conway.o conway.map vectors.o i2c.o display.o life.o buffer.o
 debug:
