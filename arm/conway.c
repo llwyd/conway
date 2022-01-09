@@ -48,12 +48,23 @@
 
 void UpdateDisplay ( void );
 
+void TickAndUpdate( void )
+{
+    Life_Tick();
+    UpdateDisplay();
+}
+
+void SeedAndUpdate( void )
+{
+    Life_Init();
+    UpdateDisplay();
+}
+
 __attribute__((section(".fastdata")))
 void _sysTick( void )
 {
     //PIN ^= LED_PIN;
-    Task_Add( &Life_Tick );
-    Task_Add( &UpdateDisplay );
+    Task_Add( &TickAndUpdate );
 }
 
 void ConfigureClocks( void )
@@ -98,8 +109,7 @@ void _exti0( void )
     /* Led for debugging */
     PIN ^= LED_PIN;
     
-    Task_Add( &Life_Init );
-    Task_Add( &UpdateDisplay );
+    Task_Add( &SeedAndUpdate );
 }
 
 void ConfigureInputSwitch( void )
@@ -145,7 +155,6 @@ int main ( void )
     /* Calibration Value from datasheet */
     STK_CALIB |= 0x100270F;
 
-    /* 500ms blink */
     STK_LOAD |= 0x1e8480;
     /* turn on interrupt */
     STK_CTRL |= 0x7;    
