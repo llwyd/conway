@@ -77,7 +77,7 @@ int main( void )
     bool running = false;
     
     Init();
-    Life_Init();
+    Life_Init( &UpdateDisplay );
     XNextEvent( d, &e );
 
 
@@ -112,7 +112,6 @@ int main( void )
             if( running )
             {
                 Life_Tick();
-                UpdateDisplay();
                 usleep(1000 * 250);
             }
         }

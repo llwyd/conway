@@ -7,7 +7,7 @@
 #define LCD_PAGES ( 8 )
 #define LCD_FULL_ROWS ( LCD_ROWS * LCD_PAGES )
 
-void Life_Init( void );
+void Life_Init( void ( *fn)( void ) );
 void Life_Tick( void );
 unsigned char (*Life_GetBuffer( void ))[LCD_COLUMNS];
 

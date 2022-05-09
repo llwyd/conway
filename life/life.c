@@ -21,6 +21,8 @@ static unsigned char pong_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
 static unsigned char (*ping)[LCD_COLUMNS];
 static unsigned char (*pong)[LCD_COLUMNS];
 
+void ( *update_fn )( void );
+
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
 static bool DetermineFate( bool alive, uint8_t num_alive );
 static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
@@ -42,7 +44,7 @@ static unsigned int xorshift32( unsigned int x )
 }
 
 
-void Life_Init( void )
+void Life_Init( void ( *fn)( void ) )
 {
     ping = ping_status;
     pong = pong_status;
@@ -60,6 +62,7 @@ void Life_Init( void )
         }
     }
     seed = rnd;
+    update_fn = fn;
 }
 
 
@@ -202,4 +205,5 @@ void Life_Tick( void )
     ping = pong;
     pong = temp;
 
+    update_fn();
 }
