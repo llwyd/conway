@@ -99,8 +99,8 @@ static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y )
 
     for( uint8_t idx = 0U; idx < 8; idx++ )
     {
-        cells[idx].x %= LCD_COLUMNS;
-        cells[idx].y %= LCD_ROWS * LCD_PAGES;
+        cells[idx].x = ( cells[idx].x & ( LCD_COLUMNS - 1U ) );
+        cells[idx].y = ( cells[idx].y & ( LCD_FULL_ROWS - 1U ) );
     }
 }
 
@@ -153,7 +153,7 @@ static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], po
     {
         uint8_t x_loc   = surrounding_cells[idx].x;
         uint8_t y_page  = surrounding_cells[idx].y >> 3;
-        uint8_t y_bit   = surrounding_cells[idx].y % LCD_ROWS;
+        uint8_t y_bit   = surrounding_cells[idx].y & ( LCD_ROWS - 1U );
 
         uint8_t value = life_cells[y_page][x_loc];
         bool alive = (bool) ( (value >> y_bit) & 1U );
