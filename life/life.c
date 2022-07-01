@@ -27,7 +27,7 @@ static uint8_t hash_table[ 256 ] =
 { 48, 242, 205, 49, 117, 39, 135, 200, 183, 15, 158, 175, 4, 192, 40, 199, 181, 77, 188, 70, 121, 119, 63, 73, 120, 216, 246, 69, 189, 11, 185, 85, 6, 93, 114, 232, 108, 5, 197, 196, 221, 132, 250, 148, 241, 195, 90, 36, 155, 176, 43, 252, 100, 227, 18, 88, 209, 208, 89, 35, 84, 37, 224, 16, 10, 194, 190, 22, 219, 55, 23, 177, 29, 154, 27, 106, 101, 13, 125, 92, 228, 152, 141, 30, 217, 237, 236, 31, 124, 239, 56, 145, 129, 33, 169, 161, 163, 184, 0, 180, 223, 47, 75, 3, 113, 62, 86, 142, 240, 134, 50, 249, 53, 20, 187, 248, 247, 66, 233, 254, 171, 131, 128, 52, 74, 9, 234, 72, 133, 67, 212, 127, 156, 7, 99, 61, 137, 206, 21, 34, 179, 57, 111, 26, 19, 231, 204, 1, 54, 98, 210, 110, 182, 193, 118, 17, 138, 165, 79, 112, 170, 139, 251, 2, 12, 122, 115, 28, 83, 203, 42, 214, 105, 167, 60, 178, 146, 225, 46, 64, 140, 174, 172, 143, 230, 32, 150, 160, 126, 220, 78, 116, 68, 213, 94, 229, 95, 147, 153, 104, 149, 162, 109, 201, 80, 51, 41, 136, 226, 144, 8, 96, 244, 235, 186, 218, 151, 243, 76, 103, 59, 198, 91, 87, 65, 24, 107, 157, 202, 102, 166, 82, 25, 123, 130, 81, 44, 238, 173, 58, 253, 255, 71, 168, 97, 164, 215, 159, 245, 191, 45, 38, 222, 14, 211, 207} ;
 
 
-#define HASH_BUFFER_SIZE ( 32U )
+#define HASH_BUFFER_SIZE ( 8U )
 static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
@@ -56,6 +56,27 @@ static uint8_t UpdateHash( uint8_t current_hash, uint8_t value )
     return hash_table[index];
 }
 
+bool CheckForCycle( void )
+{
+    uint8_t * slow = &hash_buffer[0];
+    uint8_t * fast = &hash_buffer[2];
+    bool match = false;
+
+    for( int i = 2; i < HASH_BUFFER_SIZE; i+=2 )
+    {
+        if( *slow == *fast )
+        {
+            match = true;
+            break;
+        }
+        slow++;
+        fast++;
+        fast++;
+    }
+
+   return match; 
+}
+
 void Life_Init( void ( *fn)( void ) )
 {
     ping = ping_status;
@@ -77,7 +98,7 @@ void Life_Init( void ( *fn)( void ) )
     for( int i = 0; i < HASH_BUFFER_SIZE; i++ )
     {
         rnd = xorshift32( rnd );
-        hash_buffer[i] = ( uint8_t ) rnd;
+        hash_buffer[i] = (uint8_t)rnd;
     }
 
     seed = rnd;
@@ -232,4 +253,9 @@ void Life_Tick( void )
     pong = temp;
 
     update_fn();
+
+    if( CheckForCycle() )
+    {
+        Life_Init( update_fn );
+    }
 }
