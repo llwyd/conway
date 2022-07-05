@@ -43,8 +43,7 @@ static unsigned int xorshift32( unsigned int x )
     return x;
 }
 
-
-void Life_Init( void ( *fn)( void ) )
+void Life_Seed( void )
 {
     ping = ping_status;
     pong = pong_status;
@@ -62,7 +61,13 @@ void Life_Init( void ( *fn)( void ) )
         }
     }
     seed = rnd;
+}
+
+void Life_Init( void ( *fn)( void ) )
+{
+    Life_Seed();
     update_fn = fn;
+    update_fn();
 }
 
 

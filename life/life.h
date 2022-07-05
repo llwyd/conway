@@ -9,6 +9,7 @@
 
 void Life_Init( void ( *fn)( void ) );
 void Life_Tick( void );
+void Life_Seed( void );
 unsigned char (*Life_GetBuffer( void ))[LCD_COLUMNS];
 
 #endif /* _LIFE_H_ */
