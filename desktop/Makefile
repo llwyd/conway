@@ -1,8 +1,8 @@
 conway: life.o conway.o
 	gcc -lX11 life.o conway.o -o conway
 conway.o: conway.c
-	gcc -O3  -Wall -g -lX11 -I../life -c conway.c -o conway.o
+	gcc -O0  -Wall -g -lX11 -I../life -c conway.c -o conway.o
 life.o: ../life/life.c
-	gcc -O3  -Wall -g -c ../life/life.c -o life.o
+	gcc -O0  -Wall -g -c ../life/life.c -o life.o
 clean:
 	rm conway.o life.o conway
