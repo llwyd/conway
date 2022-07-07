@@ -112,7 +112,7 @@ int main( void )
             if( running )
             {
                 Life_Tick();
-                usleep(1000 * 250);
+                usleep(1000 * 50);
             }
         }
 
