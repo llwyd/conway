@@ -106,10 +106,7 @@ bool CheckForCycle( void )
 
             if( thirdMatch )
             {
-                if( lam <= 2 )
-                {
-                    cycleDetected = true;
-                }
+                cycleDetected = true;
             }
         }
     }
