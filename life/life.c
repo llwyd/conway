@@ -28,6 +28,9 @@ static uint8_t hash_table[ 256 ] =
 #define CONSECUTIVE_CYCLES ( 64U )
 #define HASH_BUFFER_SIZE ( 16U )
 static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
+static uint8_t hash_counter = 0;
+
+static unsigned int original_seed;
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
 static bool DetermineFate( bool alive, uint8_t num_alive );
@@ -68,44 +71,72 @@ bool CheckForCycle( void )
     static uint8_t cycleDetectedCount = 0U;
 
     /* Tortoise and Hare algorithm to detect cycle */
-    uint8_t tort = 1U;
-    uint8_t hare = 2U;
+    uint8_t tort = hash_counter + 1;
+    uint8_t hare = tort + 1;
+
+    tort = tort & ( HASH_BUFFER_SIZE - 1U );
+    hare = hare & ( HASH_BUFFER_SIZE - 1U );
+
     uint8_t mu = 0U;
     uint8_t lam = 1;
 
+    uint8_t firstCount = 0;
+
     /* 1. Tortoise moves single step, hare moves double step */
-    for( tort = 1, hare = 2; hare < HASH_BUFFER_SIZE; tort++, hare+=2 )
+    for( int idx = 2; idx < HASH_BUFFER_SIZE; idx+=2 )
     {
         if( hash_buffer[tort] == hash_buffer[hare] )
         {
             firstMatch = true;
+            firstCount = idx;
             break;
         }
+
+        tort++;
+        hare+=2;
+        
+        tort = tort & ( HASH_BUFFER_SIZE - 1U );
+        hare = hare & ( HASH_BUFFER_SIZE - 1U );
     }
 
     if( firstMatch )
     {
         /* 2. Move Tortoise back to start and move both single step */
-        for( tort = 0; hare < HASH_BUFFER_SIZE; tort++, hare++ )
+        tort = hash_counter;
+        for( int idx = firstCount; idx < HASH_BUFFER_SIZE; idx++ )
         {
             if( hash_buffer[tort] == hash_buffer[hare] )
             {
                 secondMatch = true;
                 break;
             }
+
+            tort++;
+            hare++;
+        
+            tort = tort & ( HASH_BUFFER_SIZE - 1U );
+            hare = hare & ( HASH_BUFFER_SIZE - 1U );
+
             mu++;
         }
   
         if( secondMatch )
         {
             /* 3. Move Hare to tortoise, single step hare */
-            for( hare = ( tort + 1 ); hare < HASH_BUFFER_SIZE; hare++ )
+
+            hare = tort + 1;
+            hare = hare & ( HASH_BUFFER_SIZE - 1U );
+
+            for( int idx = 0; idx < HASH_BUFFER_SIZE; idx++ )
             {
                 if( hash_buffer[tort] == hash_buffer[hare] )
                 {
                     thirdMatch = true;
                     break;
                 }
+                hare++;
+                hare = hare & ( HASH_BUFFER_SIZE - 1U );
+
                 lam++;
             }
 
@@ -138,8 +169,11 @@ void Life_Seed( void )
 {
     ping = ping_status;
     pong = pong_status;
-    static unsigned int seed = 0x12345678;    
-    
+    static unsigned int seed = 0x12345678;   
+
+    /* This is to diagnose and reproduce bugs :) */
+    original_seed = seed;
+
     unsigned int rnd = xorshift32( seed );
 
     for( int i = 0; i < LCD_PAGES; i++ )
@@ -276,7 +310,6 @@ void Life_Tick( void )
     /* Surrounding cells */
     point_t cells [ 8 ];
 
-    static uint8_t hash_counter = 0;
     uint8_t current_hash = 0;
     
     /* Go through each square, work out how many are alive */
