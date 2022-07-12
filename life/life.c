@@ -1,23 +1,18 @@
 #include "life.h"
 
-typedef unsigned char   uint8_t;
-typedef unsigned short  uint16_t;
-typedef unsigned int    uint32_t;
-typedef enum {false, true} bool;
-
 typedef struct
 {
-    unsigned char x;
-    unsigned char y;
+    uint8_t x;
+    uint8_t y;
 }
 point_t;
 
 /* Store cell format in same format as LCD display for ease */
-static unsigned char ping_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
-static unsigned char pong_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
+static uint8_t ping_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
+static uint8_t pong_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
 
-static unsigned char (*ping)[LCD_COLUMNS];
-static unsigned char (*pong)[LCD_COLUMNS];
+static uint8_t (*ping)[LCD_COLUMNS];
+static uint8_t (*pong)[LCD_COLUMNS];
 
 void ( *update_fn )( void );
 
@@ -30,20 +25,20 @@ static uint8_t hash_table[ 256 ] =
 static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
 static uint8_t hash_counter = 0;
 
-static unsigned int original_seed;
+static uint32_t original_seed;
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
 static bool DetermineFate( bool alive, uint8_t num_alive );
 static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
 static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], point_t * surrounding_cells );
 
-unsigned char (*Life_GetBuffer( void ))[LCD_COLUMNS]
+uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
 {
     return ping;
 }
 
 /* (Thanks wikipedia :) ) */
-static unsigned int xorshift32( unsigned int x )
+static uint32_t xorshift32( uint32_t x )
 {
     x ^= x << 13U;
     x ^= x >> 17U;
@@ -83,7 +78,7 @@ bool CheckForCycle( void )
     uint8_t firstCount = 0;
 
     /* 1. Tortoise moves single step, hare moves double step */
-    for( int idx = 2; idx < HASH_BUFFER_SIZE; idx+=2 )
+    for( uint8_t idx = 2; idx < HASH_BUFFER_SIZE; idx+=2 )
     {
         if( hash_buffer[tort] == hash_buffer[hare] )
         {
@@ -103,7 +98,7 @@ bool CheckForCycle( void )
     {
         /* 2. Move Tortoise back to start and move both single step */
         tort = hash_counter;
-        for( int idx = firstCount; idx < HASH_BUFFER_SIZE; idx++ )
+        for( uint8_t idx = firstCount; idx < HASH_BUFFER_SIZE; idx++ )
         {
             if( hash_buffer[tort] == hash_buffer[hare] )
             {
@@ -127,7 +122,7 @@ bool CheckForCycle( void )
             hare = tort + 1;
             hare = hare & ( HASH_BUFFER_SIZE - 1U );
 
-            for( int idx = 0; idx < HASH_BUFFER_SIZE; idx++ )
+            for( uint8_t idx = 0; idx < HASH_BUFFER_SIZE; idx++ )
             {
                 if( hash_buffer[tort] == hash_buffer[hare] )
                 {
@@ -169,24 +164,24 @@ void Life_Seed( void )
 {
     ping = ping_status;
     pong = pong_status;
-    static unsigned int seed = 0x12345678;   
+    static uint32_t seed = 0x12345678;   
 
     /* This is to diagnose and reproduce bugs :) */
     original_seed = seed;
 
-    unsigned int rnd = xorshift32( seed );
+    uint32_t rnd = xorshift32( seed );
 
-    for( int i = 0; i < LCD_PAGES; i++ )
+    for( uint8_t i = 0; i < LCD_PAGES; i++ )
     {
-        for( int j = 0; j < LCD_COLUMNS; j++ )
+        for( uint8_t j = 0; j < LCD_COLUMNS; j++ )
         {
             rnd = xorshift32( rnd );
-            ping[i][j] = ( unsigned char )rnd;
+            ping[i][j] = ( uint8_t )rnd;
             pong[i][j] = 0x00;
         }
     }
 
-    for( int i = 0; i < HASH_BUFFER_SIZE; i++ )
+    for( uint8_t i = 0; i < HASH_BUFFER_SIZE; i++ )
     {
         rnd = xorshift32( rnd );
         hash_buffer[i] = (uint8_t)rnd;
@@ -313,13 +308,13 @@ void Life_Tick( void )
     uint8_t current_hash = 0;
     
     /* Go through each square, work out how many are alive */
-    for( int i = 0; i < LCD_PAGES; i++ )
+    for( uint8_t i = 0; i < LCD_PAGES; i++ )
     {
-        for( int j = 0; j < LCD_COLUMNS; j++ )
+        for( uint8_t j = 0; j < LCD_COLUMNS; j++ )
         {
             /* Go through each bit, check if alive, then work out which other bits to check */
             uint8_t current_value = ping[i][j];
-            for( int k = 0; k < LCD_ROWS; k++ )
+            for( uint8_t k = 0; k < LCD_ROWS; k++ )
             {
                 uint8_t current_bit = ( current_value >> k ) & 1U;
                 bool alive = (bool) current_bit;

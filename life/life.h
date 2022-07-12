@@ -1,6 +1,9 @@
 #ifndef _LIFE_H_
 #define _LIFE_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /* These parameters are for the SSD1306 Display */
 #define LCD_COLUMNS ( 128 )
 #define LCD_ROWS    ( 8 )
@@ -10,6 +13,6 @@
 void Life_Init( void ( *fn)( void ) );
 void Life_Tick( void );
 void Life_Seed( void );
-unsigned char (*Life_GetBuffer( void ))[LCD_COLUMNS];
+uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS];
 
 #endif /* _LIFE_H_ */
