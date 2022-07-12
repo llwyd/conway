@@ -1,3 +1,3 @@
 # conway
 
-This is an implementation of Conway's game of life using an ARM M4 microcontroller, an SSD1306 LCD display and a push button to re-seed and restart the game.  
+This is my implementation of Conway's game of life with cycle detection to automatically restart the game when the automation reaches a steady state. 
