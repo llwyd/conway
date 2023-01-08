@@ -19,6 +19,8 @@ static GC gc;
 static unsigned long black;
 static unsigned long white;
 
+#define PIXEL_SIZE ( 10 )
+
 void Init( void )
 {
     d = XOpenDisplay( 0 );
@@ -27,7 +29,7 @@ void Init( void )
     black = BlackPixel( d, screen );
     white = WhitePixel( d, screen );
 
-    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, LCD_COLUMNS, LCD_ROWS * LCD_PAGES, 1, black, white );
+    w = XCreateSimpleWindow(d, RootWindow( d, screen ), 0, 0, LCD_COLUMNS * PIXEL_SIZE, LCD_ROWS * LCD_PAGES * PIXEL_SIZE, 1, black, white );
     XSetStandardProperties( d, w, "game of life", "game of life", None, NULL, 0, NULL );
 
     XSelectInput( d, w , ExposureMask | KeyPressMask | ButtonPressMask );
@@ -57,12 +59,12 @@ void UpdateDisplay ( void )
                 if( alive )
                 {
                     XSetForeground( d, gc, black );
-                    XFillRectangle( d, w, gc, x_loc, y_loc, 1, 1 );
+                    XFillRectangle( d, w, gc, x_loc * PIXEL_SIZE, y_loc * PIXEL_SIZE, 1 * PIXEL_SIZE, 1 * PIXEL_SIZE );
                 }
                 else
                 {
                     XSetForeground( d, gc, white );
-                    XFillRectangle( d, w, gc, x_loc, y_loc, 1, 1 );
+                    XFillRectangle( d, w, gc, x_loc * PIXEL_SIZE, y_loc * PIXEL_SIZE, 1 * PIXEL_SIZE , 1 * PIXEL_SIZE );
                 }
             }
         }
@@ -112,11 +114,11 @@ int main( void )
             if( running )
             {
                 Life_Tick();
-                usleep(500);
+                usleep(25000);
             }
         }
 
-        usleep( 1000 );
+        usleep( 50000 );
     }
 
     return 0;
