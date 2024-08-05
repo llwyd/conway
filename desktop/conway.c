@@ -77,7 +77,7 @@ int main( void )
     bool running = false;
     
     Init();
-    Life_Init( &UpdateDisplay );
+    Life_Init( &UpdateDisplay, 0x12345678 );
     XNextEvent( d, &e );
 
 

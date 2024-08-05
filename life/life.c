@@ -25,6 +25,7 @@ static uint8_t hash_table[ 256 ] =
 static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
 static uint8_t hash_counter = 0;
 
+static uint32_t seed; 
 static uint32_t original_seed;
 
 static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
@@ -32,7 +33,7 @@ static bool DetermineFate( bool alive, uint8_t num_alive );
 static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
 static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], point_t * surrounding_cells );
 
-uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
+extern uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
 {
     return ping;
 }
@@ -160,11 +161,10 @@ bool CheckForCycle( void )
    return startNewGame;
 }
 
-void Life_Seed( void )
+extern void Life_Seed( void )
 {
     ping = ping_status;
     pong = pong_status;
-    static uint32_t seed = 0x12345678;   
 
     /* This is to diagnose and reproduce bugs :) */
     original_seed = seed;
@@ -190,8 +190,9 @@ void Life_Seed( void )
     seed = rnd;
 }
 
-void Life_Init( void ( *fn)( void ) )
+extern void Life_Init( void ( *fn)( void ), uint32_t initial_seed )
 {
+    seed = initial_seed;
     Life_Seed();
     update_fn = fn;
     update_fn();
@@ -300,7 +301,7 @@ static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], po
     return num_alive;
 }
 
-void Life_Tick( void )
+extern void Life_Tick( void )
 {
     /* Surrounding cells */
     point_t cells [ 8 ];
@@ -347,6 +348,6 @@ void Life_Tick( void )
 
     if( CheckForCycle() )
     {
-        Life_Init( update_fn );
+        Life_Init( update_fn, seed );
     }
 }

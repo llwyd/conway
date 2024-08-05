@@ -10,9 +10,9 @@
 #define LCD_PAGES ( 8 )
 #define LCD_FULL_ROWS ( LCD_ROWS * LCD_PAGES )
 
-void Life_Init( void ( *fn)( void ) );
-void Life_Tick( void );
-void Life_Seed( void );
-uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS];
+extern void Life_Init( void ( *fn)( void ), uint32_t initial_seed );
+extern void Life_Tick( void );
+extern void Life_Seed( void );
+extern uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS];
 
 #endif /* _LIFE_H_ */
