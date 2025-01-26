@@ -6,7 +6,7 @@
 
 #ifdef TARGET_DESKTOP
 /* These parameters are for the Desktop Emulator */
-#define LCD_COLUMNS ( 64 )
+#define LCD_COLUMNS ( 128 )
 #define LCD_ROWS    ( 8 )
 #define LCD_PAGES ( 8 )
 
