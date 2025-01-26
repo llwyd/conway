@@ -17,7 +17,7 @@ typedef struct
 point_t;
 
 static bool DetermineFate( bool alive, uint8_t num_alive );
-static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
+static void Set( uint8_t (* const life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
 static uint8_t CountLiveSurroundingCells(const point_t * const point,uint8_t (*life_cells)[LCD_COLUMNS]);
 
 /* Store cell format in same format as LCD display for ease */
@@ -251,7 +251,7 @@ static bool DetermineFate( bool alive, uint8_t num_alive )
    return fate; 
 }
 
-static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit )
+static void Set( uint8_t (* const life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit )
 {    
     uint8_t bitmap  = ( 1U << y_bit );
 
@@ -289,9 +289,6 @@ static uint8_t CountLiveSurroundingCells(const point_t * const point, uint8_t (*
 
 extern void Life_Tick( void )
 {
-    /* Surrounding cells */
-    point_t cells [ 8 ];
-
     uint8_t current_hash = 0;
     
     /* Go through each square, work out how many are alive */
@@ -306,9 +303,11 @@ extern void Life_Tick( void )
                 uint8_t current_bit = ( current_value >> k ) & 1U;
                 bool alive = (bool) current_bit;
 
-                point_t current_pos;
-                current_pos.x = j;
-                current_pos.y = k + (8 * i);
+                point_t current_pos =
+                {
+                    .x = j,
+                    .y = k + (8 * i),
+                };
                 
                 /* Determine how many of surrounding cells are alive */
                 uint8_t num_alive = CountLiveSurroundingCells(&current_pos, ping);
