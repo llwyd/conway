@@ -16,6 +16,14 @@ typedef struct
 }
 point_t;
 
+typedef struct
+{
+    uint8_t col;
+    uint8_t page;
+    uint8_t bit;
+}
+bit_t;
+
 static bool DetermineFate( bool alive, uint8_t num_alive );
 static void Set( uint8_t (* const life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
 static uint8_t CountLiveSurroundingCells(const point_t * const point,uint8_t (*life_cells)[LCD_COLUMNS]);
@@ -270,14 +278,21 @@ static uint8_t CountLiveSurroundingCells(const point_t * const point, uint8_t (*
     uint8_t num_alive = 0U;
     for( uint8_t idx = 0U; idx < 8U; idx++ )
     {
-        const uint8_t x = (( point->x + s_cells[idx].x) & ( LCD_COLUMNS - 1U ));
-        const uint8_t y = (( point->y + s_cells[idx].y) & ( LCD_FULL_ROWS - 1U ));
-        uint8_t x_loc   = x;
-        uint8_t y_page  = y >> 3;
-        uint8_t y_bit   = y & ( LCD_ROWS - 1U );
+        const point_t p =
+        {
+            .x = (( point->x + s_cells[idx].x) & ( LCD_COLUMNS - 1U )),
+            .y = (( point->y + s_cells[idx].y) & ( LCD_FULL_ROWS - 1U )),
+        };
 
-        uint8_t value = life_cells[y_page][x_loc];
-        bool alive = (bool) ( (value >> y_bit) & 1U );
+        const bit_t bit =
+        {
+            .col   = p.x,
+            .page  = p.y >> 3,
+            .bit   = p.y & ( LCD_ROWS - 1U ),
+        };
+
+        uint8_t value = life_cells[bit.page][bit.col];
+        bool alive = (bool) ( (value >> bit.bit) & 1U );
         if( alive )
         {
             num_alive++;
