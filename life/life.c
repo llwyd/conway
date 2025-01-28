@@ -1,11 +1,35 @@
 #include "life.h"
 
+/* If violated there be dragons, code works on assumption of 8bit storage */
+_Static_assert(sizeof(uint8_t) == 1U, "invalid u8 size");
+_Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
+_Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
+_Static_assert(LCD_ROWS == 8U, "must be u8");
+
+#define CONSECUTIVE_CYCLES ( 64U )
+#define HASH_BUFFER_SIZE ( 16U )
+#define SURROUNDING_CELLS ( 8U )
 typedef struct
 {
     uint8_t x;
     uint8_t y;
 }
 point_t;
+
+typedef struct
+{
+    uint8_t col;
+    uint8_t page;
+    uint8_t bit;
+}
+bit_t;
+
+static bool DetermineFate( bool alive, uint8_t num_alive );
+static void Set( uint8_t (* const life_cells)[LCD_COLUMNS], bool alive, const bit_t * const bit );
+static uint8_t CountLiveSurroundingCells(const point_t * const point,uint8_t (*life_cells)[LCD_COLUMNS]);
+
+static bit_t PointToBit(const point_t * const point);
+static point_t BitToPoint(const bit_t * const bit);
 
 /* Store cell format in same format as LCD display for ease */
 static uint8_t ping_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
@@ -14,24 +38,36 @@ static uint8_t pong_status [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
 static uint8_t (*ping)[LCD_COLUMNS];
 static uint8_t (*pong)[LCD_COLUMNS];
 
+static const point_t s_cells[SURROUNDING_CELLS] =
+{
+    /* E */
+    { .x = 1U, .y = 0U },
+    /* SE */
+    { .x = 1U, .y = 1U },
+    /* S */
+    { .x = 0U, .y = 1U },
+    /* SW */
+    { .x = UINT8_MAX, .y = 1U },
+    /* W */
+    { .x = UINT8_MAX, .y = 0U },
+    /* NW */
+    { .x = UINT8_MAX, .y = UINT8_MAX },
+    /* N */
+    { .x = 0U, .y = UINT8_MAX },
+    /* NE */
+    { .x = 1U, .y = UINT8_MAX },
+};
+
 void ( *update_fn )( void );
 
-static uint8_t hash_table[ 256 ] =
+static const uint8_t hash_table[ 256 ] =
 { 48, 242, 205, 49, 117, 39, 135, 200, 183, 15, 158, 175, 4, 192, 40, 199, 181, 77, 188, 70, 121, 119, 63, 73, 120, 216, 246, 69, 189, 11, 185, 85, 6, 93, 114, 232, 108, 5, 197, 196, 221, 132, 250, 148, 241, 195, 90, 36, 155, 176, 43, 252, 100, 227, 18, 88, 209, 208, 89, 35, 84, 37, 224, 16, 10, 194, 190, 22, 219, 55, 23, 177, 29, 154, 27, 106, 101, 13, 125, 92, 228, 152, 141, 30, 217, 237, 236, 31, 124, 239, 56, 145, 129, 33, 169, 161, 163, 184, 0, 180, 223, 47, 75, 3, 113, 62, 86, 142, 240, 134, 50, 249, 53, 20, 187, 248, 247, 66, 233, 254, 171, 131, 128, 52, 74, 9, 234, 72, 133, 67, 212, 127, 156, 7, 99, 61, 137, 206, 21, 34, 179, 57, 111, 26, 19, 231, 204, 1, 54, 98, 210, 110, 182, 193, 118, 17, 138, 165, 79, 112, 170, 139, 251, 2, 12, 122, 115, 28, 83, 203, 42, 214, 105, 167, 60, 178, 146, 225, 46, 64, 140, 174, 172, 143, 230, 32, 150, 160, 126, 220, 78, 116, 68, 213, 94, 229, 95, 147, 153, 104, 149, 162, 109, 201, 80, 51, 41, 136, 226, 144, 8, 96, 244, 235, 186, 218, 151, 243, 76, 103, 59, 198, 91, 87, 65, 24, 107, 157, 202, 102, 166, 82, 25, 123, 130, 81, 44, 238, 173, 58, 253, 255, 71, 168, 97, 164, 215, 159, 245, 191, 45, 38, 222, 14, 211, 207} ;
 
-
-#define CONSECUTIVE_CYCLES ( 64U )
-#define HASH_BUFFER_SIZE ( 16U )
 static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
 static uint8_t hash_counter = 0;
 
 static uint32_t seed; 
 static uint32_t original_seed;
-
-static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y );
-static bool DetermineFate( bool alive, uint8_t num_alive );
-static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit );
-static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], point_t * surrounding_cells );
 
 extern uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
 {
@@ -198,45 +234,27 @@ extern void Life_Init( void ( *fn)( void ), uint32_t initial_seed )
     update_fn();
 }
 
-static void DetermineSurroundingCells( point_t * cells, uint8_t x, uint8_t y )
+static bit_t PointToBit(const point_t * const point)
 {
-    /* N */
-    cells[ 0 ].x = x;
-    cells[ 0 ].y = y - 1U;
-
-    /* NE */
-    cells[ 1 ].x = x + 1U;
-    cells[ 1 ].y = y - 1U;
-    
-    /* E */
-    cells[ 2 ].x = x + 1U;
-    cells[ 2 ].y = y;
-    
-    /* SE */
-    cells[ 3 ].x = x + 1U;
-    cells[ 3 ].y = y + 1U;
-    
-    /* S */
-    cells[ 4 ].x = x;
-    cells[ 4 ].y = y + 1U;
-    
-    /* SW */
-    cells[ 5 ].x = x - 1U;
-    cells[ 5 ].y = y + 1U;
-    
-    /* W */
-    cells[ 6 ].x = x - 1U;
-    cells[ 6 ].y = y;
-    
-    /* NW */
-    cells[ 7 ].x = x - 1U;
-    cells[ 7 ].y = y - 1U;
-
-    for( uint8_t idx = 0U; idx < 8; idx++ )
+    bit_t bit =
     {
-        cells[idx].x = ( cells[idx].x & ( LCD_COLUMNS - 1U ) );
-        cells[idx].y = ( cells[idx].y & ( LCD_FULL_ROWS - 1U ) );
-    }
+        .col   = point->x,
+        .page  = point->y >> 3,
+        .bit   = point->y & ( LCD_ROWS - 1U ),
+    };
+
+    return bit;
+}
+
+static point_t BitToPoint(const bit_t * const bit)
+{
+    point_t point = 
+    {
+        .x = bit->col,
+        .y = bit->bit + (8 * bit->page),
+    };
+
+    return point;
 }
 
 static bool DetermineFate( bool alive, uint8_t num_alive )
@@ -267,31 +285,33 @@ static bool DetermineFate( bool alive, uint8_t num_alive )
    return fate; 
 }
 
-static void Set( uint8_t (*life_cells)[LCD_COLUMNS], bool alive, uint8_t x_loc, uint8_t y_page, uint8_t y_bit )
+static void Set( uint8_t (* const life_cells)[LCD_COLUMNS], bool alive, const bit_t * const bit )
 {    
-    uint8_t bitmap  = ( 1U << y_bit );
-
     if( alive )
     {
-        life_cells[y_page][x_loc] |= bitmap;
+        life_cells[bit->page][bit->col] |= ( 1U << bit->bit);
     }
     else
     {
-        life_cells[y_page][x_loc] &= ~bitmap;
+        life_cells[bit->page][bit->col] &= ~(1U << bit->bit);
     }
 }
 
-static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], point_t * surrounding_cells )
+static uint8_t CountLiveSurroundingCells(const point_t * const point, uint8_t (*life_cells)[LCD_COLUMNS])
 {
     uint8_t num_alive = 0U;
     for( uint8_t idx = 0U; idx < 8U; idx++ )
     {
-        uint8_t x_loc   = surrounding_cells[idx].x;
-        uint8_t y_page  = surrounding_cells[idx].y >> 3;
-        uint8_t y_bit   = surrounding_cells[idx].y & ( LCD_ROWS - 1U );
+        const point_t p =
+        {
+            .x = (( point->x + s_cells[idx].x) & ( LCD_COLUMNS - 1U )),
+            .y = (( point->y + s_cells[idx].y) & ( LCD_FULL_ROWS - 1U )),
+        };
 
-        uint8_t value = life_cells[y_page][x_loc];
-        bool alive = (bool) ( (value >> y_bit) & 1U );
+        const bit_t bit = PointToBit(&p);
+
+        uint8_t value = life_cells[bit.page][bit.col];
+        bool alive = (bool) ( (value >> bit.bit) & 1U );
         if( alive )
         {
             num_alive++;
@@ -303,9 +323,6 @@ static uint8_t CountLiveSurroundingCells( uint8_t (*life_cells)[LCD_COLUMNS], po
 
 extern void Life_Tick( void )
 {
-    /* Surrounding cells */
-    point_t cells [ 8 ];
-
     uint8_t current_hash = 0;
     
     /* Go through each square, work out how many are alive */
@@ -314,22 +331,24 @@ extern void Life_Tick( void )
         for( uint8_t j = 0; j < LCD_COLUMNS; j++ )
         {
             /* Go through each bit, check if alive, then work out which other bits to check */
-            uint8_t current_value = ping[i][j];
             for( uint8_t k = 0; k < LCD_ROWS; k++ )
             {
-                uint8_t current_bit = ( current_value >> k ) & 1U;
-                bool alive = (bool) current_bit;
+                const bit_t current_bit = 
+                {
+                    .col = j,
+                    .page = i,
+                    .bit = k,
+                };
 
-                point_t current_pos;
-                current_pos.x = j;
-                current_pos.y = k + (8 * i);
-                DetermineSurroundingCells( cells, current_pos.x, current_pos.y );
+                bool alive = (bool)((ping[i][j] >> k )& 1U);
+
+                const point_t current_pos = BitToPoint(&current_bit);
                 
                 /* Determine how many of surrounding cells are alive */
-                uint8_t num_alive = CountLiveSurroundingCells( ping, cells );
-                bool fate = DetermineFate( alive, num_alive );
+                const uint8_t num_alive = CountLiveSurroundingCells(&current_pos, ping);
+                const bool fate = DetermineFate( alive, num_alive );
 
-                Set( pong, fate, j, i, k );
+                Set( pong, fate, &current_bit );
             }
             current_hash = UpdateHash( current_hash, pong[i][j] ); 
         }   
