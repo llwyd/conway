@@ -8,14 +8,29 @@ set (CMAKE_BUILD_TYPE Debug )
 
 
 add_executable( conway.out
-                desktop/conway.c
+                desktop/emulator.c
                 life/life.c
                 life/life.h
                 )
+
+add_executable( bird.out
+                desktop/emulator.c
+                life/life.c
+                life/life.h
+                )
+
 target_compile_definitions(conway.out PRIVATE TARGET_DESKTOP)
+target_compile_definitions(conway.out PRIVATE SIM_GOL)
+
+target_compile_definitions(bird.out PRIVATE TARGET_DESKTOP)
+target_compile_definitions(bird.out PRIVATE SIM_BIRD)
 
 include_directories( conway.out PRIVATE desktop )
 include_directories( conway.out PRIVATE life )
+
+include_directories( bird.out PRIVATE desktop )
+include_directories( bird.out PRIVATE life )
+include_directories( bird.out PRIVATE bird )
 
 target_compile_options( conway.out
                         PUBLIC
@@ -28,5 +43,6 @@ target_compile_options( conway.out
                         -g)
 
 target_link_libraries( conway.out X11)
-target_link_libraries( conway.out m)
+
+target_link_libraries( bird.out X11)
 
