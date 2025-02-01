@@ -19,8 +19,6 @@ static GC gc;
 static unsigned long black;
 static unsigned long white;
 
-#define PIXEL_SIZE ( 10 )
-
 void Init( void )
 {
     d = XOpenDisplay( 0 );
