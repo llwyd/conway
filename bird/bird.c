@@ -22,10 +22,20 @@ typedef struct
 }
 point_t;
 
+typedef enum
+{
+    BirdState_Idle,
+    BirdState_TurningX,
+    BirdState_TurningY,
+}
+bird_state_t;
+
 typedef struct
 {
     point_t pos;
-    uint16_t angle; 
+    uint8_t speed;
+    uint16_t angle;
+    bird_state_t state;
 }
 bird_t;
 
@@ -73,7 +83,7 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
     bird[0].pos.x = 64;
     bird[0].pos.y = 32;
     bird[0].angle = 0U;
-
+    bird[0].state = BirdState_Idle;
     update_fn = fn;
 }
 
@@ -81,6 +91,15 @@ extern void Bird_Tick( void )
 {
     for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
+        /* Collect nearby birds */
+
+        /* Handle separation */
+
+        /* Handle Alignment */
+
+        /* Handle cohesion */
+
+        /* Draw */
         bit_t bit = PointToBit(&bird[idx].pos);
         Set(display_buffer, true, &bit);
     }
