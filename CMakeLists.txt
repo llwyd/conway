@@ -15,8 +15,8 @@ add_executable( conway.out
 
 add_executable( bird.out
                 desktop/emulator.c
-                life/life.c
-                life/life.h
+                bird/bird.c
+                bird/bird.h
                 )
 
 target_compile_definitions(conway.out PRIVATE TARGET_DESKTOP)

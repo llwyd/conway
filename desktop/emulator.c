@@ -10,6 +10,7 @@
 #include <X11/Xutil.h>
 #include "assert.h"
 #include "life.h"
+#include "bird.h"
 
 static Display * d;
 static int screen;
@@ -43,7 +44,12 @@ void Init( void )
 
 void UpdateDisplay ( void )
 {
+#ifdef SIM_GOL
     unsigned char (*buffer)[LCD_COLUMNS] = Life_GetBuffer();
+#else
+    unsigned char (*buffer)[LCD_COLUMNS] = Bird_GetBuffer();
+#endif
+
     for( int i = 0; i < LCD_PAGES; i++ )
     {
         for( int j = 0; j < LCD_COLUMNS; j++ )
@@ -77,7 +83,11 @@ int main( void )
     bool running = false;
     
     Init();
+#ifdef SIM_GOL
     Life_Init( &UpdateDisplay, 0x12345678 );
+#else
+    Bird_Init( &UpdateDisplay, 0x12345678 );
+#endif
     XNextEvent( d, &e );
 
 
@@ -111,7 +121,11 @@ int main( void )
         {
             if( running )
             {
+#ifdef SIM_GOL
                 Life_Tick();
+#else
+                Bird_Tick();
+#endif
                 usleep(25000);
             }
         }
