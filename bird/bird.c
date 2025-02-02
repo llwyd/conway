@@ -5,7 +5,7 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (1U)
+#define NUM_BIRDS (8U)
 
 typedef struct
 {
@@ -48,6 +48,15 @@ void ( *update_fn )( void );
 static bit_t PointToBit(const point_t * const point);
 static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t * const bit );
 
+static uint32_t xorshift32( uint32_t x )
+{
+    x ^= x << 13U;
+    x ^= x >> 17U;
+    x ^= x << 5U;
+
+    return x;
+}
+
 static bit_t PointToBit(const point_t * const point)
 {
     assert(point->x < LCD_COLUMNS);
@@ -79,11 +88,24 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
 {
     assert(fn != NULL);
     assert(initial_seed != 0U);
+    
+    uint32_t rng = 0x13121312;
 
-    bird[0].pos.x = 64;
-    bird[0].pos.y = 32;
-    bird[0].angle = 0U;
-    bird[0].state = BirdState_Idle;
+    for( uint32_t idx = 0; idx < NUM_BIRDS; idx++)
+    {
+        rng = xorshift32(rng);
+        uint8_t x = (uint8_t)(rng >> 24U);
+        uint8_t y = (uint8_t)(rng >> 16U);
+        bird[idx].angle = (uint8_t)(rng >> 8U);
+        bird[idx].state = BirdState_Idle;
+
+        bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
+        bird[idx].pos.y = y & ( (LCD_FULL_ROWS >> 1U) - 1U);
+
+        assert(bird[idx].pos.x < LCD_COLUMNS);
+        assert(bird[idx].pos.y < LCD_FULL_ROWS);
+    }
+
     update_fn = fn;
 }
 
@@ -98,6 +120,8 @@ extern void Bird_Tick( void )
         /* Handle Alignment */
 
         /* Handle cohesion */
+
+        /* Update bird */
 
         /* Draw */
         bit_t bit = PointToBit(&bird[idx].pos);
