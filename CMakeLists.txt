@@ -17,6 +17,8 @@ add_executable( bird.out
                 desktop/emulator.c
                 bird/bird.c
                 bird/bird.h
+                common/qmath.h
+                common/qmath.c
                 )
 
 target_compile_definitions(conway.out PRIVATE TARGET_DESKTOP)
@@ -31,6 +33,7 @@ include_directories( conway.out PRIVATE life )
 include_directories( bird.out PRIVATE desktop )
 include_directories( bird.out PRIVATE life )
 include_directories( bird.out PRIVATE bird )
+include_directories( bird.out PRIVATE common )
 
 target_compile_options( conway.out
                         PUBLIC

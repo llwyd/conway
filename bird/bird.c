@@ -1,4 +1,5 @@
 #include "bird.h"
+#include "qmath.h"
 
 _Static_assert(sizeof(uint8_t) == 1U, "invalid u8 size");
 _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
