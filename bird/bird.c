@@ -39,9 +39,21 @@ typedef struct
 }
 bird_t;
 
-static uint8_t display_buffer [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
+/* Used to collect info of nearby birds based on index */
+typedef struct
+{
+    uint8_t bird[NUM_BIRDS];
+    uint8_t num;
+}
+nearby_t;
 
+static uint8_t display_buffer [ LCD_PAGES ] [ LCD_COLUMNS ] = { 0x00 };
 static bird_t bird[NUM_BIRDS];
+
+/* Separation and cohesion have different radii */
+static nearby_t nearby_sep;
+static nearby_t nearby_else;
+
 
 void ( *update_fn )( void );
 
@@ -84,6 +96,21 @@ static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t *
     }
 }
 
+static point_t Move(bird_t * const bird)
+{
+    point_t prev = bird->pos;
+    (bird->pos.x)++;
+    (bird->pos.y)++;
+
+    return prev;
+}
+
+static void ScreenWrap(bird_t * const bird)
+{
+        bird->pos.x = bird->pos.x & (LCD_COLUMNS - 1U);
+        bird->pos.y = bird->pos.y & (LCD_FULL_ROWS - 1U);
+}
+
 extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
 {
     assert(fn != NULL);
@@ -121,9 +148,16 @@ extern void Bird_Tick( void )
 
         /* Handle cohesion */
 
-        /* Update bird */
-
+        /* Update bird
+         * -> Move
+         * -> Update state machine
+         * -> Screen wrap */
+        
+        point_t prev = Move(&bird[idx]);
+        ScreenWrap(&bird[idx]);
         /* Draw */
+        bit_t prev_bit = PointToBit(&prev);
+        Set(display_buffer, false, &prev_bit);
         bit_t bit = PointToBit(&bird[idx].pos);
         Set(display_buffer, true, &bit);
     }
