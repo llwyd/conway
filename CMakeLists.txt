@@ -19,6 +19,7 @@ add_executable( bird.out
                 bird/bird.h
                 common/qmath.h
                 common/qmath.c
+                common/lut.h
                 )
 
 target_compile_definitions(conway.out PRIVATE TARGET_DESKTOP)

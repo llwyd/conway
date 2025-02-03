@@ -1,5 +1,6 @@
 #include "bird.h"
 #include "qmath.h"
+#include "lut.h"
 
 _Static_assert(sizeof(uint8_t) == 1U, "invalid u8 size");
 _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
@@ -100,8 +101,18 @@ static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t *
 static point_t Move(bird_t * const bird)
 {
     point_t prev = bird->pos;
-    (bird->pos.x)++;
-    (bird->pos.y)++;
+
+    /* x = inc + cos(theta) */
+    /* y = inc + sin(theta) */
+    int16_t x = (bird->pos.x << 7);
+    int16_t y = (bird->pos.y << 7);
+
+
+    x = x + QMath_Mul(500, qcos[63], 15);
+    y = y + QMath_Mul(500, qsin[63], 15);
+
+    (bird->pos.x) = (uint8_t)(x >> 7);
+    (bird->pos.y) = (uint8_t)(y >> 7);
 
     return prev;
 }
