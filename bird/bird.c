@@ -107,9 +107,9 @@ static point_t Move(bird_t * const bird)
     int16_t x = (bird->pos.x << 7);
     int16_t y = (bird->pos.y << 7);
 
-
-    x = x + QMath_Mul(500, qcos[63], 15);
-    y = y + QMath_Mul(500, qsin[63], 15);
+    uint8_t angle = bird->angle;
+    x = x + QMath_Mul(500, qcos[angle], 15);
+    y = y + QMath_Mul(500, qsin[angle], 15);
 
     (bird->pos.x) = (uint8_t)(x >> 7);
     (bird->pos.y) = (uint8_t)(y >> 7);
