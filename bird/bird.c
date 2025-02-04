@@ -26,6 +26,14 @@ typedef struct
 }
 point_t;
 
+
+typedef struct
+{
+    int16_t x;
+    int16_t y;
+}
+point16_t;
+
 typedef enum
 {
     BirdState_Idle,
@@ -151,17 +159,65 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
     update_fn = fn;
 }
 
-extern void Bird_Tick( void )
+static bool IsPointInSquare(const point_t * const b, const point_t * const c, uint8_t square_size)
 {
+    uint8_t ss_2 = square_size >> 1U;
+    bool result = false;
+
+    assert(ss_2 > 0U);
+    if((b->x < (c->x + ss_2)) && (b->x > (c->x - ss_2)))
+    {
+        if((b->y < (c->y + ss_2)) && (b->y > (c->y - ss_2)))
+        {
+            result = true;
+        }
+    }
+    return result;
+}
+
+static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds, uint8_t square_size)
+{
+    assert(near_birds != NULL);
+    assert(square_size > 1U);
+
+    const point_t * const c = &bird[current_idx].pos;
+    near_birds->num = 0U;
+
     for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
+        if(idx == current_idx)
+        {
+            continue;
+        }
+
+        const point_t * const b = &bird[idx].pos;
+        
+        if(IsPointInSquare(b, c, square_size));
+        {
+            near_birds->bird[near_birds->num] = idx;
+            near_birds->num++;
+        }
+    }
+
+}
+
+extern void Bird_Tick( void )
+{
+    for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
+    {
         /* Collect nearby birds */
+        CollectNearbyBirds(idx, &nearby_sep, 2U);
+        CollectNearbyBirds(idx, &nearby_else, 5U);
 
         /* Handle separation */
+        if(nearby_sep.num > 0U)
+        {
+        }
 
-        /* Handle Alignment */
-
-        /* Handle cohesion */
+        /* Handle Alignment + Cohesion */
+        if(nearby_else.num > 0U)
+        {
+        }
 
         /* Update bird
          * -> Move
