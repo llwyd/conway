@@ -8,6 +8,8 @@ _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (8U)
+#define Q_NUM (15U)
+#define Q_SCALE (Q_NUM - 8U)
 
 typedef struct
 {
@@ -104,15 +106,16 @@ static point_t Move(bird_t * const bird)
 
     /* x = inc + cos(theta) */
     /* y = inc + sin(theta) */
-    int16_t x = (bird->pos.x << 7);
-    int16_t y = (bird->pos.y << 7);
+    int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
+    int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
 
-    uint8_t angle = bird->angle;
-    x = x + QMath_Mul(500, qcos[angle], 15);
-    y = y + QMath_Mul(500, qsin[angle], 15);
+    const uint8_t angle = bird->angle;
+    
+    x = x + QMath_Mul(500, qcos[angle], Q_NUM);
+    y = y + QMath_Mul(500, qsin[angle], Q_NUM);
 
-    (bird->pos.x) = (uint8_t)(x >> 7);
-    (bird->pos.y) = (uint8_t)(y >> 7);
+    bird->pos.x = Q_DNSCALE(x, Q_SCALE);
+    bird->pos.y = Q_DNSCALE(y, Q_SCALE);
 
     return prev;
 }
