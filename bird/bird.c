@@ -42,6 +42,15 @@ typedef enum
 }
 bird_state_t;
 
+typedef enum
+{
+    Quad_0,
+    Quad_1,
+    Quad_2,
+    Quad_3,
+}
+quadrant_t;
+
 typedef struct
 {
     point_t pos;
@@ -201,22 +210,54 @@ static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds,
 
 }
 
+static quadrant_t WhichQuadrant(const point_t * const a, const point_t * const b)
+{
+    quadrant_t quadrant = Quad_0;
+    if(a->x < b->x)
+    {
+       if(a->y < b->y)
+       {
+            quadrant = Quad_0;
+       }
+       else
+       {
+            quadrant = Quad_3;
+       }
+    }
+    else
+    {
+       if(a->y < b->y)
+       {
+            quadrant = Quad_1;
+       }
+       else
+       {
+            quadrant = Quad_2;
+       }
+    }
+
+    return quadrant;
+}
+
 extern void Bird_Tick( void )
 {
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         /* Collect nearby birds */
         CollectNearbyBirds(idx, &nearby_sep, 2U);
-        CollectNearbyBirds(idx, &nearby_else, 5U);
+        CollectNearbyBirds(idx, &nearby_else, 4U);
 
-        /* Handle separation */
         if(nearby_sep.num > 0U)
         {
+            /* Handle separation */
+            /* Determine angle from quadrant */
+            bird[idx].angle+=32;
         }
-
-        /* Handle Alignment + Cohesion */
-        if(nearby_else.num > 0U)
+        else if(nearby_else.num > 0U)
         {
+            /* Handle Alignment + Cohesion */
+            /* Determine angle from quadrant */
+            bird[idx].angle-=16;
         }
 
         /* Update bird
