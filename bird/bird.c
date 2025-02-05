@@ -11,8 +11,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (2U)
-#define COH_RADIUS (16U)
+#define SEP_RADIUS (4U)
+#define COH_RADIUS (32U)
+
+#define SPEED_INC (150U)
 
 typedef struct
 {
@@ -59,6 +61,7 @@ typedef struct
     point_t pos;
     uint8_t speed;
     uint16_t angle;
+    point16_t p;
     bird_state_t state;
 }
 bird_t;
@@ -126,13 +129,13 @@ static point_t Move(bird_t * const bird)
 
     /* x = inc + cos(theta) */
     /* y = inc + sin(theta) */
-    int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
-    int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
+    int16_t x = bird->p.x;
+    int16_t y = bird->p.y;
 
-    const uint8_t angle = (bird->angle >> 7);
+    const uint8_t angle = Q_DNSCALE(bird->angle, Q_SCALE);
     
-    x = x + QMath_Mul(500, qcos[angle], Q_NUM);
-    y = y + QMath_Mul(500, qsin[angle], Q_NUM);
+    bird->p.x = x + QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
+    bird->p.y = y + QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
 
     bird->pos.x = Q_DNSCALE(x, Q_SCALE);
     bird->pos.y = Q_DNSCALE(y, Q_SCALE);
@@ -158,12 +161,15 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         rng = xorshift32(rng);
         uint8_t x = (uint8_t)(rng >> 24U);
         uint8_t y = (uint8_t)(rng >> 16U);
-        bird[idx].angle = (uint8_t)(rng >> 8U);
+        bird[idx].angle = (uint16_t)(rng >> 8U);
         bird[idx].state = BirdState_Idle;
 
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
         bird[idx].pos.y = y & ( (LCD_FULL_ROWS >> 1U) - 1U);
 
+        bird[idx].p.x = Q_UPSCALE(x, Q_SCALE);
+        bird[idx].p.y = Q_UPSCALE(y, Q_SCALE);
+        
         assert(bird[idx].pos.x < LCD_COLUMNS);
         assert(bird[idx].pos.y < LCD_FULL_ROWS);
     }
