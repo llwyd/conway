@@ -7,9 +7,12 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (8U)
+#define NUM_BIRDS (16U)
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
+
+#define SEP_RADIUS (2U)
+#define COH_RADIUS (16U)
 
 typedef struct
 {
@@ -126,7 +129,7 @@ static point_t Move(bird_t * const bird)
     int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
     int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
 
-    const uint8_t angle = bird->angle;
+    const uint8_t angle = (bird->angle >> 7);
     
     x = x + QMath_Mul(500, qcos[angle], Q_NUM);
     y = y + QMath_Mul(500, qsin[angle], Q_NUM);
@@ -244,20 +247,44 @@ extern void Bird_Tick( void )
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         /* Collect nearby birds */
-        CollectNearbyBirds(idx, &nearby_sep, 2U);
-        CollectNearbyBirds(idx, &nearby_else, 4U);
+        CollectNearbyBirds(idx, &nearby_sep, SEP_RADIUS);
+        CollectNearbyBirds(idx, &nearby_else, COH_RADIUS);
 
         if(nearby_sep.num > 0U)
         {
             /* Handle separation */
             /* Determine angle from quadrant */
-            bird[idx].angle+=32;
+            uint8_t nearby_idx = nearby_sep.bird[0];
+            quadrant_t q = WhichQuadrant(&bird[idx].pos,&bird[nearby_idx].pos);
+            switch(q)
+            {
+                case Quad_0:
+                case Quad_3:
+                    bird[idx].angle+=(0x400);
+                    break;
+                case Quad_1:
+                case Quad_2:
+                    bird[idx].angle-=(0x400);
+                    break;
+            }
         }
         else if(nearby_else.num > 0U)
         {
             /* Handle Alignment + Cohesion */
             /* Determine angle from quadrant */
-            bird[idx].angle-=16;
+            uint8_t nearby_idx = nearby_else.bird[0];
+            quadrant_t q = WhichQuadrant(&bird[idx].pos,&bird[nearby_idx].pos);
+            switch(q)
+            {
+                case Quad_0:
+                case Quad_3:
+                    bird[idx].angle-=(0x1000);
+                    break;
+                case Quad_1:
+                case Quad_2:
+                    bird[idx].angle+=(0x1000);
+                    break;
+            }
         }
 
         /* Update bird
