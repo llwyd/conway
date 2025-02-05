@@ -11,10 +11,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (4U)
-#define COH_RADIUS (32U)
+#define SEP_RADIUS (2U)
+#define COH_RADIUS (16U)
 
-#define SPEED_INC (150U)
+#define SPEED_INC (250U)
 
 typedef struct
 {
@@ -248,6 +248,28 @@ static quadrant_t WhichQuadrant(const point_t * const a, const point_t * const b
     return quadrant;
 }
 
+
+extern int16_t AverageAngle(const nearby_t * const nearby)
+{
+    int16_t result = 0U;
+    if(nearby->num > 2U)
+    {
+        result = bird[0].angle;
+    }
+    else
+    {
+        uint8_t num_to_idx = nearby->num & 0xFE;
+
+        for(uint8_t idx = 0; idx < num_to_idx; idx++)
+        {
+            uint8_t jdx = nearby->bird[idx];
+            result += bird[jdx].angle;
+        }
+    }
+
+    return result;
+}
+
 extern void Bird_Tick( void )
 {
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
@@ -266,11 +288,11 @@ extern void Bird_Tick( void )
             {
                 case Quad_0:
                 case Quad_3:
-                    bird[idx].angle+=(0x400);
+                    bird[idx].angle+=(0x200);
                     break;
                 case Quad_1:
                 case Quad_2:
-                    bird[idx].angle-=(0x400);
+                    bird[idx].angle-=(0x200);
                     break;
             }
         }
@@ -284,13 +306,14 @@ extern void Bird_Tick( void )
             {
                 case Quad_0:
                 case Quad_3:
-                    bird[idx].angle-=(0x1000);
+                    bird[idx].angle-=(0x150);
                     break;
                 case Quad_1:
                 case Quad_2:
-                    bird[idx].angle+=(0x1000);
+                    bird[idx].angle+=(0x150);
                     break;
             }
+
         }
 
         /* Update bird
@@ -300,6 +323,14 @@ extern void Bird_Tick( void )
         
         point_t prev = Move(&bird[idx]);
         ScreenWrap(&bird[idx]);
+
+        if(nearby_else.num > 0U)
+        {
+            uint8_t nearby_idx = nearby_else.bird[0];
+            int16_t near_angle = bird[nearby_idx].angle;
+            uint16_t new_angle = (bird[idx].angle - near_angle);
+            bird[idx].angle += QMath_Mul(0x200, new_angle, Q_NUM);
+        }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
         Set(display_buffer, false, &prev_bit);
