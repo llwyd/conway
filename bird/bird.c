@@ -11,11 +11,11 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (0x0004)
-#define COH_RADIUS (0x000F)
+#define SEP_RADIUS (0x0100)
+#define COH_RADIUS (0x0800)
 
 #define SPEED_INC (250U)
-#define ALPHA (0x00A0)
+#define ALPHA (0x0800)
 
 typedef struct
 {
@@ -323,7 +323,7 @@ extern void Bird_Tick( void )
                     break;
             }
         }
-        else if(nearby_else.num > 0U)
+        if(nearby_else.num > 0U)
         {
             /* Handle Alignment + Cohesion */
             /* Determine angle from quadrant */
