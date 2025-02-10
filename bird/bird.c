@@ -11,8 +11,8 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (2U)
-#define COH_RADIUS (16U)
+#define SEP_RADIUS (0x0008)
+#define COH_RADIUS (0x0020)
 
 #define SPEED_INC (250U)
 
@@ -177,12 +177,12 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
     update_fn = fn;
 }
 
-static bool IsPointInSquare(const point_t * const b, const point_t * const c, uint8_t square_size)
+static bool IsPointInSquare(const point16_t * const b, const point16_t * const c, int16_t square_size)
 {
-    uint8_t ss_2 = square_size >> 1U;
+    int16_t ss_2 = square_size >> 1U;
     bool result = false;
 
-    assert(ss_2 > 0U);
+    assert(ss_2 > 0);
     if((b->x < (c->x + ss_2)) && (b->x > (c->x - ss_2)))
     {
         if((b->y < (c->y + ss_2)) && (b->y > (c->y - ss_2)))
@@ -193,12 +193,12 @@ static bool IsPointInSquare(const point_t * const b, const point_t * const c, ui
     return result;
 }
 
-static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds, uint8_t square_size)
+static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds, int16_t square_size)
 {
     assert(near_birds != NULL);
     assert(square_size > 1U);
 
-    const point_t * const c = &bird[current_idx].pos;
+    const point16_t * const c = &bird[current_idx].p;
     near_birds->num = 0U;
 
     for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
@@ -208,7 +208,7 @@ static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds,
             continue;
         }
 
-        const point_t * const b = &bird[idx].pos;
+        const point16_t * const b = &bird[idx].p;
         
         if(IsPointInSquare(b, c, square_size));
         {
