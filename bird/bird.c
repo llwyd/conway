@@ -11,10 +11,11 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (0x0008)
-#define COH_RADIUS (0x0020)
+#define SEP_RADIUS (0x0004)
+#define COH_RADIUS (0x000F)
 
 #define SPEED_INC (250U)
+#define ALPHA (0x00A0)
 
 typedef struct
 {
@@ -60,7 +61,7 @@ typedef struct
 {
     point_t pos;
     uint8_t speed;
-    uint16_t angle;
+    int16_t angle;
     point16_t p;
     bird_state_t state;
 }
@@ -251,24 +252,23 @@ static quadrant_t WhichQuadrant(const point_t * const a, const point_t * const b
 
 extern int16_t AverageAngle(const nearby_t * const nearby)
 {
-    int16_t result = 0U;
-    if(nearby->num > 2U)
-    {
-        result = bird[0].angle;
-    }
-    else
-    {
-        uint8_t num_to_idx = nearby->num & 0xFE;
+    int16_t result = 0;
+    int16_t y = 0;
 
-        for(uint8_t idx = 0; idx < num_to_idx; idx++)
-        {
-            uint8_t jdx = nearby->bird[idx];
-            result += bird[jdx].angle;
-        }
+    for(uint32_t idx = 0; idx < nearby->num; idx++)
+    {
+        int16_t prev_y = y;
+        uint8_t nearby_idx = nearby_sep.bird[idx];
+        int16_t angle = bird[nearby_idx].angle;
+        int16_t diff = QMath_Sub(angle, prev_y, Q_NUM);
+        y = angle - QMath_Mul(ALPHA, diff, Q_NUM);
     }
 
+    result = y;
     return result;
 }
+
+
 
 extern void Bird_Tick( void )
 {
@@ -326,8 +326,7 @@ extern void Bird_Tick( void )
 
         if(nearby_else.num > 0U)
         {
-            uint8_t nearby_idx = nearby_else.bird[0];
-            int16_t near_angle = bird[nearby_idx].angle;
+            int16_t near_angle = AverageAngle(&nearby_else);
             uint16_t new_angle = (bird[idx].angle - near_angle);
             bird[idx].angle += QMath_Mul(0x200, new_angle, Q_NUM);
         }
