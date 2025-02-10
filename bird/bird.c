@@ -249,6 +249,29 @@ static quadrant_t WhichQuadrant(const point_t * const a, const point_t * const b
     return quadrant;
 }
 
+extern point16_t AveragePoint(const nearby_t * const nearby)
+{
+    point16_t result ={.x = 0, .y = 0};
+    
+    for(uint32_t idx = 0; idx < nearby->num; idx++)
+    {
+        point16_t prev = 
+        {
+            .x = result.x,
+            .y = result.y,
+        };
+
+        uint8_t nearby_idx = nearby->bird[idx];
+        point16_t pos = bird[nearby_idx].p;
+        int16_t diff_x = QMath_Sub(pos.x, prev.x, Q_NUM);
+        int16_t diff_y = QMath_Sub(pos.y, prev.y, Q_NUM);
+
+        result.x = pos.x - QMath_Mul(ALPHA, diff_x, Q_NUM);
+        result.y = pos.y - QMath_Mul(ALPHA, diff_y, Q_NUM);
+    }
+
+    return result;
+}
 
 extern int16_t AverageAngle(const nearby_t * const nearby)
 {
@@ -258,7 +281,7 @@ extern int16_t AverageAngle(const nearby_t * const nearby)
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
         int16_t prev_y = y;
-        uint8_t nearby_idx = nearby_sep.bird[idx];
+        uint8_t nearby_idx = nearby->bird[idx];
         int16_t angle = bird[nearby_idx].angle;
         int16_t diff = QMath_Sub(angle, prev_y, Q_NUM);
         y = angle - QMath_Mul(ALPHA, diff, Q_NUM);
@@ -282,8 +305,12 @@ extern void Bird_Tick( void )
         {
             /* Handle separation */
             /* Determine angle from quadrant */
-            uint8_t nearby_idx = nearby_sep.bird[0];
-            quadrant_t q = WhichQuadrant(&bird[idx].pos,&bird[nearby_idx].pos);
+            const point16_t avg_pos = AveragePoint(&nearby_sep); 
+            const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
+            const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
+            const point_t avg = {.x=avg_x, .y=avg_y};
+            quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
+
             switch(q)
             {
                 case Quad_0:
@@ -300,8 +327,11 @@ extern void Bird_Tick( void )
         {
             /* Handle Alignment + Cohesion */
             /* Determine angle from quadrant */
-            uint8_t nearby_idx = nearby_else.bird[0];
-            quadrant_t q = WhichQuadrant(&bird[idx].pos,&bird[nearby_idx].pos);
+            const point16_t avg_pos = AveragePoint(&nearby_else);
+            const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
+            const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
+            const point_t avg = {.x=avg_x, .y=avg_y};
+            quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
             switch(q)
             {
                 case Quad_0:
