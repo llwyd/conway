@@ -12,7 +12,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_SCALE (Q_NUM - 8U)
 
 #define SEP_RADIUS (0x0100)
-#define COH_RADIUS (0x0800)
+#define COH_RADIUS (0x0F00)
+
+#define SEP_ANGLE (0x200)
+#define COH_ANGLE (0x050)
 
 #define SPEED_INC (250U)
 #define ALPHA (0x0800)
@@ -315,11 +318,11 @@ extern void Bird_Tick( void )
             {
                 case Quad_0:
                 case Quad_3:
-                    bird[idx].angle+=(0x200);
+                    bird[idx].angle+= SEP_ANGLE;
                     break;
                 case Quad_1:
                 case Quad_2:
-                    bird[idx].angle-=(0x200);
+                    bird[idx].angle-= SEP_ANGLE;
                     break;
             }
         }
@@ -336,11 +339,11 @@ extern void Bird_Tick( void )
             {
                 case Quad_0:
                 case Quad_3:
-                    bird[idx].angle-=(0x150);
+                    bird[idx].angle-= COH_ANGLE;
                     break;
                 case Quad_1:
                 case Quad_2:
-                    bird[idx].angle+=(0x150);
+                    bird[idx].angle+= COH_ANGLE;
                     break;
             }
 
