@@ -294,7 +294,12 @@ extern point16_t AveragePoint(const nearby_t * const nearby)
         };
 
         uint8_t nearby_idx = nearby->bird[idx];
-        point16_t pos = bird[nearby_idx].p;
+        point16_t pos = 
+        { 
+            .x = Q_UPSCALE(bird[nearby_idx].pos.x, Q_SCALE),
+            .y = Q_UPSCALE(bird[nearby_idx].pos.y, Q_SCALE),
+        };
+        
         int16_t diff_x = QMath_Sub(pos.x, prev.x, Q_NUM);
         int16_t diff_y = QMath_Sub(pos.y, prev.y, Q_NUM);
 
