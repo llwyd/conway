@@ -7,7 +7,7 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (4U)
+#define NUM_BIRDS (16U)
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
@@ -15,7 +15,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define COH_RADIUS Q_UPSCALE(0x10, Q_SCALE)
 
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x08U)
+#define COH_RADIUS8 (0x10U)
 
 #define SEP_ANGLE Q_UUPSCALE(0x10, Q_SCALE)
 #define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
@@ -226,6 +226,27 @@ static bool IsPointInSquare(const point16_t * const b, const point16_t * const c
     return result;
 }
 
+static bool IsPointInSquare8(const point_t * const b, const point_t * const c, uint8_t square_size)
+{
+    uint8_t ss_2 = square_size >> 1U;
+    assert(ss_2 > 0);
+    
+    bool result = false;
+    uint8_t r = c->x + ss_2;
+    uint8_t l = c->x - ss_2;
+    uint8_t u = c->y - ss_2;
+    uint8_t d = c->y + ss_2;
+
+    if((b->x > l) && (b->x < r))
+    {
+        if((b->y > u) && (b->y < d))
+        {
+            result = true;
+        }
+    }
+    return result;
+}
+
 static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds, int16_t square_size)
 {
     assert(near_birds != NULL);
@@ -244,6 +265,32 @@ static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds,
         const point16_t * const b = &bird[idx].p;
         
         if(IsPointInSquare(b, c, square_size))
+        {
+            near_birds->bird[near_birds->num] = idx;
+            near_birds->num++;
+        }
+    }
+
+}
+
+static void CollectNearbyBirds8(uint8_t current_idx, nearby_t * const near_birds, uint16_t square_size)
+{
+    assert(near_birds != NULL);
+    assert(square_size > 1U);
+
+    const point_t * const c = &bird[current_idx].pos;
+    near_birds->num = 0U;
+
+    for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
+    {
+        if(idx == current_idx)
+        {
+            continue;
+        }
+
+        const point_t * const b = &bird[idx].pos;
+        
+        if(IsPointInSquare8(b, c, square_size))
         {
             near_birds->bird[near_birds->num] = idx;
             near_birds->num++;
@@ -319,7 +366,6 @@ extern uint16_t AverageAngle(const nearby_t * const nearby)
     {
         uint16_t prev_y = y;
         uint8_t nearby_idx = nearby->bird[idx];
-        //uint16_t angle = Q_UUPSCALE(bird[nearby_idx].angle, Q_SCALE);
         uint16_t angle = bird[nearby_idx].a;
         uint16_t diff = QMath_USub(angle, prev_y, Q_NUM);
         y = angle - QMath_UMul(ALPHA, diff, Q_NUM);
@@ -336,8 +382,8 @@ extern void Bird_Tick( void )
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         /* Collect nearby birds */
-        CollectNearbyBirds(idx, &nearby_sep, SEP_RADIUS);
-        CollectNearbyBirds(idx, &nearby_else, COH_RADIUS);
+        CollectNearbyBirds8(idx, &nearby_sep, SEP_RADIUS8);
+        CollectNearbyBirds8(idx, &nearby_else, COH_RADIUS8);
 
         if(nearby_sep.num > 0U)
         {
@@ -396,7 +442,7 @@ extern void Bird_Tick( void )
         {
             uint16_t near_angle = AverageAngle(&nearby_else);
             uint16_t new_angle = (bird[idx].a - near_angle);
-            bird[idx].a += QMath_UMul(0x0100, new_angle, Q_NUM);
+            bird[idx].a += QMath_UMul(0x100, new_angle, Q_NUM);
         }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
