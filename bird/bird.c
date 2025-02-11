@@ -12,7 +12,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_SCALE (Q_NUM - 8U)
 
 #define SEP_RADIUS Q_UPSCALE(0x04, Q_SCALE)
-#define COH_RADIUS Q_UPSCALE(0x80, Q_SCALE)
+#define COH_RADIUS Q_UPSCALE(0x10, Q_SCALE)
+
+#define SEP_RADIUS8 (0x02U)
+#define COH_RADIUS8 (0x08U)
 
 #define SEP_ANGLE Q_UUPSCALE(0x10, Q_SCALE)
 #define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
@@ -145,8 +148,8 @@ static point_t Move(bird_t * const bird)
     //int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
     //int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
     
-    int16_t x = bird->p.x;
-    int16_t y = bird->p.y;
+    int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
+    int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
 
     const uint8_t angle = Q_UDNSCALE(bird->a, Q_SCALE);
     
