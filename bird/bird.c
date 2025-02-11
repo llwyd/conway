@@ -7,18 +7,18 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (8U)
+#define NUM_BIRDS (4U)
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS Q_UPSCALE(0x2, Q_SCALE)
-#define COH_RADIUS Q_UPSCALE(0x8, Q_SCALE)
+#define SEP_RADIUS Q_UPSCALE(0x04, Q_SCALE)
+#define COH_RADIUS Q_UPSCALE(0x80, Q_SCALE)
 
-#define SEP_ANGLE Q_UUPSCALE(0x08, Q_SCALE)
+#define SEP_ANGLE Q_UUPSCALE(0x10, Q_SCALE)
 #define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
 
-#define SPEED_INC (0x100U)
-#define ALPHA (0x0100)
+#define SPEED_INC (0x100)
+#define ALPHA (0x0040)
 
 typedef struct
 {
@@ -142,8 +142,11 @@ static point_t Move(bird_t * const bird)
 
     /* x = inc + cos(theta) */
     /* y = inc + sin(theta) */
-    int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
-    int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
+    //int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
+    //int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
+    
+    int16_t x = bird->p.x;
+    int16_t y = bird->p.y;
 
     const uint8_t angle = Q_UDNSCALE(bird->a, Q_SCALE);
     
@@ -385,7 +388,7 @@ extern void Bird_Tick( void )
         {
             uint16_t near_angle = AverageAngle(&nearby_else);
             uint16_t new_angle = (bird[idx].a - near_angle);
-            bird[idx].a += QMath_UMul(0x0020, new_angle, Q_NUM);
+            bird[idx].a += QMath_UMul(0x0100, new_angle, Q_NUM);
         }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
