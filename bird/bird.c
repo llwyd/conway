@@ -77,10 +77,9 @@ quadrant_t;
 typedef struct
 {
     point_t pos;
-    pu16_t pu16;
     uint8_t angle;
 
-    point16_t p;
+    //point16_t p;
     //uint16_t a;
     bird_state_t state;
 }
@@ -158,11 +157,11 @@ static point_t Move(bird_t * const bird)
     //const uint8_t angle = Q_UDNSCALE(bird->a, Q_SCALE);
     const uint8_t angle = bird->angle;
     
-    bird->p.x = x + QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
-    bird->p.y = y + QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
+    x += QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
+    y += QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
 
-    bird->pos.x = Q_DNSCALE(bird->p.x, Q_SCALE);
-    bird->pos.y = Q_DNSCALE(bird->p.y, Q_SCALE);
+    bird->pos.x = Q_DNSCALE(x, Q_SCALE);
+    bird->pos.y = Q_DNSCALE(y, Q_SCALE);
 
     return prev;
 }
@@ -191,9 +190,6 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
 
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
         bird[idx].pos.y = y & ( (LCD_FULL_ROWS >> 1U) - 1U);
-
-        bird[idx].p.x = Q_UPSCALE(x, Q_SCALE);
-        bird[idx].p.y = Q_UPSCALE(y, Q_SCALE);
         
         assert(bird[idx].pos.x < LCD_COLUMNS);
         assert(bird[idx].pos.y < LCD_FULL_ROWS);
@@ -251,32 +247,6 @@ static bool IsPointInSquare8(const point_t * const b, const point_t * const c, u
         }
     }
     return result;
-}
-
-static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds, int16_t square_size)
-{
-    assert(near_birds != NULL);
-    assert(square_size > 1U);
-
-    const point16_t * const c = &bird[current_idx].p;
-    near_birds->num = 0U;
-
-    for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
-    {
-        if(idx == current_idx)
-        {
-            continue;
-        }
-
-        const point16_t * const b = &bird[idx].p;
-        
-        if(IsPointInSquare(b, c, square_size))
-        {
-            near_birds->bird[near_birds->num] = idx;
-            near_birds->num++;
-        }
-    }
-
 }
 
 static void CollectNearbyBirds8(uint8_t current_idx, nearby_t * const near_birds, uint16_t square_size)
