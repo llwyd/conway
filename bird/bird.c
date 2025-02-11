@@ -185,12 +185,26 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
 static bool IsPointInSquare(const point16_t * const b, const point16_t * const c, int16_t square_size)
 {
     int16_t ss_2 = square_size >> 1U;
-    bool result = false;
-
     assert(ss_2 > 0);
-    if((b->x < (c->x + ss_2)) && (b->x > (c->x - ss_2)))
+    
+    bool result = false;
+    int16_t r = c->x + ss_2;
+    int16_t l = c->x - ss_2;
+    if( l < 0)
     {
-        if((b->y < (c->y + ss_2)) && (b->y > (c->y - ss_2)))
+        l = 0;
+    }
+    
+    int16_t u = c->y - ss_2;
+    int16_t d = c->y + ss_2;
+    if( u < 0)
+    {
+        u = 0;
+    }
+
+    if((b->x > l) && (b->x < r))
+    {
+        if((b->y > u) && (b->y < d))
         {
             result = true;
         }
