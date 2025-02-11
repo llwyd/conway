@@ -7,17 +7,17 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (16U)
+#define NUM_BIRDS (8U)
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (0x0010)
-#define COH_RADIUS (0x0080)
+#define SEP_RADIUS Q_UPSCALE(0x2, Q_SCALE)
+#define COH_RADIUS Q_UPSCALE(0x8, Q_SCALE)
 
 #define SEP_ANGLE Q_UUPSCALE(0x08, Q_SCALE)
-#define COH_ANGLE Q_UUPSCALE(0x02, Q_SCALE);
+#define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
 
-#define SPEED_INC (200U)
+#define SPEED_INC (0x100U)
 #define ALPHA (0x0100)
 
 typedef struct
@@ -237,7 +237,7 @@ static void CollectNearbyBirds(uint8_t current_idx, nearby_t * const near_birds,
 
         const point16_t * const b = &bird[idx].p;
         
-        if(IsPointInSquare(b, c, square_size));
+        if(IsPointInSquare(b, c, square_size))
         {
             near_birds->bird[near_birds->num] = idx;
             near_birds->num++;
