@@ -16,9 +16,13 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define SEP_RADIUS8 (0x02U)
 #define COH_RADIUS8 (0x10U)
-
+/*
 #define SEP_ANGLE Q_UUPSCALE(0x10, Q_SCALE)
 #define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
+*/
+
+#define SEP_ANGLE 0x10
+#define COH_ANGLE 0x04;
 
 #define SPEED_INC (0x100)
 #define ALPHA (0x0040)
@@ -74,10 +78,10 @@ typedef struct
 {
     point_t pos;
     pu16_t pu16;
-    //uint8_t angle;
+    uint8_t angle;
 
     point16_t p;
-    uint16_t a;
+    //uint16_t a;
     bird_state_t state;
 }
 bird_t;
@@ -151,7 +155,8 @@ static point_t Move(bird_t * const bird)
     int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
     int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
 
-    const uint8_t angle = Q_UDNSCALE(bird->a, Q_SCALE);
+    //const uint8_t angle = Q_UDNSCALE(bird->a, Q_SCALE);
+    const uint8_t angle = bird->angle;
     
     bird->p.x = x + QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
     bird->p.y = y + QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
@@ -180,7 +185,8 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         rng = xorshift32(rng);
         uint8_t x = (uint8_t)(rng >> 24U);
         uint8_t y = (uint8_t)(rng >> 16U);
-        bird[idx].a = (uint16_t)(rng >> 8U);
+        //bird[idx].angle = (uint16_t)(rng >> 8U);
+        bird[idx].angle = 0U;
         bird[idx].state = BirdState_Idle;
 
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
@@ -366,7 +372,7 @@ extern uint16_t AverageAngle(const nearby_t * const nearby)
     {
         uint16_t prev_y = y;
         uint8_t nearby_idx = nearby->bird[idx];
-        uint16_t angle = bird[nearby_idx].a;
+        uint16_t angle = Q_UUPSCALE(bird[nearby_idx].angle,Q_SCALE);
         uint16_t diff = QMath_USub(angle, prev_y, Q_NUM);
         y = angle - QMath_UMul(ALPHA, diff, Q_NUM);
     }
@@ -399,11 +405,11 @@ extern void Bird_Tick( void )
             {
                 case Quad_0:
                 case Quad_3:
-                    bird[idx].a+= SEP_ANGLE;
+                    bird[idx].angle += SEP_ANGLE;
                     break;
                 case Quad_1:
                 case Quad_2:
-                    bird[idx].a-= SEP_ANGLE;
+                    bird[idx].angle -= SEP_ANGLE;
                     break;
             }
         }
@@ -420,11 +426,11 @@ extern void Bird_Tick( void )
             {
                 case Quad_0:
                 case Quad_3:
-                    bird[idx].a-= COH_ANGLE;
+                    bird[idx].angle -= COH_ANGLE;
                     break;
                 case Quad_1:
                 case Quad_2:
-                    bird[idx].a+= COH_ANGLE;
+                    bird[idx].angle += COH_ANGLE;
                     break;
             }
 
@@ -440,9 +446,11 @@ extern void Bird_Tick( void )
 
         if(nearby_else.num > 0U)
         {
+            uint16_t angle = Q_UUPSCALE(bird[idx].angle, Q_SCALE);
             uint16_t near_angle = AverageAngle(&nearby_else);
-            uint16_t new_angle = (bird[idx].a - near_angle);
-            bird[idx].a += QMath_UMul(0x100, new_angle, Q_NUM);
+            uint16_t new_angle = (angle - near_angle);
+            uint16_t delta = QMath_UMul(0x100, new_angle, Q_NUM);
+            bird[idx].angle += Q_UDNSCALE(delta, Q_SCALE);
         }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
