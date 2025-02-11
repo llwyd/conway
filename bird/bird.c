@@ -11,14 +11,14 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS (0x0100)
-#define COH_RADIUS (0x0F00)
+#define SEP_RADIUS (0x0010)
+#define COH_RADIUS (0x0100)
 
-#define SEP_ANGLE (0x200)
-#define COH_ANGLE (0x050)
+#define SEP_ANGLE (0x08)
+#define COH_ANGLE (0x02)
 
 #define SPEED_INC (250U)
-#define ALPHA (0x0800)
+#define ALPHA (0x0010)
 
 typedef struct
 {
@@ -63,9 +63,10 @@ quadrant_t;
 typedef struct
 {
     point_t pos;
-    uint8_t speed;
-    int16_t angle;
+    uint8_t angle;
+
     point16_t p;
+    int16_t a;
     bird_state_t state;
 }
 bird_t;
@@ -136,7 +137,7 @@ static point_t Move(bird_t * const bird)
     int16_t x = bird->p.x;
     int16_t y = bird->p.y;
 
-    const uint8_t angle = Q_DNSCALE(bird->angle, Q_SCALE);
+    const uint8_t angle = bird->angle;
     
     bird->p.x = x + QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
     bird->p.y = y + QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
@@ -165,7 +166,7 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         rng = xorshift32(rng);
         uint8_t x = (uint8_t)(rng >> 24U);
         uint8_t y = (uint8_t)(rng >> 16U);
-        bird[idx].angle = (uint16_t)(rng >> 8U);
+        bird[idx].angle = (uint8_t)(rng >> 8U);
         bird[idx].state = BirdState_Idle;
 
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
@@ -285,7 +286,7 @@ extern int16_t AverageAngle(const nearby_t * const nearby)
     {
         int16_t prev_y = y;
         uint8_t nearby_idx = nearby->bird[idx];
-        int16_t angle = bird[nearby_idx].angle;
+        int16_t angle = Q_UPSCALE(bird[nearby_idx].angle, Q_SCALE);
         int16_t diff = QMath_Sub(angle, prev_y, Q_NUM);
         y = angle - QMath_Mul(ALPHA, diff, Q_NUM);
     }
@@ -360,8 +361,11 @@ extern void Bird_Tick( void )
         if(nearby_else.num > 0U)
         {
             int16_t near_angle = AverageAngle(&nearby_else);
-            uint16_t new_angle = (bird[idx].angle - near_angle);
-            bird[idx].angle += QMath_Mul(0x200, new_angle, Q_NUM);
+            bird[idx].a = Q_UPSCALE(bird[idx].angle, Q_SCALE);
+            int16_t new_angle = (bird[idx].a - near_angle);
+            bird[idx].a += QMath_Mul(0x200, new_angle, Q_NUM);
+
+            bird[idx].angle = Q_DNSCALE(bird[idx].a, Q_SCALE);
         }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
