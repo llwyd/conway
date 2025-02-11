@@ -13,10 +13,13 @@ q = 15
 q_sin = np.int16(s * np.float32( 1 << q ) )
 q_cos = np.int16(c * np.float32( 1 << q ) )
 
+q_usin = np.uint16(s * np.float32( 1 << q ) )
+q_ucos = np.uint16(c * np.float32( 1 << q ) )
+
 plt.figure(1)
 plt.subplot(2,1,1)
-plt.plot(s)
-plt.plot(c)
+plt.plot(q_usin)
+plt.plot(q_ucos)
 plt.subplot(2,1,2)
 plt.plot(q_sin)
 plt.plot(q_cos)
