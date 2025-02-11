@@ -15,7 +15,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define COH_RADIUS Q_UPSCALE(0x10, Q_SCALE)
 
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x10U)
+#define COH_RADIUS8 (0x14U)
 /*
 #define SEP_ANGLE Q_UUPSCALE(0x10, Q_SCALE)
 #define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
