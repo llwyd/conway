@@ -66,7 +66,7 @@ typedef struct
     uint8_t angle;
 
     point16_t p;
-    int16_t a;
+    uint16_t a;
     bird_state_t state;
 }
 bird_t;
@@ -277,18 +277,18 @@ extern point16_t AveragePoint(const nearby_t * const nearby)
     return result;
 }
 
-extern int16_t AverageAngle(const nearby_t * const nearby)
+extern uint16_t AverageAngle(const nearby_t * const nearby)
 {
-    int16_t result = 0;
-    int16_t y = 0;
+    uint16_t result = 0;
+    uint16_t y = 0;
 
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
-        int16_t prev_y = y;
+        uint16_t prev_y = y;
         uint8_t nearby_idx = nearby->bird[idx];
-        int16_t angle = Q_UPSCALE(bird[nearby_idx].angle, Q_SCALE);
-        int16_t diff = QMath_Sub(angle, prev_y, Q_NUM);
-        y = angle - QMath_Mul(ALPHA, diff, Q_NUM);
+        uint16_t angle = Q_UUPSCALE(bird[nearby_idx].angle, Q_SCALE);
+        uint16_t diff = QMath_USub(angle, prev_y, Q_NUM);
+        y = angle - QMath_UMul(ALPHA, diff, Q_NUM);
     }
 
     result = y;
@@ -360,12 +360,12 @@ extern void Bird_Tick( void )
 
         if(nearby_else.num > 0U)
         {
-            int16_t near_angle = AverageAngle(&nearby_else);
-            bird[idx].a = Q_UPSCALE(bird[idx].angle, Q_SCALE);
-            int16_t new_angle = (bird[idx].a - near_angle);
-            bird[idx].a += QMath_Mul(0x200, new_angle, Q_NUM);
+            uint16_t near_angle = AverageAngle(&nearby_else);
+            bird[idx].a = Q_UUPSCALE(bird[idx].angle, Q_SCALE);
+            uint16_t new_angle = (bird[idx].a - near_angle);
 
-            bird[idx].angle = Q_DNSCALE(bird[idx].a, Q_SCALE);
+            bird[idx].a += QMath_UMul(0x200, new_angle, Q_NUM);
+            bird[idx].angle = Q_UDNSCALE(bird[idx].a, Q_SCALE);
         }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
