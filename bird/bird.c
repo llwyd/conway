@@ -12,10 +12,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_SCALE (Q_NUM - 8U)
 
 #define SEP_RADIUS (0x0010)
-#define COH_RADIUS (0x0100)
+#define COH_RADIUS (0x0800)
 
-#define SEP_ANGLE (0x08)
-#define COH_ANGLE (0x02)
+#define SEP_ANGLE (0x0A)
+#define COH_ANGLE (0x01)
 
 #define SPEED_INC (250U)
 #define ALPHA (0x0010)
@@ -134,8 +134,8 @@ static point_t Move(bird_t * const bird)
 
     /* x = inc + cos(theta) */
     /* y = inc + sin(theta) */
-    int16_t x = bird->p.x;
-    int16_t y = bird->p.y;
+    int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
+    int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
 
     const uint8_t angle = bird->angle;
     
@@ -378,7 +378,7 @@ extern void Bird_Tick( void )
             bird[idx].a = Q_UUPSCALE(bird[idx].angle, Q_SCALE);
             uint16_t new_angle = (bird[idx].a - near_angle);
 
-            bird[idx].a += QMath_UMul(0x200, new_angle, Q_NUM);
+            bird[idx].a += QMath_UMul(0x0020, new_angle, Q_NUM);
             bird[idx].angle = Q_UDNSCALE(bird[idx].a, Q_SCALE);
         }
         /* Draw */
