@@ -141,8 +141,8 @@ static point_t Move(bird_t * const bird)
     bird->p.x = x + QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
     bird->p.y = y + QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
 
-    bird->pos.x = Q_DNSCALE(x, Q_SCALE);
-    bird->pos.y = Q_DNSCALE(y, Q_SCALE);
+    bird->pos.x = Q_DNSCALE(bird->p.x, Q_SCALE);
+    bird->pos.y = Q_DNSCALE(bird->p.y, Q_SCALE);
 
     return prev;
 }
