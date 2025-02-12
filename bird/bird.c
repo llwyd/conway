@@ -11,15 +11,8 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS Q_UPSCALE(0x04, Q_SCALE)
-#define COH_RADIUS Q_UPSCALE(0x10, Q_SCALE)
-
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x14U)
-/*
-#define SEP_ANGLE Q_UUPSCALE(0x10, Q_SCALE)
-#define COH_ANGLE Q_UUPSCALE(0x04, Q_SCALE);
-*/
+#define COH_RADIUS8 (0x10U)
 
 #define SEP_ANGLE 0x10
 #define COH_ANGLE 0x04;
@@ -374,12 +367,16 @@ extern void Bird_Tick( void )
             switch(q)
             {
                 case Quad_0:
-                case Quad_3:
                     bird[idx].angle += SEP_ANGLE;
                     break;
-                case Quad_1:
-                case Quad_2:
+                case Quad_3:
                     bird[idx].angle -= SEP_ANGLE;
+                    break;
+                case Quad_1:
+                    bird[idx].angle -= SEP_ANGLE;
+                    break;
+                case Quad_2:
+                    bird[idx].angle += SEP_ANGLE;
                     break;
             }
         }
@@ -395,10 +392,14 @@ extern void Bird_Tick( void )
             switch(q)
             {
                 case Quad_0:
-                case Quad_3:
                     bird[idx].angle -= COH_ANGLE;
                     break;
+                case Quad_3:
+                    bird[idx].angle += COH_ANGLE;
+                    break;
                 case Quad_1:
+                    bird[idx].angle -= COH_ANGLE;
+                    break;
                 case Quad_2:
                     bird[idx].angle += COH_ANGLE;
                     break;
