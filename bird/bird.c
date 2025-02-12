@@ -18,6 +18,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define COH_ANGLE 0x04U;
 
 #define SPEED_INC (0x100)
+#define DELTA_FRACT (0x100)
 #define ALPHA (0x0040)
 
 typedef struct
@@ -397,7 +398,7 @@ extern void Bird_Tick( void )
             uint16_t angle = Q_UUPSCALE(bird[idx].angle, Q_SCALE);
             uint16_t near_angle = AverageAngle(&nearby_else);
             uint16_t new_angle = (angle - near_angle);
-            uint16_t delta = QMath_UMul(0x100, new_angle, Q_NUM);
+            uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
             bird[idx].angle += Q_UDNSCALE(delta, Q_SCALE);
         }
         /* Draw */
