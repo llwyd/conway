@@ -12,13 +12,13 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_SCALE (Q_NUM - 8U)
 
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x20U)
+#define COH_RADIUS8 (0x0CU)
 
-#define SEP_ANGLE 0x10U
+#define SEP_ANGLE 0x20U
 #define COH_ANGLE 0x04U;
 
 #define SPEED_INC (0x100)
-#define DELTA_FRACT (0x100)
+#define DELTA_FRACT (0x2000)
 #define ALPHA (0x0040)
 
 typedef struct
@@ -358,7 +358,7 @@ extern void Bird_Tick( void )
                     break;
             }
         }
-        if(nearby_else.num > 0U)
+        else if(nearby_else.num > 0U)
         {
             /* Handle Alignment + Cohesion */
             /* Determine angle from quadrant */
@@ -397,7 +397,7 @@ extern void Bird_Tick( void )
         {
             uint16_t angle = Q_UUPSCALE(bird[idx].angle, Q_SCALE);
             uint16_t near_angle = AverageAngle(&nearby_else);
-            uint16_t new_angle = (angle - near_angle);
+            uint16_t new_angle = (angle > near_angle) ? (angle - near_angle) : (near_angle - angle);
             uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
             bird[idx].angle += Q_UDNSCALE(delta, Q_SCALE);
         }
