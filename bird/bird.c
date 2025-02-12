@@ -7,19 +7,19 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (8U)
+#define NUM_BIRDS (16U)
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
-#define SEP_RADIUS8 (0x02U)
+#define SEP_RADIUS8 (0x04U)
 #define COH_RADIUS8 (0x0CU)
 
-#define SEP_ANGLE 0x20U
-#define COH_ANGLE 0x04U;
+#define SEP_ANGLE 0x08U
+#define COH_ANGLE 0x01U;
 
-#define SPEED_INC (0x100)
-#define DELTA_FRACT (0x2000)
-#define ALPHA (0x0040)
+#define SPEED_INC (0x0100)
+#define DELTA_FRACT (0x2500)
+#define ALPHA (0x0080)
 
 typedef struct
 {
@@ -326,6 +326,7 @@ extern uint16_t AverageAngle(const nearby_t * const nearby)
 
 extern void Bird_Tick( void )
 {
+    quadrant_t quad = Quad_0;
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         /* Collect nearby birds */
@@ -367,6 +368,7 @@ extern void Bird_Tick( void )
             const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
             const point_t avg = {.x=avg_x, .y=avg_y};
             quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
+            quad = q;
             switch(q)
             {
                 case Quad_0:
@@ -399,7 +401,17 @@ extern void Bird_Tick( void )
             uint16_t near_angle = AverageAngle(&nearby_else);
             uint16_t new_angle = (angle > near_angle) ? (angle - near_angle) : (near_angle - angle);
             uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
-            bird[idx].angle += Q_UDNSCALE(delta, Q_SCALE);
+            switch(quad)
+            {
+                case Quad_0:
+                case Quad_3:
+                    bird[idx].angle += Q_UDNSCALE(delta, Q_SCALE);
+                    break;
+                case Quad_1:
+                case Quad_2:
+                    bird[idx].angle -= Q_UDNSCALE(delta, Q_SCALE);
+                    break;
+            }
         }
         /* Draw */
         bit_t prev_bit = PointToBit(&prev);
