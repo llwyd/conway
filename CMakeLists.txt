@@ -22,6 +22,18 @@ add_executable( bird.out
                 common/lut.h
                 )
 
+add_executable( tests.out
+                tests/tests.c
+                Unity/src/unity.c
+                Unity/src/unity.h
+                Unity/src/unity_internals.h ) 
+
+include_directories( tests.out PRIVATE Unity )
+include_directories( tests.out PRIVATE Unity/src )
+include_directories( tests.out PRIVATE bird )
+include_directories( tests.out PRIVATE life )
+include_directories( tests.out PRIVATE common )
+
 target_compile_definitions(conway.out PRIVATE TARGET_DESKTOP)
 target_compile_definitions(conway.out PRIVATE SIM_GOL)
 
@@ -45,6 +57,18 @@ target_compile_options( conway.out
                         #-Wpedantic
                         #-Wpointer-arith
                         -g)
+
+target_compile_options( tests.out
+                        PUBLIC
+                        -Wfatal-errors
+                        #-Wall
+                        #-Wextra
+                        #-Werror
+                        #-Wpedantic
+                        #-Wpointer-arith
+                        -g
+                        -DUNIT_TESTS
+                        -DUNITY_OUTPUT_COLOR )
 
 target_link_libraries( conway.out X11)
 
