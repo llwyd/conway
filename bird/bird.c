@@ -15,11 +15,11 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SEP_RADIUS8 (0x04U)
 #define COH_RADIUS8 (0x0CU)
 
-#define SEP_ANGLE 0x08U
+#define SEP_ANGLE 0x01U
 #define COH_ANGLE 0x01U;
 
 #define SPEED_INC (0x0100)
-#define DELTA_FRACT (0x2500)
+#define DELTA_FRACT (0x3333)
 #define ALPHA (0x0080)
 
 typedef struct
@@ -321,20 +321,49 @@ extern void Bird_Tick( void )
             const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
             const point_t avg = {.x=avg_x, .y=avg_y};
             quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
+            uint8_t a = TRIG_ATan2(&bird[idx].pos, &avg);
 
             switch(q)
             {
                 case Quad_0:
-                    bird[idx].angle += SEP_ANGLE;
+                    if(a > 160)
+                    {
+                        bird[idx].angle -= SEP_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle += SEP_ANGLE;
+                    }
                     break;
                 case Quad_3:
-                    bird[idx].angle -= SEP_ANGLE;
+                    if(a < 96)
+                    {
+                        bird[idx].angle += SEP_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle -= SEP_ANGLE;
+                    }
                     break;
                 case Quad_1:
-                    bird[idx].angle -= SEP_ANGLE;
+                    if(a < 96 )
+                    {
+                        bird[idx].angle -= SEP_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle += SEP_ANGLE;
+                    }
                     break;
                 case Quad_2:
-                    bird[idx].angle += SEP_ANGLE;
+                    if(a > 160 )
+                    {
+                        bird[idx].angle += SEP_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle -= SEP_ANGLE;
+                    }
                     break;
             }
         }
@@ -354,6 +383,16 @@ extern void Bird_Tick( void )
                 case Quad_0:
                     if(a > 160)
                     {
+                        bird[idx].angle += COH_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle -= COH_ANGLE;
+                    }
+                    break;
+                case Quad_3:
+                    if(a < 96)
+                    {
                         bird[idx].angle -= COH_ANGLE;
                     }
                     else
@@ -361,14 +400,25 @@ extern void Bird_Tick( void )
                         bird[idx].angle += COH_ANGLE;
                     }
                     break;
-                case Quad_3:
-                    bird[idx].angle += COH_ANGLE;
-                    break;
                 case Quad_1:
-                    bird[idx].angle -= COH_ANGLE;
+                    if(a < 96 )
+                    {
+                        bird[idx].angle += COH_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle -= COH_ANGLE;
+                    }
                     break;
                 case Quad_2:
-                    bird[idx].angle += COH_ANGLE;
+                    if(a > 160 )
+                    {
+                        bird[idx].angle -= COH_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle += COH_ANGLE;
+                    }
                     break;
             }
 
