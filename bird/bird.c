@@ -347,11 +347,19 @@ extern void Bird_Tick( void )
             const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
             const point_t avg = {.x=avg_x, .y=avg_y};
             quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
+            uint8_t a = TRIG_ATan2(&bird[idx].pos, &avg);
             quad = q;
             switch(q)
             {
                 case Quad_0:
-                    bird[idx].angle -= COH_ANGLE;
+                    if(a > 160)
+                    {
+                        bird[idx].angle -= COH_ANGLE;
+                    }
+                    else
+                    {
+                        bird[idx].angle += COH_ANGLE;
+                    }
                     break;
                 case Quad_3:
                     bird[idx].angle += COH_ANGLE;

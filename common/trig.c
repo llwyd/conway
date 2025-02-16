@@ -25,7 +25,7 @@ static int16_t ABS(int16_t x)
     return result;
 }
 
-extern uint8_t TRIG_ATan2(point_t * a, point_t * b)
+extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
 {
     int16_t diff_x = (int16_t)a->x - (int16_t)b->x;
     int16_t diff_y = (int16_t)a->y - (int16_t)b->y;
@@ -40,8 +40,8 @@ extern uint8_t TRIG_ATan2(point_t * a, point_t * b)
 
     point_t c =
     {
-        .x = (abs_x << 4),
-        .y = (abs_y << 4),
+        .x = (abs_x << 0),
+        .y = (abs_y << 0),
     };
     
     for(uint32_t idx = 0; idx < CORDIC_ITS; idx++)

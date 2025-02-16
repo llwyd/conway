@@ -25,7 +25,7 @@ typedef struct
 }
 point16_t;
 
-extern uint8_t TRIG_ATan2(point_t * a, point_t * b);
+extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b);
 
 #endif /* TRIG_H_ */
 
