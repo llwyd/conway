@@ -1,4 +1,5 @@
 #include "unity.h"
+#include "trig_tests.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,6 +15,6 @@ void tearDown(void)
 int main( void )
 {
     UNITY_BEGIN();
-    printf("Hello, World\n");
+    TRIG_TestsRun();
     return UNITY_END();
 }

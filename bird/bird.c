@@ -1,6 +1,7 @@
 #include "bird.h"
 #include "qmath.h"
 #include "lut.h"
+#include "trig.h"
 
 _Static_assert(sizeof(uint8_t) == 1U, "invalid u8 size");
 _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
@@ -28,28 +29,6 @@ typedef struct
     uint8_t bit;
 }
 bit_t;
-
-typedef struct
-{
-    uint8_t x;
-    uint8_t y;
-}
-point_t;
-
-typedef struct
-{
-    uint16_t x;
-    uint16_t y;
-}
-pu16_t;
-
-
-typedef struct
-{
-    int16_t x;
-    int16_t y;
-}
-point16_t;
 
 typedef enum
 {

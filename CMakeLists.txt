@@ -17,6 +17,8 @@ add_executable( bird.out
                 desktop/emulator.c
                 bird/bird.c
                 bird/bird.h
+                common/trig.h
+                common/trig.c
                 common/qmath.h
                 common/qmath.c
                 common/lut.h
@@ -24,6 +26,10 @@ add_executable( bird.out
 
 add_executable( tests.out
                 tests/tests.c
+                tests/trig_tests.c
+                tests/trig_tests.h
+                common/trig.h
+                common/trig.c
                 Unity/src/unity.c
                 Unity/src/unity.h
                 Unity/src/unity_internals.h ) 
@@ -49,6 +55,16 @@ include_directories( bird.out PRIVATE bird )
 include_directories( bird.out PRIVATE common )
 
 target_compile_options( conway.out
+                        PUBLIC
+                        -Wfatal-errors
+                        #                        -Wall
+                        #-Wextra
+                        #-Werror
+                        #-Wpedantic
+                        #-Wpointer-arith
+                        -g)
+
+target_compile_options( bird.out
                         PUBLIC
                         -Wfatal-errors
                         #                        -Wall
