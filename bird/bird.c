@@ -18,7 +18,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SEP_ANGLE 0x01U
 #define COH_ANGLE 0x01U;
 
-#define SPEED_INC (0x0100)
+#define SPEED_INC (0x00f4)
 #define DELTA_FRACT (0x3333)
 #define ALPHA (0x0080)
 
