@@ -21,6 +21,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SPEED_INC (0x00f4)
 #define DELTA_FRACT (0x3333)
 #define ALPHA (0x0080)
+#define EDGE (8U)
 
 typedef struct
 {
@@ -201,17 +202,17 @@ static bool IsPointInSquare8(const point_t * const b, const point_t * const c, u
     return result;
 }
 
-static void CollectNearbyBirds8(uint8_t current_idx, nearby_t * const near_birds, uint16_t square_size)
+static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, uint16_t square_size)
 {
     assert(near_birds != NULL);
     assert(square_size > 1U);
 
-    const point_t * const c = &bird[current_idx].pos;
+    const point_t * const c = &current_bird->pos;
     near_birds->num = 0U;
 
     for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
-        if(idx != current_idx)
+        if(current_bird != &bird[idx])
         {
             const point_t * const b = &bird[idx].pos;
             
@@ -302,158 +303,166 @@ extern uint16_t AverageAngle(const nearby_t * const nearby)
 }
 
 
+extern point_t Idle( bird_t * const b)
+{
+    quadrant_t quad = Quad_0;
+    /* Collect nearby birds */
+    CollectNearbyBirds8(b, &nearby_sep, SEP_RADIUS8);
+    CollectNearbyBirds8(b, &nearby_else, COH_RADIUS8);
+
+    if(nearby_sep.num > 0U)
+    {
+        /* Handle separation */
+        /* Determine angle from quadrant */
+        const point16_t avg_pos = AveragePoint(&nearby_sep); 
+        const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
+        const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
+        const point_t avg = {.x=avg_x, .y=avg_y};
+        quadrant_t q = WhichQuadrant(&b->pos, &avg);
+        uint8_t a = TRIG_ATan2(&b->pos, &avg);
+
+        switch(q)
+        {
+            case Quad_0:
+                if(a > 160)
+                {
+                    b->angle -= SEP_ANGLE;
+                }
+                else
+                {
+                    b->angle += SEP_ANGLE;
+                }
+                break;
+            case Quad_3:
+                if(a < 96)
+                {
+                    b->angle += SEP_ANGLE;
+                }
+                else
+                {
+                    b->angle -= SEP_ANGLE;
+                }
+                break;
+            case Quad_1:
+                if(a < 96 )
+                {
+                    b->angle -= SEP_ANGLE;
+                }
+                else
+                {
+                    b->angle += SEP_ANGLE;
+                }
+                break;
+            case Quad_2:
+                if(a > 160 )
+                {
+                    b->angle += SEP_ANGLE;
+                }
+                else
+                {
+                    b->angle -= SEP_ANGLE;
+                }
+                break;
+        }
+    }
+    else if(nearby_else.num > 0U)
+    {
+        /* Handle Alignment + Cohesion */
+        /* Determine angle from quadrant */
+        const point16_t avg_pos = AveragePoint(&nearby_else);
+        const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
+        const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
+        const point_t avg = {.x=avg_x, .y=avg_y};
+        quadrant_t q = WhichQuadrant(&b->pos, &avg);
+        uint8_t a = TRIG_ATan2(&b->pos, &avg);
+        quad = q;
+        switch(q)
+        {
+            case Quad_0:
+                if(a > 160)
+                {
+                    b->angle += COH_ANGLE;
+                }
+                else
+                {
+                    b->angle -= COH_ANGLE;
+                }
+                break;
+            case Quad_3:
+                if(a < 96)
+                {
+                    b->angle -= COH_ANGLE;
+                }
+                else
+                {
+                    b->angle += COH_ANGLE;
+                }
+                break;
+            case Quad_1:
+                if(a < 96 )
+                {
+                    b->angle += COH_ANGLE;
+                }
+                else
+                {
+                    b->angle -= COH_ANGLE;
+                }
+                break;
+            case Quad_2:
+                if(a > 160 )
+                {
+                    b->angle -= COH_ANGLE;
+                }
+                else
+                {
+                    b->angle += COH_ANGLE;
+                }
+                break;
+        }
+
+    }
+
+    /* Update bird
+     * -> Move
+     * -> Update state machine
+     * -> Screen wrap */
+    
+    (void)Move(b);
+    ScreenWrap(b);
+
+    if(nearby_else.num > 0U)
+    {
+        uint16_t angle = Q_UUPSCALE(b->angle, Q_SCALE);
+        uint16_t near_angle = AverageAngle(&nearby_else);
+        uint16_t new_angle = (angle > near_angle) ? (angle - near_angle) : (near_angle - angle);
+        uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
+        switch(quad)
+        {
+            case Quad_0:
+            case Quad_3:
+                b->angle += Q_UDNSCALE(delta, Q_SCALE);
+                break;
+            case Quad_1:
+            case Quad_2:
+                b->angle -= Q_UDNSCALE(delta, Q_SCALE);
+                break;
+        }
+    }
+}
 
 extern void Bird_Tick( void )
 {
-    quadrant_t quad = Quad_0;
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
     {
-        /* Collect nearby birds */
-        CollectNearbyBirds8(idx, &nearby_sep, SEP_RADIUS8);
-        CollectNearbyBirds8(idx, &nearby_else, COH_RADIUS8);
 
-        if(nearby_sep.num > 0U)
-        {
-            /* Handle separation */
-            /* Determine angle from quadrant */
-            const point16_t avg_pos = AveragePoint(&nearby_sep); 
-            const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
-            const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
-            const point_t avg = {.x=avg_x, .y=avg_y};
-            quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
-            uint8_t a = TRIG_ATan2(&bird[idx].pos, &avg);
+        bird_t * const b = &bird[idx];
 
-            switch(q)
-            {
-                case Quad_0:
-                    if(a > 160)
-                    {
-                        bird[idx].angle -= SEP_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle += SEP_ANGLE;
-                    }
-                    break;
-                case Quad_3:
-                    if(a < 96)
-                    {
-                        bird[idx].angle += SEP_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle -= SEP_ANGLE;
-                    }
-                    break;
-                case Quad_1:
-                    if(a < 96 )
-                    {
-                        bird[idx].angle -= SEP_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle += SEP_ANGLE;
-                    }
-                    break;
-                case Quad_2:
-                    if(a > 160 )
-                    {
-                        bird[idx].angle += SEP_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle -= SEP_ANGLE;
-                    }
-                    break;
-            }
-        }
-        else if(nearby_else.num > 0U)
-        {
-            /* Handle Alignment + Cohesion */
-            /* Determine angle from quadrant */
-            const point16_t avg_pos = AveragePoint(&nearby_else);
-            const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
-            const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
-            const point_t avg = {.x=avg_x, .y=avg_y};
-            quadrant_t q = WhichQuadrant(&bird[idx].pos, &avg);
-            uint8_t a = TRIG_ATan2(&bird[idx].pos, &avg);
-            quad = q;
-            switch(q)
-            {
-                case Quad_0:
-                    if(a > 160)
-                    {
-                        bird[idx].angle += COH_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle -= COH_ANGLE;
-                    }
-                    break;
-                case Quad_3:
-                    if(a < 96)
-                    {
-                        bird[idx].angle -= COH_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle += COH_ANGLE;
-                    }
-                    break;
-                case Quad_1:
-                    if(a < 96 )
-                    {
-                        bird[idx].angle += COH_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle -= COH_ANGLE;
-                    }
-                    break;
-                case Quad_2:
-                    if(a > 160 )
-                    {
-                        bird[idx].angle -= COH_ANGLE;
-                    }
-                    else
-                    {
-                        bird[idx].angle += COH_ANGLE;
-                    }
-                    break;
-            }
-
-        }
-
-        /* Update bird
-         * -> Move
-         * -> Update state machine
-         * -> Screen wrap */
-        
-        point_t prev = Move(&bird[idx]);
-        ScreenWrap(&bird[idx]);
-
-        if(nearby_else.num > 0U)
-        {
-            uint16_t angle = Q_UUPSCALE(bird[idx].angle, Q_SCALE);
-            uint16_t near_angle = AverageAngle(&nearby_else);
-            uint16_t new_angle = (angle > near_angle) ? (angle - near_angle) : (near_angle - angle);
-            uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
-            switch(quad)
-            {
-                case Quad_0:
-                case Quad_3:
-                    bird[idx].angle += Q_UDNSCALE(delta, Q_SCALE);
-                    break;
-                case Quad_1:
-                case Quad_2:
-                    bird[idx].angle -= Q_UDNSCALE(delta, Q_SCALE);
-                    break;
-            }
-        }
-        /* Draw */
-        bit_t prev_bit = PointToBit(&prev);
+        bit_t prev_bit = PointToBit(&b->pos);
         Set(display_buffer, false, &prev_bit);
-        bit_t bit = PointToBit(&bird[idx].pos);
+        Idle(b);
+
+        /* Draw */
+        bit_t bit = PointToBit(&b->pos);
         Set(display_buffer, true, &bit);
     }
     update_fn();
