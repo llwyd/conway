@@ -21,7 +21,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SPEED_INC (0x00f4)
 #define DELTA_FRACT (0x3333)
 #define ALPHA (0x0080)
-#define EDGE (8U)
+#define EDGE (4U)
 
 typedef struct
 {
@@ -114,6 +114,34 @@ static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t *
     {
         display[bit->page][bit->col] &= ~(1U << bit->bit);
     }
+}
+
+static bird_state_t NextState(const bird_t * const b)
+{
+    bird_state_t next_state = BirdState_Idle;
+
+    uint8_t r = LCD_COLUMNS - EDGE;
+    uint8_t l = 0U + EDGE;
+    uint8_t u = 0U + EDGE;
+    uint8_t d = LCD_FULL_ROWS - EDGE;
+
+    const point_t * const p = &b->pos;
+
+    if( (p->x < l) || (p->x > r) )
+    {
+        next_state = BirdState_TurningX;
+    }
+    else if( (p->y < u) || (p->x > d) )
+    {
+        next_state = BirdState_TurningY;
+    }
+    else
+    {
+        next_state = BirdState_Idle;
+    }
+
+
+    return next_state;
 }
 
 static void Move(bird_t * const b)
@@ -443,16 +471,35 @@ extern point_t Idle( bird_t * const b)
     }
 }
 
+static void Turning(bird_t * const b)
+{
+
+}
+
 extern void Bird_Tick( void )
 {
     for(uint8_t idx = 0; idx < NUM_BIRDS; idx++)
     {
 
         bird_t * const b = &bird[idx];
-
         bit_t prev_bit = PointToBit(&b->pos);
         Set(display_buffer, false, &prev_bit);
-        Idle(b);
+        
+        switch(b->state)
+        {
+            case BirdState_Idle:
+                Idle(b);
+                break;
+            case BirdState_TurningX:
+            case BirdState_TurningY:
+                Turning(b);
+                break;
+            default:
+                assert(false);
+                break; 
+        }
+        
+        b->state = NextState(b);
 
         /* Draw */
         bit_t bit = PointToBit(&b->pos);
