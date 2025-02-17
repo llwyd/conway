@@ -8,7 +8,7 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (16U)
+#define NUM_BIRDS (32U)
 #define Q_NUM (15U)
 #define Q_SCALE (Q_NUM - 8U)
 
@@ -17,11 +17,12 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define SEP_ANGLE 0x01U
 #define COH_ANGLE 0x01U;
+#define EDGE_ANGLE 0x04U;
 
 #define SPEED_INC (0x00f4)
 #define DELTA_FRACT (0x3333)
 #define ALPHA (0x0080)
-#define EDGE (4U)
+#define EDGE (0x1AU)
 
 typedef struct
 {
@@ -34,8 +35,10 @@ bit_t;
 typedef enum
 {
     BirdState_Idle,
-    BirdState_TurningX,
-    BirdState_TurningY,
+    BirdState_TurningN,
+    BirdState_TurningE,
+    BirdState_TurningS,
+    BirdState_TurningW,
 }
 bird_state_t;
 
@@ -127,13 +130,21 @@ static bird_state_t NextState(const bird_t * const b)
 
     const point_t * const p = &b->pos;
 
-    if( (p->x < l) || (p->x > r) )
+    if( (p->x < l) )
     {
-        next_state = BirdState_TurningX;
+        next_state = BirdState_TurningW;
     }
-    else if( (p->y < u) || (p->x > d) )
+    else if( (p->x > r) )
     {
-        next_state = BirdState_TurningY;
+        next_state = BirdState_TurningE;
+    }
+    else if( (p->y < u) )
+    {
+        next_state = BirdState_TurningN;
+    }
+    else if( (p->y > d) )
+    {
+        next_state = BirdState_TurningS;
     }
     else
     {
@@ -180,7 +191,7 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         uint8_t x = (uint8_t)(rng >> 24U);
         uint8_t y = (uint8_t)(rng >> 16U);
         //bird[idx].angle = (uint16_t)(rng >> 8U);
-        bird[idx].angle = 0U;
+        bird[idx].angle = 24U;
         bird[idx].state = BirdState_Idle;
 
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
@@ -473,7 +484,62 @@ extern point_t Idle( bird_t * const b)
 
 static void Turning(bird_t * const b)
 {
-
+    switch(b->state)
+    {
+        case BirdState_TurningS:
+        {
+            if( (b->angle > DEG_90) && (b->angle < DEG_270))
+            {
+                b->angle += EDGE_ANGLE;
+            }
+            else
+            {
+                b->angle -= EDGE_ANGLE;
+            }
+            break;
+        }
+        case BirdState_TurningN:
+        {
+            if( (b->angle > DEG_90) && (b->angle < DEG_270))
+            {
+                b->angle -= EDGE_ANGLE;
+            }
+            else
+            {
+                b->angle += EDGE_ANGLE;
+            }
+            break;
+        }
+        case BirdState_TurningE:
+        {
+            if( (b->angle > DEG_0) && (b->angle < DEG_180))
+            {
+                b->angle += EDGE_ANGLE;
+            }
+            else
+            {
+                b->angle -= EDGE_ANGLE;
+            }
+            break;
+        }
+        case BirdState_TurningW:
+        {
+            if( (b->angle > DEG_0) && (b->angle < DEG_180))
+            {
+                b->angle -= EDGE_ANGLE;
+            }
+            else
+            {
+                b->angle += EDGE_ANGLE;
+            }
+            break;
+        }
+        default:
+            assert(false);
+            break;
+    }
+    Move(b);
+    ScreenWrap(b);
 }
 
 extern void Bird_Tick( void )
@@ -490,8 +556,10 @@ extern void Bird_Tick( void )
             case BirdState_Idle:
                 Idle(b);
                 break;
-            case BirdState_TurningX:
-            case BirdState_TurningY:
+            case BirdState_TurningN:
+            case BirdState_TurningE:
+            case BirdState_TurningS:
+            case BirdState_TurningW:
                 Turning(b);
                 break;
             default:

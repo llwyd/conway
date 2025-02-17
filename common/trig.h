@@ -3,6 +3,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DEG_0    (0U * (1U << 5U))
+#define DEG_45   (1U * (1U << 5U))
+#define DEG_90   (2U * (1U << 5U))
+#define DEG_135  (3U * (1U << 5U))
+#define DEG_180  (4U * (1U << 5U))
+#define DEG_225  (5U * (1U << 5U))
+#define DEG_270  (6U * (1U << 5U))
+#define DEG_315  (7U * (1U << 5U))
+
 typedef struct
 {
     uint8_t x;
