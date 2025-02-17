@@ -13,10 +13,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define Q_SCALE (Q_NUM - 8U)
 
 #define SEP_RADIUS8 (0x04U)
-#define COH_RADIUS8 (0x0CU)
+#define COH_RADIUS8 (0x0FU)
 
 #define SEP_ANGLE 0x01U
-#define COH_ANGLE 0x01U;
+#define COH_ANGLE 0x02U;
 #define EDGE_ANGLE 0x04U;
 
 #define SPEED_INC (0x00f4)
