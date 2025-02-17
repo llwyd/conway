@@ -28,8 +28,13 @@ add_executable( tests.out
                 tests/tests.c
                 tests/trig_tests.c
                 tests/trig_tests.h
+                tests/movement_tests.h
+                tests/movement_tests.c
                 common/trig.h
                 common/trig.c
+                common/qmath.h
+                common/qmath.c
+                common/lut.h
                 Unity/src/unity.c
                 Unity/src/unity.h
                 Unity/src/unity_internals.h ) 
