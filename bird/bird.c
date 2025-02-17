@@ -22,7 +22,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SPEED_INC (0x00f4)
 #define DELTA_FRACT (0x3333)
 #define ALPHA (0x0080)
-#define EDGE (0x09U)
+#define EDGE (0x04U)
 
 typedef struct
 {
