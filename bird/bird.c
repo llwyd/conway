@@ -116,19 +116,14 @@ static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t *
     }
 }
 
-static point_t Move(bird_t * const b)
+static void Move(bird_t * const b)
 {
-    point_t prev = b->pos;
-
     /* x = inc + cos(theta) */
     /* y = inc + sin(theta) */
-    //int16_t x = Q_UPSCALE(bird->pos.x, Q_SCALE);
-    //int16_t y = Q_UPSCALE(bird->pos.y, Q_SCALE);
     
     int16_t x = Q_UPSCALE(b->pos.x, Q_SCALE);
     int16_t y = Q_UPSCALE(b->pos.y, Q_SCALE);
 
-    //const uint8_t angle = Q_UDNSCALE(bird->a, Q_SCALE);
     const uint8_t angle = b->angle;
     
     x += QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
@@ -136,8 +131,6 @@ static point_t Move(bird_t * const b)
 
     b->pos.x = Q_DNSCALE(x, Q_SCALE);
     b->pos.y = Q_DNSCALE(y, Q_SCALE);
-
-    return prev;
 }
 
 static void ScreenWrap(bird_t * const b)
@@ -427,7 +420,7 @@ extern point_t Idle( bird_t * const b)
      * -> Update state machine
      * -> Screen wrap */
     
-    (void)Move(b);
+    Move(b);
     ScreenWrap(b);
 
     if(nearby_else.num > 0U)
