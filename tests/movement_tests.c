@@ -4,20 +4,26 @@
 #include "lut.h"
 #include <math.h>
 
-#define Q_NUM (15)
-#define Q_SCALE (7U)
-#define SPEED (0x100)
-
-static void Move(point_t * const p, uint8_t angle)
+static void TRIG_Translate(point_t * const p, uint8_t angle)
 {
-    int16_t x = Q_UPSCALE(p->x, Q_SCALE);
-    int16_t y = Q_UPSCALE(p->y, Q_SCALE);
+    assert(p!=NULL);
+    int16_t x = 0U;
+    int16_t y = 0U;
     
-    x += QMath_Mul(0x100, qcos[angle], Q_NUM);
-    y += QMath_Mul(0x100, qsin[angle], Q_NUM);
-
-    p->x = Q_DNSCALE(x, Q_SCALE);
-    p->y = Q_DNSCALE(y, Q_SCALE);
+    if(angle < DEG_180)
+    {
+        x = QMath_Mul(0x100, qcos[angle], Q_NUM);
+        y = QMath_Mul(0x100, qsin[angle], Q_NUM);
+        p->x += Q_DNSCALE(x, Q_SCALE);
+        p->y += Q_DNSCALE(y, Q_SCALE);
+    }
+    else
+    {
+        x = QMath_Mul(0x100, qcos[angle - DEG_180], Q_NUM);
+        y = QMath_Mul(0x100, qsin[angle - DEG_180], Q_NUM);
+        p->x -= Q_DNSCALE(x, Q_SCALE);
+        p->y -= Q_DNSCALE(y, Q_SCALE);
+    }
 }
 
 static void test_MOVE_N()
@@ -29,7 +35,7 @@ static void test_MOVE_N()
     };
     uint8_t angle = DEG_270;
 
-    Move(&p, angle);
+    TRIG_Translate(&p, angle);
 
     TEST_ASSERT_EQUAL_UINT8(5, p.x);
     TEST_ASSERT_EQUAL_UINT8(4, p.y);
@@ -44,10 +50,25 @@ static void test_MOVE_E()
     };
     uint8_t angle = 0;
 
-    Move(&p, angle);
+    TRIG_Translate(&p, angle);
 
     TEST_ASSERT_EQUAL_UINT8(6, p.x);
     TEST_ASSERT_EQUAL_UINT8(5, p.y);
+}
+
+static void test_MOVE_SE()
+{
+    point_t p =
+    {
+        .x = 5,
+        .y = 5,
+    };
+    uint8_t angle = DEG_45;
+
+    TRIG_Translate(&p, angle);
+
+    TEST_ASSERT_EQUAL_UINT8(6, p.x);
+    TEST_ASSERT_EQUAL_UINT8(6, p.y);
 }
 
 static void test_MOVE_S()
@@ -59,9 +80,9 @@ static void test_MOVE_S()
     };
     uint8_t angle = DEG_90;
 
-    Move(&p, angle);
+    TRIG_Translate(&p, angle);
 
-    TEST_ASSERT_EQUAL_UINT8(4, p.x);
+    TEST_ASSERT_EQUAL_UINT8(5, p.x);
     TEST_ASSERT_EQUAL_UINT8(6, p.y);
 }
 
@@ -74,7 +95,7 @@ static void test_MOVE_W()
     };
     uint8_t angle = DEG_180;
 
-    Move(&p, angle);
+    TRIG_Translate(&p, angle);
 
     TEST_ASSERT_EQUAL_UINT8(4, p.x);
     TEST_ASSERT_EQUAL_UINT8(5, p.y);
@@ -84,6 +105,7 @@ extern void MOVE_TestsRun(void)
 {
     RUN_TEST(test_MOVE_N);
     RUN_TEST(test_MOVE_E);
+    RUN_TEST(test_MOVE_SE);
     RUN_TEST(test_MOVE_S);
     RUN_TEST(test_MOVE_W);
 }

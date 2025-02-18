@@ -11,6 +11,7 @@
 #define CORDIC_ITS (4U)
 #endif
 
+#define SPEED (0x100)
 const uint16_t lut_atanpi2[LUT_LEN] =
 {
     8192, 4836, 2555, 1297,  651,  325,  162,   81,   40,   20,   10,
@@ -24,6 +25,21 @@ static int16_t ABS(int16_t x)
     const int16_t result = x - mask;
     return result;
 }
+
+/*
+extern void TRIG_Translate(point_t * const p, uint8_t angle)
+{
+    assert(p!=NULL);
+    int16_t x = Q_UPSCALE(p->x, Q_SCALE);
+    int16_t y = Q_UPSCALE(p->y, Q_SCALE);
+    
+    x += QMath_Mul(0x100, qcos[angle], Q_NUM);
+    y += QMath_Mul(0x100, qsin[angle], Q_NUM);
+
+    p->x = Q_DNSCALE(x, Q_SCALE);
+    p->y = Q_DNSCALE(y, Q_SCALE);
+}
+*/
 
 extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
 {
