@@ -9,15 +9,15 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (32U)
 
-#define SEP_RADIUS8 (0x08U)
+#define SEP_RADIUS8 (0x04U)
 #define COH_RADIUS8 (0x1FU)
 
 #define SEP_ANGLE 0x04U
-#define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x14U;
+#define COH_ANGLE 0x02U;
+#define EDGE_ANGLE 0x08U;
 
 #define SPEED_INC (0x00f4)
-#define DELTA_FRACT (0x1333)
+#define DELTA_FRACT (0x1F33)
 #define ALPHA (0x0080)
 #define EDGE (0x06U)
 
