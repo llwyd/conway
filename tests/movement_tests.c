@@ -1,38 +1,7 @@
 #include "trig.h"
 #include "unity.h"
 #include "qmath.h"
-#include "lut.h"
 #include <math.h>
-
-static void TRIG_Translate(point_t * const p, uint8_t angle)
-{
-    assert(p!=NULL);
-    int16_t x = 0U;
-    int16_t y = 0U;
-    
-    uint8_t cos_angle = angle + DEG_90;    
-    if(angle < DEG_180)
-    {
-        y = QMath_Mul(0x100, qsin[angle], Q_NUM);
-        p->y += Q_DNSCALE(y, Q_SCALE);
-    }
-    else
-    {
-        y = QMath_Mul(0x100, qsin[angle - DEG_180], Q_NUM);
-        p->y -= Q_DNSCALE(y, Q_SCALE);
-    }
-
-    if(cos_angle < DEG_180)
-    {
-        x = QMath_Mul(0x100, qsin[cos_angle], Q_NUM);
-        p->x += Q_DNSCALE(x, Q_SCALE);
-    }
-    else
-    {
-        x = QMath_Mul(0x100, qsin[cos_angle - DEG_180], Q_NUM);
-        p->x -= Q_DNSCALE(x, Q_SCALE);
-    }
-}
 
 static void test_MOVE_N()
 {

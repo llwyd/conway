@@ -1,6 +1,5 @@
 #include "bird.h"
 #include "qmath.h"
-#include "lut.h"
 #include "trig.h"
 
 _Static_assert(sizeof(uint8_t) == 1U, "invalid u8 size");
@@ -151,23 +150,6 @@ static bird_state_t NextState(const bird_t * const b)
 
 
     return next_state;
-}
-
-static void Move(bird_t * const b)
-{
-    /* x = inc + cos(theta) */
-    /* y = inc + sin(theta) */
-    
-    int16_t x = Q_UPSCALE(b->pos.x, Q_SCALE);
-    int16_t y = Q_UPSCALE(b->pos.y, Q_SCALE);
-
-    const uint8_t angle = b->angle;
-    
-    x += QMath_Mul(SPEED_INC, qcos[angle], Q_NUM);
-    y += QMath_Mul(SPEED_INC, qsin[angle], Q_NUM);
-
-    b->pos.x = Q_DNSCALE(x, Q_SCALE);
-    b->pos.y = Q_DNSCALE(y, Q_SCALE);
 }
 
 static void ScreenWrap(bird_t * const b)
@@ -457,7 +439,7 @@ extern point_t Idle( bird_t * const b)
      * -> Update state machine
      * -> Screen wrap */
     
-    Move(b);
+    TRIG_Translate(&b->pos, b->angle);
     ScreenWrap(b);
 
     if(nearby_else.num > 0U)
@@ -536,7 +518,7 @@ static void Turning(bird_t * const b)
             assert(false);
             break;
     }
-    Move(b);
+    TRIG_Translate(&b->pos, b->angle);
     ScreenWrap(b);
 }
 

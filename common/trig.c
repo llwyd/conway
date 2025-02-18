@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "trig.h"
 #include "qmath.h"
+#include "lut.h"
 
 #define LUT_LEN (16U)
 #define PI_RADS (0x80)
@@ -26,20 +27,35 @@ static int16_t ABS(int16_t x)
     return result;
 }
 
-/*
 extern void TRIG_Translate(point_t * const p, uint8_t angle)
 {
     assert(p!=NULL);
-    int16_t x = Q_UPSCALE(p->x, Q_SCALE);
-    int16_t y = Q_UPSCALE(p->y, Q_SCALE);
+    int16_t x = 0U;
+    int16_t y = 0U;
     
-    x += QMath_Mul(0x100, qcos[angle], Q_NUM);
-    y += QMath_Mul(0x100, qsin[angle], Q_NUM);
+    uint8_t cos_angle = angle + DEG_90;    
+    if(angle < DEG_180)
+    {
+        y = QMath_Mul(0x100, qsin[angle], Q_NUM);
+        p->y += Q_DNSCALE(y, Q_SCALE);
+    }
+    else
+    {
+        y = QMath_Mul(0x100, qsin[angle - DEG_180], Q_NUM);
+        p->y -= Q_DNSCALE(y, Q_SCALE);
+    }
 
-    p->x = Q_DNSCALE(x, Q_SCALE);
-    p->y = Q_DNSCALE(y, Q_SCALE);
+    if(cos_angle < DEG_180)
+    {
+        x = QMath_Mul(0x100, qsin[cos_angle], Q_NUM);
+        p->x += Q_DNSCALE(x, Q_SCALE);
+    }
+    else
+    {
+        x = QMath_Mul(0x100, qsin[cos_angle - DEG_180], Q_NUM);
+        p->x -= Q_DNSCALE(x, Q_SCALE);
+    }
 }
-*/
 
 extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
 {
