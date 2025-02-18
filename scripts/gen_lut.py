@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # generate sine to f32
-sin_len = 256
+sin_len = 257
 
 t = np.linspace(0,1,sin_len)
 #s = (np.sin(2 * np.pi * t) + 1 ) * 0.5
