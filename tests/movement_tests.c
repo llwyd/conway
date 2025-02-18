@@ -86,6 +86,21 @@ static void test_MOVE_S()
     TEST_ASSERT_EQUAL_UINT8(6, p.y);
 }
 
+static void test_MOVE_SW()
+{
+    point_t p =
+    {
+        .x = 5,
+        .y = 5,
+    };
+    uint8_t angle = DEG_135;
+
+    TRIG_Translate(&p, angle);
+
+    TEST_ASSERT_EQUAL_UINT8(6, p.y);
+    TEST_ASSERT_EQUAL_UINT8(4, p.x);
+}
+
 static void test_MOVE_W()
 {
     point_t p =
@@ -107,5 +122,6 @@ extern void MOVE_TestsRun(void)
     RUN_TEST(test_MOVE_E);
     RUN_TEST(test_MOVE_SE);
     RUN_TEST(test_MOVE_S);
+    RUN_TEST(test_MOVE_SW);
     RUN_TEST(test_MOVE_W);
 }
