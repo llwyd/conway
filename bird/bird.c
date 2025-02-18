@@ -9,11 +9,11 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (32U)
 
-#define SEP_RADIUS8 (0x04U)
-#define COH_RADIUS8 (0x1FU)
+#define SEP_RADIUS8 (0x02U)
+#define COH_RADIUS8 (0x10U)
 
 #define SEP_ANGLE 0x04U
-#define COH_ANGLE 0x02U;
+#define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x08U;
 
 #define SPEED_INC (0x00f4)
@@ -170,8 +170,8 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         rng = xorshift32(rng);
         uint8_t x = (uint8_t)(rng >> 24U);
         uint8_t y = (uint8_t)(rng >> 16U);
-        //bird[idx].angle = (uint16_t)(rng >> 8U);
-        bird[idx].angle = 24U;
+        bird[idx].angle = (uint16_t)(rng >> 8U);
+        //bird[idx].angle = 24U;
         bird[idx].state = BirdState_Idle;
 
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
@@ -379,7 +379,7 @@ extern point_t Idle( bird_t * const b)
         TRIG_Translate(&b->pos, b->angle);
         ScreenWrap(b);
     }
-    else if(nearby_else.num > 0U)
+    if(nearby_else.num > 0U)
     {
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
