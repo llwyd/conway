@@ -376,6 +376,8 @@ extern point_t Idle( bird_t * const b)
                 }
                 break;
         }
+        TRIG_Translate(&b->pos, b->angle);
+        ScreenWrap(b);
     }
     else if(nearby_else.num > 0U)
     {
