@@ -7,17 +7,17 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (32U)
+#define NUM_BIRDS (64U)
 
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x10U)
+#define COH_RADIUS8 (0x0FU)
 
 #define SEP_ANGLE 0x08U
-#define COH_ANGLE 0x06U;
+#define COH_ANGLE 0x02U;
 #define EDGE_ANGLE 0x0FU;
 
 #define SPEED_INC (0x0108)
-#define DELTA_FRACT (0x03FF)
+#define DELTA_FRACT (0x07FF)
 #define ALPHA (0x3FFF >> 1)
 #define EDGE (0x0AU)
 
