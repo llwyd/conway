@@ -13,12 +13,12 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define COH_RADIUS8 (0x18U)
 
 #define SEP_ANGLE 0x04U
-#define COH_ANGLE 0x01U;
+#define COH_ANGLE 0x02U;
 #define EDGE_ANGLE 0x08U;
 
-#define SPEED_INC (0x0100)
-#define DELTA_FRACT (0x1F33)
-#define ALPHA (0x0180)
+#define SPEED_INC (0x0150)
+#define DELTA_FRACT (0x2F33)
+#define ALPHA (0x0080)
 #define EDGE (0x06U)
 
 typedef struct
