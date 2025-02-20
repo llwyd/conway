@@ -10,14 +10,14 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (64U)
 
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x08U)
+#define COH_RADIUS8 (0x0AU)
 
-#define SEP_ANGLE 0x80U
+#define SEP_ANGLE 0x01U
 #define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x0DU;
+#define EDGE_ANGLE 0x0FU;
 
-#define SPEED_INC (0x010C)
-#define DELTA_FRACT (0x3030)
+#define SPEED_INC (0x010D)
+#define DELTA_FRACT (0x0FF0)
 #define ALPHA (0x7000)
 #define EDGE (0x0CU)
 
@@ -379,7 +379,7 @@ extern point_t Idle( bird_t * const b)
         //TRIG_Translate(&b->pos, b->angle, SPEED_INC);
         ScreenWrap(b);
     }
-    if(nearby_else.num > 0U)
+    else if(nearby_else.num > 0U)
     {
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
