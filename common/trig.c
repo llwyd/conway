@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include <assert.h>
+#include "life_assert.h"
 #include "trig.h"
 #include "qmath.h"
 #include "lut.h"
@@ -28,7 +28,7 @@ static int16_t ABS(int16_t x)
 
 extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
 {
-    assert(p!=NULL);
+    ASSERT(p!=NULL);
     int16_t x = 0U;
     int16_t y = 0U;
     
@@ -66,8 +66,8 @@ extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
     uint16_t cordic_angle = 0;
     int16_t d = -1;
 
-    assert(abs_x >= 0);
-    assert(abs_y >= 0);
+    ASSERT(abs_x >= 0);
+    ASSERT(abs_y >= 0);
 
     point_t c =
     {

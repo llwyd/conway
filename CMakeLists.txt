@@ -53,6 +53,8 @@ target_compile_definitions(conway.out PRIVATE SIM_GOL)
 target_compile_definitions(bird.out PRIVATE TARGET_DESKTOP)
 target_compile_definitions(bird.out PRIVATE SIM_BIRD)
 
+target_compile_definitions(tests.out PRIVATE TARGET_DESKTOP)
+
 include_directories( conway.out PRIVATE desktop )
 include_directories( conway.out PRIVATE life )
 
