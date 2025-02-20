@@ -63,3 +63,13 @@ uint16_t QMath_UDiv(uint16_t a, uint16_t b, uint16_t q)
     return result;
 }
 
+uint16_t QMath_UAvg(uint16_t p, uint16_t x, uint16_t alpha, uint16_t q)
+{
+    uint16_t diff = QMath_USub(x, p, q);
+    uint16_t z = QMath_UMul(alpha, diff, q);
+
+    uint16_t y = QMath_USub(x, z, q);
+
+    return y;
+}
+
