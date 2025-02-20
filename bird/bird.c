@@ -16,7 +16,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x08U;
 
-#define SPEED_INC (0x00f4)
+#define SPEED_INC (0x0100)
 #define DELTA_FRACT (0x1F33)
 #define ALPHA (0x0180)
 #define EDGE (0x06U)
@@ -376,7 +376,7 @@ extern point_t Idle( bird_t * const b)
                 }
                 break;
         }
-        TRIG_Translate(&b->pos, b->angle);
+        TRIG_Translate(&b->pos, b->angle, SPEED_INC);
         ScreenWrap(b);
     }
     if(nearby_else.num > 0U)
@@ -441,7 +441,7 @@ extern point_t Idle( bird_t * const b)
      * -> Update state machine
      * -> Screen wrap */
     
-    TRIG_Translate(&b->pos, b->angle);
+    TRIG_Translate(&b->pos, b->angle, SPEED_INC);
     ScreenWrap(b);
 
     if(nearby_else.num > 0U)
@@ -520,7 +520,7 @@ static void Turning(bird_t * const b)
             assert(false);
             break;
     }
-    TRIG_Translate(&b->pos, b->angle);
+    TRIG_Translate(&b->pos, b->angle, SPEED_INC);
     ScreenWrap(b);
 }
 
