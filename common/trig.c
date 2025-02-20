@@ -12,7 +12,6 @@
 #define CORDIC_ITS (4U)
 #endif
 
-#define SPEED (0x100)
 const uint16_t lut_atanpi2[LUT_LEN] =
 {
     8192, 4836, 2555, 1297,  651,  325,  162,   81,   40,   20,   10,
@@ -27,7 +26,7 @@ static int16_t ABS(int16_t x)
     return result;
 }
 
-extern void TRIG_Translate(point_t * const p, uint8_t angle)
+extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
 {
     assert(p!=NULL);
     int16_t x = 0U;
@@ -36,23 +35,23 @@ extern void TRIG_Translate(point_t * const p, uint8_t angle)
     uint8_t cos_angle = angle + DEG_90;    
     if(angle < DEG_180)
     {
-        y = QMath_Mul(0x100, qsin[angle], Q_NUM);
+        y = QMath_Mul(inc, qsin[angle], Q_NUM);
         p->y += Q_DNSCALE(y, Q_SCALE);
     }
     else
     {
-        y = QMath_Mul(0x100, qsin[angle - DEG_180], Q_NUM);
+        y = QMath_Mul(inc, qsin[angle - DEG_180], Q_NUM);
         p->y -= Q_DNSCALE(y, Q_SCALE);
     }
 
     if(cos_angle < DEG_180)
     {
-        x = QMath_Mul(0x100, qsin[cos_angle], Q_NUM);
+        x = QMath_Mul(inc, qsin[cos_angle], Q_NUM);
         p->x += Q_DNSCALE(x, Q_SCALE);
     }
     else
     {
-        x = QMath_Mul(0x100, qsin[cos_angle - DEG_180], Q_NUM);
+        x = QMath_Mul(inc, qsin[cos_angle - DEG_180], Q_NUM);
         p->x -= Q_DNSCALE(x, Q_SCALE);
     }
 }

@@ -35,7 +35,7 @@ typedef struct
 }
 point16_t;
 
-extern void TRIG_Translate(point_t * const p, uint8_t angle);
+extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc);
 extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b);
 
 #endif /* TRIG_H_ */
