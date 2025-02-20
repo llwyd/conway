@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "life_assert.h"
 
 #ifdef TARGET_DESKTOP
-#include <assert.h>
 /* These parameters are for the Desktop Emulator */
 #define LCD_COLUMNS ( 128 )
 #define LCD_ROWS    ( 8 )

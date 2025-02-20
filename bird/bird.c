@@ -7,19 +7,19 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (32U)
+#define NUM_BIRDS (64U)
 
 #define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x10U)
+#define COH_RADIUS8 (0x0AU)
 
-#define SEP_ANGLE 0x08U
-#define COH_ANGLE 0x06U;
+#define SEP_ANGLE 0x01U
+#define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x0FU;
 
-#define SPEED_INC (0x0108)
-#define DELTA_FRACT (0x03FF)
-#define ALPHA (0x3FFF >> 1)
-#define EDGE (0x0AU)
+#define SPEED_INC (0x010D)
+#define DELTA_FRACT (0x0FF0)
+#define ALPHA (0x7000)
+#define EDGE (0x0CU)
 
 typedef struct
 {
@@ -91,8 +91,8 @@ static uint32_t xorshift32( uint32_t x )
 
 static bit_t PointToBit(const point_t * const point)
 {
-    assert(point->x < LCD_COLUMNS);
-    assert(point->y < (LCD_ROWS * LCD_PAGES));
+    ASSERT(point->x < LCD_COLUMNS);
+    ASSERT(point->y < (LCD_ROWS * LCD_PAGES));
     
     bit_t bit =
     {
@@ -160,8 +160,8 @@ static void ScreenWrap(bird_t * const b)
 
 extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
 {
-    assert(fn != NULL);
-    assert(initial_seed != 0U);
+    ASSERT(fn != NULL);
+    ASSERT(initial_seed != 0U);
     
     uint32_t rng = 0x13121312;
 
@@ -177,8 +177,8 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
         bird[idx].pos.y = y & ( (LCD_FULL_ROWS >> 1U) - 1U);
         
-        assert(bird[idx].pos.x < LCD_COLUMNS);
-        assert(bird[idx].pos.y < LCD_FULL_ROWS);
+        ASSERT(bird[idx].pos.x < LCD_COLUMNS);
+        ASSERT(bird[idx].pos.y < LCD_FULL_ROWS);
     }
 
     update_fn = fn;
@@ -187,7 +187,7 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
 static bool IsPointInSquare8(const point_t * const b, const point_t * const c, uint8_t square_size)
 {
     uint8_t ss_2 = square_size >> 0U;
-    assert(ss_2 > 0);
+    ASSERT(ss_2 > 0);
     
     bool result = false;
     uint8_t r = c->x + ss_2;
@@ -216,8 +216,8 @@ static bool IsPointInSquare8(const point_t * const b, const point_t * const c, u
 
 static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, uint16_t square_size)
 {
-    assert(near_birds != NULL);
-    assert(square_size > 1U);
+    ASSERT(near_birds != NULL);
+    ASSERT(square_size > 1U);
 
     const point_t * const c = &current_bird->pos;
     near_birds->num = 0U;
@@ -379,7 +379,7 @@ extern point_t Idle( bird_t * const b)
         //TRIG_Translate(&b->pos, b->angle, SPEED_INC);
         ScreenWrap(b);
     }
-    if(nearby_else.num > 0U)
+    else if(nearby_else.num > 0U)
     {
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
@@ -517,7 +517,7 @@ static void Turning(bird_t * const b)
             break;
         }
         default:
-            assert(false);
+            ASSERT(false);
             break;
     }
     TRIG_Translate(&b->pos, b->angle, SPEED_INC);
@@ -545,7 +545,7 @@ extern void Bird_Tick( void )
                 Turning(b);
                 break;
             default:
-                assert(false);
+                ASSERT(false);
                 break; 
         }
         
