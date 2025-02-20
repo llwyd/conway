@@ -16,8 +16,8 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x0FU;
 
-#define SPEED_INC (0x010D)
-#define DELTA_FRACT (0x0FF0)
+#define SPEED_INC (0x011D)
+#define DELTA_FRACT (0x07FF)
 #define ALPHA (0x7000)
 #define EDGE (0x0CU)
 
@@ -315,7 +315,7 @@ extern uint16_t AverageAngle(const nearby_t * const nearby)
 }
 
 
-extern point_t Idle( bird_t * const b)
+extern void Idle( bird_t * const b)
 {
     quadrant_t quad = Quad_0;
     /* Collect nearby birds */
