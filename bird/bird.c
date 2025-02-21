@@ -10,15 +10,16 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (16U)
 
 #define SEP_RADIUS8 (0x04U)
-#define COH_RADIUS8 (0x08U)
+#define COH_RADIUS8 (0x10U)
 
 #define SEP_ANGLE 0x10U
-#define COH_ANGLE 0x08U;
+#define COH_ANGLE 0x04U;
 #define EDGE_ANGLE 0x0FU;
 
 #define SPEED_INC (0x011d)
 #define DELTA_FRACT (0x0FFF)
-#define ALPHA (0x7000)
+#define ALPHA_POINT (0x0123)
+#define ALPHA (0x0300)
 #define EDGE (0x0fU)
 
 typedef struct
@@ -292,8 +293,8 @@ extern point16_t AveragePoint(const nearby_t * const nearby)
         int16_t diff_x = QMath_Sub(pos.x, prev.x, Q_NUM);
         int16_t diff_y = QMath_Sub(pos.y, prev.y, Q_NUM);
 
-        result.x = pos.x - QMath_Mul(ALPHA, diff_x, Q_NUM);
-        result.y = pos.y - QMath_Mul(ALPHA, diff_y, Q_NUM);
+        result.x = pos.x - QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
+        result.y = pos.y - QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
     }
 
     return result;
