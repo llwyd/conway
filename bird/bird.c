@@ -10,7 +10,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (16U)
 
 #define SEP_RADIUS8 (0x04U)
-#define COH_RADIUS8 (0x08U)
+#define COH_RADIUS8 (0x0AU)
 
 #define SEP_ANGLE 0x08U
 #define COH_ANGLE 0x01U;
@@ -18,8 +18,8 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define SPEED_INC (0x011d)
 #define DELTA_FRACT (0x0FFF)
-#define ALPHA_POINT (0x0043)
-#define ALPHA (0x0300)
+#define ALPHA_POINT (0x007F)
+#define ALPHA (0x007f)
 #define EDGE (0x0fU)
 
 typedef struct
