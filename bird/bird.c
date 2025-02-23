@@ -7,19 +7,20 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (64U)
+#define NUM_BIRDS (16U)
 
-#define SEP_RADIUS8 (0x02U)
-#define COH_RADIUS8 (0x0AU)
+#define SEP_RADIUS8 (0x04U)
+#define COH_RADIUS8 (0x0FU)
 
-#define SEP_ANGLE 0x01U
+#define SEP_ANGLE 0x06U
 #define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x0FU;
+#define EDGE_ANGLE 0x33U;
 
-#define SPEED_INC (0x011D)
-#define DELTA_FRACT (0x07FF)
-#define ALPHA (0x7000)
-#define EDGE (0x0CU)
+#define SPEED_INC (0x011d)
+#define DELTA_FRACT (0x0FFF)
+#define ALPHA_POINT (0x007F)
+#define ALPHA (0x00FF)
+#define EDGE (0x05U)
 
 typedef struct
 {
@@ -230,8 +231,11 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
             
             if(IsPointInSquare8(b, c, square_size))
             {
-                near_birds->bird[near_birds->num] = idx;
-                near_birds->num++;
+                if(bird[idx].state == BirdState_Idle)
+                {
+                    near_birds->bird[near_birds->num] = idx;
+                    near_birds->num++;
+                }
             }
         }
     }
@@ -289,8 +293,8 @@ extern point16_t AveragePoint(const nearby_t * const nearby)
         int16_t diff_x = QMath_Sub(pos.x, prev.x, Q_NUM);
         int16_t diff_y = QMath_Sub(pos.y, prev.y, Q_NUM);
 
-        result.x = pos.x - QMath_Mul(ALPHA, diff_x, Q_NUM);
-        result.y = pos.y - QMath_Mul(ALPHA, diff_y, Q_NUM);
+        result.x = pos.x - QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
+        result.y = pos.y - QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
     }
 
     return result;
@@ -444,21 +448,26 @@ extern void Idle( bird_t * const b)
     TRIG_Translate(&b->pos, b->angle, SPEED_INC);
     ScreenWrap(b);
 
-    if(nearby_else.num > 0U)
+
+    if(nearby_sep.num > 0U)
+    {
+    }
+    else if(nearby_else.num > 0U)
     {
         uint16_t angle = Q_UUPSCALE(b->angle, Q_SCALE);
         uint16_t near_angle = AverageAngle(&nearby_else);
         uint16_t new_angle = (angle > near_angle) ? (angle - near_angle) : (near_angle - angle);
-        uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
+        //uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
+        uint16_t delta = (angle + near_angle) >> 1U;
         switch(quad)
         {
             case Quad_0:
             case Quad_3:
-                b->angle += Q_UDNSCALE(delta, Q_SCALE);
+                b->angle = Q_UDNSCALE(delta, Q_SCALE);
                 break;
             case Quad_1:
             case Quad_2:
-                b->angle -= Q_UDNSCALE(delta, Q_SCALE);
+                b->angle = Q_UDNSCALE(delta, Q_SCALE);
                 break;
         }
     }
