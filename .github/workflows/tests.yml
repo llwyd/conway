@@ -1,0 +1,21 @@
+name: Unit Test CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: clone unity
+      run: git clone https://github.com/ThrowTheSwitch/Unity.git
+    - name: build
+      run: ./build.sh
+    - name: run tests
+      run: ./bin/tests.out
