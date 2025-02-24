@@ -75,6 +75,7 @@ static bird_t bird[NUM_BIRDS];
 static nearby_t nearby_sep;
 static nearby_t nearby_else;
 
+static uint32_t rng_seed = 0x13121312;
 
 void ( *update_fn )( void );
 
@@ -444,8 +445,9 @@ extern void Idle( bird_t * const b)
      * -> Move
      * -> Update state machine
      * -> Screen wrap */
-    
-    TRIG_Translate(&b->pos, b->angle, SPEED_INC);
+    rng_seed = xorshift32(rng_seed);
+    uint32_t speed = (rng_seed & 0x00FF) + 0x00FF;
+    TRIG_Translate(&b->pos, b->angle, speed);
     ScreenWrap(b);
 
 
