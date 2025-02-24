@@ -456,8 +456,6 @@ extern void Idle( bird_t * const b)
     {
         uint16_t angle = Q_UUPSCALE(b->angle, Q_SCALE);
         uint16_t near_angle = AverageAngle(&nearby_else);
-        uint16_t new_angle = (angle > near_angle) ? (angle - near_angle) : (near_angle - angle);
-        //uint16_t delta = QMath_UMul(DELTA_FRACT, new_angle, Q_NUM);
         uint16_t delta = (angle + near_angle) >> 1U;
         switch(quad)
         {

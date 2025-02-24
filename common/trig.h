@@ -25,14 +25,6 @@ typedef struct
     uint16_t x;
     uint16_t y;
 }
-pu16_t;
-
-
-typedef struct
-{
-    int16_t x;
-    int16_t y;
-}
 point16_t;
 
 extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc);

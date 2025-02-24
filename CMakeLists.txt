@@ -76,11 +76,11 @@ target_compile_options( conway.out
 target_compile_options( bird.out
                         PUBLIC
                         -Wfatal-errors
-                        #                        -Wall
-                        #-Wextra
-                        #-Werror
-                        #-Wpedantic
-                        #-Wpointer-arith
+                        -Wall
+                        -Wextra
+                        -Werror
+                        -Wpedantic
+                        -Wpointer-arith
                         -g)
 
 target_compile_options( tests.out

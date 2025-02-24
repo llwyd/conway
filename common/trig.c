@@ -69,7 +69,7 @@ extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
     ASSERT(abs_x >= 0);
     ASSERT(abs_y >= 0);
 
-    point_t c =
+    point16_t c =
     {
         .x = (abs_x << 0),
         .y = (abs_y << 0),
@@ -77,7 +77,7 @@ extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
     
     for(uint32_t idx = 0; idx < CORDIC_ITS; idx++)
     {
-        point_t next;
+        point16_t next;
         if(c.y == 0)
         {
             break;
@@ -88,7 +88,7 @@ extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
         c = next;
         
         cordic_angle += (d < 0) ? lut_atanpi2[idx] : -lut_atanpi2[idx];
-        d = (c.y < 0) ? 1 : -1;
+        d = (c.y > INT16_MAX) ? 1 : -1;
     }
     
     uint8_t angle = Q_UDNSCALE(cordic_angle, 8);
