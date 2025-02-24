@@ -176,8 +176,8 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         //bird[idx].angle = 24U;
         bird[idx].state = BirdState_Idle;
 
-        bird[idx].pos.x = x & ( (LCD_COLUMNS >> 1U) - 1U);
-        bird[idx].pos.y = y & ( (LCD_FULL_ROWS >> 1U) - 1U);
+        bird[idx].pos.x = x & ( (LCD_COLUMNS) - 1U);
+        bird[idx].pos.y = y & ( (LCD_FULL_ROWS) - 1U);
         
         ASSERT(bird[idx].pos.x < LCD_COLUMNS);
         ASSERT(bird[idx].pos.y < LCD_FULL_ROWS);
