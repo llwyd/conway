@@ -7,7 +7,7 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (16U)
+#define NUM_BIRDS (32U)
 
 #define SEP_RADIUS8 (0x04U)
 #define COH_RADIUS8 (0x0FU)
