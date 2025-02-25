@@ -140,6 +140,21 @@ static void test_MOVE_N16()
     TEST_ASSERT_EQUAL_INT16(0xff00, p.y);
 }
 
+static void test_MOVE_NE16()
+{
+    pointf16_t p =
+    {
+        .x = 0x0,
+        .y = 0x0,
+    };
+    uint8_t angle = DEG_315;
+
+    TRIG_Translate16(&p, angle, 0x100);
+
+    TEST_ASSERT_EQUAL_INT16(0x00b5, p.x);
+    TEST_ASSERT_EQUAL_INT16(-182, p.y);
+}
+
 static void test_MOVE_E16()
 {
     pointf16_t p =
@@ -197,6 +212,7 @@ extern void MOVE_TestsRun(void)
     RUN_TEST(test_MOVE_NW);
     
     RUN_TEST(test_MOVE_N16);
+    RUN_TEST(test_MOVE_NE16);
     RUN_TEST(test_MOVE_E16);
     RUN_TEST(test_MOVE_S16);
     RUN_TEST(test_MOVE_W16);
