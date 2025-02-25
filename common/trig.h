@@ -22,12 +22,20 @@ point_t;
 
 typedef struct
 {
+    int16_t x;
+    int16_t y;
+}
+pointf16_t;
+
+typedef struct
+{
     uint16_t x;
     uint16_t y;
 }
 point16_t;
 
 extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc);
+extern void TRIG_Translate16(pointf16_t * const p, uint8_t angle, int16_t inc);
 extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b);
 
 #endif /* TRIG_H_ */

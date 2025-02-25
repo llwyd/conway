@@ -56,6 +56,14 @@ extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
     }
 }
 
+extern void TRIG_Translate16(pointf16_t * const p, uint8_t angle, int16_t inc)
+{
+    ASSERT(p!=NULL);
+
+    p->x += QMath_Mul(inc, qcos[angle], Q_NUM);
+    p->y += QMath_Mul(inc, qsin[angle], Q_NUM);
+}
+
 extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
 {
     int16_t diff_x = (int16_t)a->x - (int16_t)b->x;
