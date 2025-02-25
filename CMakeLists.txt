@@ -32,6 +32,8 @@ add_executable( tests.out
                 tests/qmath_tests.h
                 tests/movement_tests.h
                 tests/movement_tests.c
+                tests/fp_tests.h
+                tests/fp_tests.c
                 common/trig.h
                 common/trig.c
                 common/qmath.h
