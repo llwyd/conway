@@ -26,6 +26,12 @@ static int16_t ABS(int16_t x)
     return result;
 }
 
+/*
+extern void TRIG_FixedToBit(pointf16_t * p, uint8_t x_max, uint8_t y_max)
+{
+
+}
+*/
 extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
 {
     ASSERT(p!=NULL);
