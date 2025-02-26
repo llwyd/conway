@@ -27,19 +27,47 @@ static int16_t ABS(int16_t x)
 }
 
 
-extern void TRIG_FixedTo8Bit(pointf16_t * p, uint16_t x_max, uint16_t y_max)
+extern point_t TRIG_FixedTo8Bit(pointf16_t * p, uint16_t x_max, uint16_t y_max)
 {
     ASSERT(p != NULL);
     ASSERT(x_max > 0U);
     ASSERT(y_max > 0U);
 
+    /* scale inputs */
+    int16_t x2 = p->x;
+    int16_t y2 = p->y;
+
+    /* Add 0.5 to both sides */
+    if(x2 < 0)
+    {
+        x2 = ~x2;
+    }
+    else
+    {
+        x2 >>= 1U;
+        x2 += 0x3FFF;
+    }
+
+    if(y2 < 0)
+    {
+        y2 = ~y2;
+    }
+    else
+    {
+        y2 >>= 2U;
+        y2 += 0x1FFF;
+    }
+
     /* Scale down to int8 */
-    int8_t x8 = Q_DNSCALE(p->x, Q_SCALE);
-    int8_t y8 = Q_DNSCALE(p->x, Q_SCALE);
+    int8_t x16 = (int8_t)QNUM_DNSCALE(x2, Q_NUM15, Q_NUM7);
+    int8_t y16 = (int8_t)QNUM_DNSCALE(y2, Q_NUM15, Q_NUM7);
 
-    (void)x8;
-    (void)y8;
+    point_t result = {
+        .x = (uint8_t) x16,
+        .y = (uint8_t) y16,
+    };
 
+    return result;
 }
 
 extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
