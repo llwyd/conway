@@ -41,6 +41,7 @@ extern point_t TRIG_FixedTo8Bit(pointf16_t * p, uint16_t x_max, uint16_t y_max)
     if(x2 < 0)
     {
         x2 = ~x2;
+        x2 >>= 1U;
     }
     else
     {
@@ -51,6 +52,7 @@ extern point_t TRIG_FixedTo8Bit(pointf16_t * p, uint16_t x_max, uint16_t y_max)
     if(y2 < 0)
     {
         y2 = ~y2;
+        y2 >>= 2U;
     }
     else
     {
