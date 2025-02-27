@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+typedef float float32_t;
+
 #define Q_UPSCALE(X,Y) ((int16_t)(((uint16_t)(X)) << (Y)))
 #define Q_DNSCALE(X,Y) ((uint8_t)(((X)) >> (Y)))
 
@@ -21,6 +23,8 @@
 #define Q_NUM15 (15)
 #define Q_NUM7 (7)
 
+#define Q_FLOAT_TO_Q(X, Q) (int16_t)((X) * (float32_t)(1 << (Q)))
+
 int16_t QMath_Mul(int16_t a, int16_t b, uint16_t q);
 int16_t QMath_Add(int16_t a, int16_t b, uint16_t q);
 int16_t QMath_Sub(int16_t a, int16_t b, uint16_t q);
@@ -34,3 +38,4 @@ uint16_t QMath_UDiv(uint16_t a, uint16_t b, uint16_t q);
 uint16_t QMath_UAvg(uint16_t p, uint16_t x, uint16_t alpha, uint16_t q);
 
 #endif /* QMATH */
+

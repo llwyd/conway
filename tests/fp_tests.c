@@ -5,11 +5,17 @@
 
 static void test_FP_2_DisplayN(void)
 {
+    float32_t xf = 0.0;
+    float32_t yf = -1.0;
+
     pointf16_t p =
     {
-        .x = 0x0000,
-        .y = 0xFFFF,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
+
+    TEST_ASSERT_EQUAL_INT16(0, p.x);
+    TEST_ASSERT_EQUAL_INT16(0x8000, p.y);
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
 
@@ -19,10 +25,13 @@ static void test_FP_2_DisplayN(void)
 
 static void test_FP_2_DisplayE(void)
 {
+    float32_t xf = 0.99999;
+    float32_t yf = 0.0;
+    
     pointf16_t p =
     {
-        .x = 0x7FFF,
-        .y = 0x0000,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -33,10 +42,13 @@ static void test_FP_2_DisplayE(void)
 
 static void test_FP_2_DisplayS(void)
 {
+    float32_t xf = 0.0;
+    float32_t yf = 0.99999;
+    
     pointf16_t p =
     {
-        .x = 0,
-        .y = 0x7FFF,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -47,10 +59,13 @@ static void test_FP_2_DisplayS(void)
 
 static void test_FP_2_DisplayW(void)
 {
+    float32_t xf = -1.0;
+    float32_t yf = 0.0;
+    
     pointf16_t p =
     {
-        .x = -1,
-        .y = 0x0000,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -61,10 +76,13 @@ static void test_FP_2_DisplayW(void)
 
 static void test_FP_2_DisplaySE_2(void)
 {
+    float32_t xf = 0.5;
+    float32_t yf = 0.5;
+    
     pointf16_t p =
     {
-        .x = 0x3FFF,
-        .y = 0x3FFF,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -75,10 +93,13 @@ static void test_FP_2_DisplaySE_2(void)
 
 static void test_FP_2_DisplaySW(void)
 {
+    float32_t xf = -1.0;
+    float32_t yf = 0.99999;
+    
     pointf16_t p =
     {
-        .x = 0xFFFF,
-        .y = 0x7FFF,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -90,13 +111,12 @@ static void test_FP_2_DisplaySW(void)
 static void test_FP_2_DisplayNW_2(void)
 {
     float xf = -0.5;
-
-    int16_t xfp= (int16_t)(xf * (float)(1 << Q_NUM));
+    float yf = -0.5;
 
     pointf16_t p =
     {
-        .x = xfp,
-        .y = xfp,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -108,13 +128,12 @@ static void test_FP_2_DisplayNW_2(void)
 static void test_FP_2_DisplayNW_4(void)
 {
     float xf = -0.25;
-
-    int16_t xfp= (int16_t)(xf * (float)(1 << Q_NUM));
+    float yf = -0.25;
 
     pointf16_t p =
     {
-        .x = xfp,
-        .y = xfp,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
@@ -128,13 +147,10 @@ static void test_FP_2_DisplayCentre(void)
     float xf = 0.0;
     float yf = 0.0;
 
-    int16_t xfp= (int16_t)(xf * (float)(1 << Q_NUM));
-    int16_t yfp= (int16_t)(yf * (float)(1 << Q_NUM));
-
     pointf16_t p =
     {
-        .x = xfp,
-        .y = yfp,
+        .x = Q_FLOAT_TO_Q(xf, Q_NUM15),
+        .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
     point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
