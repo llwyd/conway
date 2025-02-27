@@ -34,31 +34,12 @@ extern point_t TRIG_FixedTo8Bit(pointf16_t * p, uint16_t x_max, uint16_t y_max)
     ASSERT(y_max > 0U);
 
     /* scale inputs */
-    int16_t x2 = p->x;
-    int16_t y2 = p->y;
+    int16_t x2 = p->x >> 1U;
+    int16_t y2 = p->y >> 2U;
 
-    /* Add 0.5 to both sides */
-    if(x2 < 0)
-    {
-        x2 = ~x2;
-        x2 >>= 1U;
-    }
-    else
-    {
-        x2 >>= 1U;
-        x2 += 0x3FFF;
-    }
+    x2 = QMath_Add(x2,0x4000, Q_NUM15);
+    y2 = QMath_Add(y2,0x2000, Q_NUM15);
 
-    if(y2 < 0)
-    {
-        y2 = ~y2;
-        y2 >>= 2U;
-    }
-    else
-    {
-        y2 >>= 2U;
-        y2 += 0x1FFF;
-    }
 
     /* Scale down to int8 */
     int8_t x16 = (int8_t)QNUM_DNSCALE(x2, Q_NUM15, Q_NUM7);
