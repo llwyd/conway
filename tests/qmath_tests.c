@@ -100,6 +100,26 @@ static void test_QMATH_MUL05x_05(void)
     TEST_ASSERT_INT16_WITHIN(1, exp, result);
 }
 
+static void test_QMATH_ADD25x25(void)
+{
+    int16_t a = Q_FLOAT_TO_Q(0.25, Q_NUM);
+    int16_t b = Q_FLOAT_TO_Q(0.25, Q_NUM);
+    int16_t result = QMath_Add(a,b,Q_NUM);
+
+    int16_t exp = Q_FLOAT_TO_Q(0.5, Q_NUM);
+    TEST_ASSERT_INT16_WITHIN(1, exp, result);
+}
+
+static void test_QMATH_ADD_25x25(void)
+{
+    int16_t a = Q_FLOAT_TO_Q(-0.25, Q_NUM);
+    int16_t b = Q_FLOAT_TO_Q(0.25, Q_NUM);
+    int16_t result = QMath_Add(a,b,Q_NUM);
+
+    int16_t exp = Q_FLOAT_TO_Q(0.0, Q_NUM);
+    TEST_ASSERT_INT16_WITHIN(1, exp, result);
+}
+
 static void test_QMATH_Avg1(void)
 {
     uint16_t q = 15;
@@ -188,6 +208,8 @@ extern void QMATH_TestsRun(void)
     RUN_TEST(test_QMATH_MUL1x05);
     RUN_TEST(test_QMATH_MUL05x05);
     RUN_TEST(test_QMATH_MUL05x_05);
+    RUN_TEST(test_QMATH_ADD25x25);
+    RUN_TEST(test_QMATH_ADD_25x25);
     RUN_TEST(test_QMATH_Avg1);
     RUN_TEST(test_QMATH_Avg2);
     RUN_TEST(test_QMATH_Avg3);
