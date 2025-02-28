@@ -4,6 +4,22 @@
 #define MAX_BITS (32)
 #define MAX_Q (MAX_BITS >> 1U)
 
+uint8_t QMath_Int16ToUInt8(int16_t x, uint8_t scale)
+{
+    ASSERT(scale > 0);
+    uint8_t result = 0;
+    int16_t half = 0x8000 >> scale;
+
+    int16_t x_scaled = x >> scale;
+    x_scaled = QMath_Add(x_scaled, half, Q_NUM15);
+    
+    /* Scale down to int8 */
+    int8_t x16 = (int8_t)QNUM_DNSCALE(x_scaled, Q_NUM15, Q_NUM7);
+    result = (uint8_t)x16;
+
+    return result;
+}
+
 int16_t QMath_Mul(int16_t a, int16_t b, uint16_t q)
 {
     ASSERT(q < MAX_Q);

@@ -17,7 +17,10 @@ static void test_FP_2_DisplayN(void)
     TEST_ASSERT_EQUAL_INT16(0, p.x);
     TEST_ASSERT_EQUAL_INT16(0x8000, p.y);
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
+
 
     TEST_ASSERT_EQUAL_UINT8(64, pd.x);
     TEST_ASSERT_EQUAL_UINT8(0, pd.y);
@@ -34,7 +37,9 @@ static void test_FP_2_DisplayE(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(127, pd.x);
     TEST_ASSERT_EQUAL_UINT8(32, pd.y);
@@ -51,7 +56,9 @@ static void test_FP_2_DisplayS(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(64, pd.x);
     TEST_ASSERT_EQUAL_UINT8(63, pd.y);
@@ -68,7 +75,9 @@ static void test_FP_2_DisplayW(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(0, pd.x);
     TEST_ASSERT_EQUAL_UINT8(32, pd.y);
@@ -85,7 +94,9 @@ static void test_FP_2_DisplaySE_2(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(96, pd.x);
     TEST_ASSERT_EQUAL_UINT8(48, pd.y);
@@ -102,7 +113,9 @@ static void test_FP_2_DisplaySW(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(0, pd.x);
     TEST_ASSERT_EQUAL_UINT8(63, pd.y);
@@ -119,7 +132,9 @@ static void test_FP_2_DisplayNW_2(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(32, pd.x);
     TEST_ASSERT_EQUAL_UINT8(16, pd.y);
@@ -136,7 +151,9 @@ static void test_FP_2_DisplayNW_4(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(16, pd.x);
     TEST_ASSERT_EQUAL_UINT8(8, pd.y);
@@ -153,7 +170,9 @@ static void test_FP_2_DisplayNW(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(0, pd.x);
     TEST_ASSERT_EQUAL_UINT8(0, pd.y);
@@ -170,7 +189,9 @@ static void test_FP_2_DisplayCentre(void)
         .y = Q_FLOAT_TO_Q(yf, Q_NUM15),
     };
 
-    point_t pd = TRIG_FixedTo8Bit(&p, 128, 64);
+    point_t pd;
+    pd.x = QMath_Int16ToUInt8(p.x, 1U);
+    pd.y = QMath_Int16ToUInt8(p.y, 2U);
 
     TEST_ASSERT_EQUAL_UINT8(64, pd.x);
     TEST_ASSERT_EQUAL_UINT8(32, pd.y);
