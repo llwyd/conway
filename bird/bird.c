@@ -336,8 +336,8 @@ extern void Idle( bird_t * const b)
         const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
         const point_t avg = {.x=avg_x, .y=avg_y};
         quadrant_t q = WhichQuadrant(&b->pos, &avg);
-        uint8_t a = TRIG_ATan2(&b->pos, &avg);
-
+        //uint8_t a = TRIG_ATan2(&b->pos, &avg);
+        uint8_t a = 0;
         switch(q)
         {
             case Quad_0:
@@ -393,7 +393,8 @@ extern void Idle( bird_t * const b)
         const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
         const point_t avg = {.x=avg_x, .y=avg_y};
         quadrant_t q = WhichQuadrant(&b->pos, &avg);
-        uint8_t a = TRIG_ATan2(&b->pos, &avg);
+        //uint8_t a = TRIG_ATan2(&b->pos, &avg);
+        uint8_t a = 0;
         quad = q;
         switch(q)
         {

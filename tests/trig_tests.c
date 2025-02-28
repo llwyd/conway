@@ -1,5 +1,6 @@
 #include "trig.h"
 #include "unity.h"
+#include "qmath.h"
 #include <math.h>
 
 typedef float float32_t;
@@ -14,8 +15,12 @@ static float32_t Bin2Deg(uint8_t x)
 static void test_TRIG_ATan2_0Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 5, .y = 0};
-    point_t b = {.x = 0, .y = 0};
+    pointf16_t a = 
+    {
+        .x = Q_FLOAT_TO_Q(0.5, Q_NUM), 
+        .y = 0
+    };
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b); 
     TEST_ASSERT_UINT8_WITHIN(2, 0 * (1 << 5), angle);
@@ -27,8 +32,12 @@ static void test_TRIG_ATan2_0Deg()
 static void test_TRIG_ATan2_45Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 5, .y = 5};
-    point_t b = {.x = 0, .y = 0};
+    pointf16_t a = 
+    {
+        .x = Q_FLOAT_TO_Q(0.5, Q_NUM), 
+        .y = Q_FLOAT_TO_Q(0.5, Q_NUM)
+    };
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
@@ -41,8 +50,8 @@ static void test_TRIG_ATan2_45Deg()
 static void test_TRIG_ATan2_90Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 0, .y = 5};
-    point_t b = {.x = 0, .y = 0};
+    pointf16_t a = {.x = 0, .y = Q_FLOAT_TO_Q(0.5, Q_NUM)};
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
@@ -55,8 +64,8 @@ static void test_TRIG_ATan2_90Deg()
 static void test_TRIG_ATan2_135Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 0, .y = 5};
-    point_t b = {.x = 5, .y = 0};
+    pointf16_t a = {.x =Q_FLOAT_TO_Q(-0.5, Q_NUM), .y = Q_FLOAT_TO_Q(0.5, Q_NUM)};
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
@@ -69,8 +78,8 @@ static void test_TRIG_ATan2_135Deg()
 static void test_TRIG_ATan2_180Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 0, .y = 0};
-    point_t b = {.x = 5, .y = 0};
+    pointf16_t a = {.x = Q_FLOAT_TO_Q(-0.5, Q_NUM), .y = 0};
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
@@ -83,8 +92,8 @@ static void test_TRIG_ATan2_180Deg()
 static void test_TRIG_ATan2_225Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 0, .y = 0};
-    point_t b = {.x = 5, .y = 5};
+    pointf16_t a = {.x = Q_FLOAT_TO_Q(-0.5, Q_NUM), .y = Q_FLOAT_TO_Q(-0.5, Q_NUM)};
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
@@ -98,8 +107,8 @@ static void test_TRIG_ATan2_225Deg()
 static void test_TRIG_ATan2_270Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 0, .y = 0};
-    point_t b = {.x = 0, .y = 5};
+    pointf16_t a = {.x = 0, .y = Q_FLOAT_TO_Q(-0.5, Q_NUM)};
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
@@ -112,8 +121,8 @@ static void test_TRIG_ATan2_270Deg()
 static void test_TRIG_ATan2_315Deg()
 {
     TEST_ASSERT_TRUE(true);
-    point_t a = {.x = 5, .y = 0};
-    point_t b = {.x = 0, .y = 5};
+    pointf16_t a = {.x = Q_FLOAT_TO_Q(0.5, Q_NUM), .y = Q_FLOAT_TO_Q(-0.5, Q_NUM)};
+    pointf16_t b = {.x = 0, .y = 0};
 
     uint8_t angle = TRIG_ATan2(&a, &b);
 
