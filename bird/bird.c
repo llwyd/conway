@@ -54,8 +54,7 @@ typedef struct
     point_t pos;
     uint8_t angle;
 
-    //point16_t p;
-    //uint16_t a;
+    pointf16_t p;
     bird_state_t state;
 }
 bird_t;
@@ -79,7 +78,7 @@ static uint32_t rng_seed = 0x13121312;
 
 void ( *update_fn )( void );
 
-static bit_t PointToBit(const point_t * const point);
+static bit_t PointToBit(const pointf16_t * const point);
 static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t * const bit );
 
 static uint32_t xorshift32( uint32_t x )
@@ -91,16 +90,19 @@ static uint32_t xorshift32( uint32_t x )
     return x;
 }
 
-static bit_t PointToBit(const point_t * const point)
+static bit_t PointToBit(const pointf16_t * const point)
 {
-    ASSERT(point->x < LCD_COLUMNS);
-    ASSERT(point->y < (LCD_ROWS * LCD_PAGES));
+    uint8_t x = QMath_Int16ToUInt8(point->x, 1U);
+    uint8_t y = QMath_Int16ToUInt8(point->y, 2U);
+
+    ASSERT(x < LCD_COLUMNS);
+    ASSERT(y < (LCD_ROWS * LCD_PAGES));
     
     bit_t bit =
     {
-        .col   = point->x,
-        .page  = point->y >> 3,
-        .bit   = point->y & ( LCD_ROWS - 1U ),
+        .col   = x,
+        .page  = y >> 3,
+        .bit   = y & ( LCD_ROWS - 1U ),
     };
 
     return bit;
@@ -127,7 +129,7 @@ static bird_state_t NextState(const bird_t * const b)
     uint8_t u = 0U + EDGE;
     uint8_t d = LCD_FULL_ROWS - EDGE;
 
-    const point_t * const p = &b->pos;
+    const pointf16_t * const p = &b->p;
 
     if( (p->x < l) )
     {
@@ -156,8 +158,11 @@ static bird_state_t NextState(const bird_t * const b)
 
 static void ScreenWrap(bird_t * const b)
 {
+    (void)b;
+    /*
         b->pos.x = b->pos.x & (LCD_COLUMNS - 1U);
         b->pos.y = b->pos.y & (LCD_FULL_ROWS - 1U);
+    */
 }
 
 extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
@@ -170,17 +175,15 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
     for( uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         rng = xorshift32(rng);
-        uint8_t x = (uint8_t)(rng >> 24U);
-        uint8_t y = (uint8_t)(rng >> 16U);
+        int16_t x = (int16_t)(rng >> 16U);
+        rng = xorshift32(rng);
+        int16_t y = (int16_t)(rng >> 16U);
         bird[idx].angle = (uint16_t)(rng >> 8U);
         //bird[idx].angle = 24U;
         bird[idx].state = BirdState_Idle;
 
-        bird[idx].pos.x = x & ( (LCD_COLUMNS) - 1U);
-        bird[idx].pos.y = y & ( (LCD_FULL_ROWS) - 1U);
-        
-        ASSERT(bird[idx].pos.x < LCD_COLUMNS);
-        ASSERT(bird[idx].pos.y < LCD_FULL_ROWS);
+        bird[idx].p.x = x;
+        bird[idx].p.y = y;
     }
 
     update_fn = fn;
@@ -536,7 +539,7 @@ extern void Bird_Tick( void )
     {
 
         bird_t * const b = &bird[idx];
-        bit_t prev_bit = PointToBit(&b->pos);
+        bit_t prev_bit = PointToBit(&b->p);
         Set(display_buffer, false, &prev_bit);
         
         switch(b->state)
@@ -558,7 +561,7 @@ extern void Bird_Tick( void )
         b->state = NextState(b);
 
         /* Draw */
-        bit_t bit = PointToBit(&b->pos);
+        bit_t bit = PointToBit(&b->p);
         Set(display_buffer, true, &bit);
     }
     update_fn();
