@@ -122,10 +122,10 @@ static bird_state_t NextState(const bird_t * const b)
 {
     bird_state_t next_state = BirdState_Idle;
 
-    int16_t r = Q_FLOAT_TO_Q(0.9999, Q_NUM) - EDGE;
-    int16_t l = Q_FLOAT_TO_Q(-1.0, Q_NUM) + EDGE;
-    int16_t u = Q_FLOAT_TO_Q(-1.0, Q_NUM) + EDGE;
-    int16_t d = Q_FLOAT_TO_Q(0.9999, Q_NUM) - EDGE;
+    int16_t r = QMath_SubSat(Q15_MAX, EDGE, Q_NUM);
+    int16_t l = QMath_AddSat(Q15_MIN, EDGE, Q_NUM);
+    int16_t u = QMath_AddSat(Q15_MIN, EDGE, Q_NUM);
+    int16_t d = QMath_SubSat(Q15_MAX, EDGE, Q_NUM);
 
     const pointf16_t * const p = &b->p;
 

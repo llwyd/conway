@@ -31,8 +31,53 @@ int16_t QMath_Mul(int16_t a, int16_t b, uint16_t q)
 int16_t QMath_Add(int16_t a, int16_t b, uint16_t q)
 {
     ASSERT(q < MAX_Q);
-    
+    /* UB!!! */
     int16_t result = a + b;
+    return result;
+}
+
+/* Add with saturation */
+int16_t QMath_AddSat(int16_t a, int16_t b, uint16_t q)
+{
+    ASSERT(q < MAX_Q);
+    int32_t result32 = (int32_t)a + (int32_t)b;
+
+    if(result32 > INT16_MAX)
+    {
+        result32 = INT16_MAX;
+    }
+    else if(result32 < INT16_MIN)
+    {
+        result32 = INT16_MIN;
+    }
+    else
+    {
+        /* nothing */
+    }
+
+    int16_t result = (int16_t)result32;
+    return result;
+}
+
+int16_t QMath_SubSat(int16_t a, int16_t b, uint16_t q)
+{
+    ASSERT(q < MAX_Q);
+    int32_t result32 = (int32_t)a - (int32_t)b;
+
+    if(result32 > INT16_MAX)
+    {
+        result32 = INT16_MAX;
+    }
+    else if(result32 < INT16_MIN)
+    {
+        result32 = INT16_MIN;
+    }
+    else
+    {
+        /* nothing */
+    }
+
+    int16_t result = (int16_t)result32;
     return result;
 }
 
