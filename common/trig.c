@@ -66,6 +66,7 @@ extern void TRIG_Translate16(pointf16_t * const p, uint8_t angle, int16_t inc)
 
 extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b)
 {
+    /* TODO - make safe */
     int16_t diff_x = a->x - b->x;
     int16_t diff_y = a->y - b->y;
 
