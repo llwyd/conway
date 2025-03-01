@@ -7,20 +7,19 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (32U)
+#define NUM_BIRDS (128U)
 
 #define SEP_RADIUS8 (0x0080)
-#define COH_RADIUS8 (0x1200)
+#define COH_RADIUS8 (0x0F00)
 
 #define SEP_ANGLE 0x08U
 #define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x13U;
 
-#define SPEED_INC (0x0544)
-#define DELTA_FRACT (0x01FF)
-#define ALPHA_POINT (0x11FF)
-#define ALPHA (0x00FF)
-#define EDGE (0x0A00)
+#define SPEED_INC (0x05F4)
+#define ALPHA_POINT (0x31FF)
+#define ALPHA (0x01FF)
+#define EDGE (0x0900)
 
 typedef struct
 {
@@ -193,10 +192,10 @@ static bool IsPointInSquare8(const pointf16_t * const b, const pointf16_t * cons
     ASSERT(ss_2 > 0);
     
     bool result = false;
-    int16_t r = c->x + ss_2;
-    int16_t l = c->x - ss_2;
-    int16_t u = c->y - ss_2;
-    int16_t d = c->y + ss_2;
+    int16_t r = QMath_AddSat(c->x, ss_2, Q_NUM);
+    int16_t l = QMath_SubSat(c->x, ss_2, Q_NUM);
+    int16_t u = QMath_SubSat(c->y, ss_2, Q_NUM);
+    int16_t d = QMath_AddSat(c->y, ss_2, Q_NUM);
 
     if(u >= LCD_FULL_ROWS)
     {
@@ -288,8 +287,12 @@ extern pointf16_t AveragePoint(const nearby_t * const nearby)
         int16_t diff_x = QMath_Sub(pos->x, prev.x, Q_NUM);
         int16_t diff_y = QMath_Sub(pos->y, prev.y, Q_NUM);
 
-        result.x = pos->x - QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
-        result.y = pos->y - QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
+        diff_x = QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
+        diff_x = QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
+
+
+        result.x = QMath_SubSat(pos->x, diff_x, Q_NUM);
+        result.y = QMath_SubSat(pos->y, diff_y, Q_NUM);
     }
 
     return result;
