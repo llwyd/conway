@@ -60,8 +60,11 @@ extern void TRIG_Translate16(pointf16_t * const p, uint8_t angle, int16_t inc)
 {
     ASSERT(p!=NULL);
 
-    p->x += QMath_Mul(inc, qcos[angle], Q_NUM);
-    p->y += QMath_Mul(inc, qsin[angle], Q_NUM);
+    int16_t inc_x = QMath_Mul(inc, qcos[angle], Q_NUM);
+    int16_t inc_y = QMath_Mul(inc, qsin[angle], Q_NUM);
+
+    p->x = QMath_AddSat(p->x, inc_x, Q_NUM);
+    p->y = QMath_AddSat(p->y, inc_y, Q_NUM);
 }
 
 extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b)
