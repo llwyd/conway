@@ -10,17 +10,17 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (32U)
 
 #define SEP_RADIUS8 (0x0010)
-#define COH_RADIUS8 (0x0080)
+#define COH_RADIUS8 (0x0002)
 
 #define SEP_ANGLE 0x06U
-#define COH_ANGLE 0x01U;
+#define COH_ANGLE 0x04U;
 #define EDGE_ANGLE 0x33U;
 
 #define SPEED_INC (0x0400)
-#define DELTA_FRACT (0x0FFF)
-#define ALPHA_POINT (0x007F)
-#define ALPHA (0x00FF)
-#define EDGE (0x05U)
+#define DELTA_FRACT (0x101F)
+#define ALPHA_POINT (0x101F)
+#define ALPHA (0x10FF)
+#define EDGE (0x0005U)
 
 typedef struct
 {
@@ -51,9 +51,7 @@ quadrant_t;
 
 typedef struct
 {
-    point_t pos;
     uint8_t angle;
-
     pointf16_t p;
     bird_state_t state;
 }
@@ -219,10 +217,10 @@ static bool IsPointInSquare8(const pointf16_t * const b, const pointf16_t * cons
     return result;
 }
 
-static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, uint16_t square_size)
+static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, int16_t square_size)
 {
     ASSERT(near_birds != NULL);
-    ASSERT(square_size > 1U);
+    ASSERT(square_size > 1);
 
     const pointf16_t * const c = &current_bird->p;
     near_birds->num = 0U;
@@ -272,13 +270,13 @@ static quadrant_t WhichQuadrant(const pointf16_t * const a, const pointf16_t * c
     return quadrant;
 }
 
-extern point16_t AveragePoint(const nearby_t * const nearby)
+extern pointf16_t AveragePoint(const nearby_t * const nearby)
 {
-    point16_t result ={.x = 0, .y = 0};
+    pointf16_t result ={.x = 0, .y = 0};
     
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
-        point16_t prev = 
+        pointf16_t prev = 
         {
             .x = result.x,
             .y = result.y,
@@ -327,8 +325,7 @@ extern void Idle( bird_t * const b)
     {
         /* Handle separation */
         /* Determine angle from quadrant */
-        const point16_t avg_pos = AveragePoint(&nearby_sep); 
-        const pointf16_t avg = {.x=avg_pos.x, .y=avg_pos.y};
+        const pointf16_t avg = AveragePoint(&nearby_sep); 
         quadrant_t q = WhichQuadrant(&b->p, &avg);
         uint8_t a = TRIG_ATan2(&b->p, &avg);
         switch(q)
@@ -381,8 +378,7 @@ extern void Idle( bird_t * const b)
     {
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
-        const point16_t avg_pos = AveragePoint(&nearby_else);
-        const pointf16_t avg = {.x=avg_pos.x, .y=avg_pos.y};
+        const pointf16_t avg = AveragePoint(&nearby_else);
         quadrant_t q = WhichQuadrant(&b->p, &avg);
         uint8_t a = TRIG_ATan2(&b->p, &avg);
         quad = q;
