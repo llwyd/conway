@@ -12,7 +12,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SEP_RADIUS8 (0x0080)
 #define COH_RADIUS8 (0x0F00)
 
-#define SEP_ANGLE 0x08U
+#define SEP_ANGLE 0x04U
 #define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x13U;
 
@@ -377,7 +377,7 @@ extern void Idle( bird_t * const b)
         //TRIG_Translate(&b->pos, b->angle, SPEED_INC);
         ScreenWrap(b);
     }
-    else if(nearby_else.num > 0U)
+    if(nearby_else.num > 0U)
     {
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
