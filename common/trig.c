@@ -56,10 +56,22 @@ extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
     }
 }
 
-extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
+extern void TRIG_Translate16(pointf16_t * const p, uint8_t angle, int16_t inc)
 {
-    int16_t diff_x = (int16_t)a->x - (int16_t)b->x;
-    int16_t diff_y = (int16_t)a->y - (int16_t)b->y;
+    ASSERT(p!=NULL);
+
+    int16_t inc_x = QMath_Mul(inc, qcos[angle], Q_NUM);
+    int16_t inc_y = QMath_Mul(inc, qsin[angle], Q_NUM);
+
+    p->x = QMath_AddSat(p->x, inc_x, Q_NUM);
+    p->y = QMath_AddSat(p->y, inc_y, Q_NUM);
+}
+
+extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b)
+{
+    /* TODO - make safe */
+    int16_t diff_x = a->x - b->x;
+    int16_t diff_y = a->y - b->y;
 
     int16_t abs_x = ABS(diff_x);
     int16_t abs_y = ABS(diff_y);
@@ -69,15 +81,15 @@ extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
     ASSERT(abs_x >= 0);
     ASSERT(abs_y >= 0);
 
-    point16_t c =
+    pointf16_t c =
     {
-        .x = (abs_x << 0),
-        .y = (abs_y << 0),
+        .x = abs_x,
+        .y = abs_y,
     };
     
     for(uint32_t idx = 0; idx < CORDIC_ITS; idx++)
     {
-        point16_t next;
+        pointf16_t next;
         if(c.y == 0)
         {
             break;
@@ -88,7 +100,7 @@ extern uint8_t TRIG_ATan2(const point_t * const a, const point_t * const b)
         c = next;
         
         cordic_angle += (d < 0) ? lut_atanpi2[idx] : -lut_atanpi2[idx];
-        d = (c.y > INT16_MAX) ? 1 : -1;
+        d = (c.y < 0) ? 1 : -1;
     }
     
     uint8_t angle = Q_UDNSCALE(cordic_angle, 8);

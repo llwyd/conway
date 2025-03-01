@@ -7,20 +7,19 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (32U)
+#define NUM_BIRDS (128U)
 
-#define SEP_RADIUS8 (0x04U)
-#define COH_RADIUS8 (0x10U)
+#define SEP_RADIUS8 (0x0080)
+#define COH_RADIUS8 (0x0F00)
 
-#define SEP_ANGLE 0x06U
+#define SEP_ANGLE 0x04U
 #define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x33U;
+#define EDGE_ANGLE 0x13U;
 
-#define SPEED_INC (0x011d)
-#define DELTA_FRACT (0x0FFF)
-#define ALPHA_POINT (0x007F)
-#define ALPHA (0x00FF)
-#define EDGE (0x05U)
+#define SPEED_INC (0x05F4)
+#define ALPHA_POINT (0x31FF)
+#define ALPHA (0x01FF)
+#define EDGE (0x0900)
 
 typedef struct
 {
@@ -51,11 +50,8 @@ quadrant_t;
 
 typedef struct
 {
-    point_t pos;
     uint8_t angle;
-
-    //point16_t p;
-    //uint16_t a;
+    pointf16_t p;
     bird_state_t state;
 }
 bird_t;
@@ -75,11 +71,11 @@ static bird_t bird[NUM_BIRDS];
 static nearby_t nearby_sep;
 static nearby_t nearby_else;
 
-static uint32_t rng_seed = 0x13121312;
+//static uint32_t rng_seed = 0x13121312;
 
 void ( *update_fn )( void );
 
-static bit_t PointToBit(const point_t * const point);
+static bit_t PointToBit(const pointf16_t * const point);
 static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t * const bit );
 
 static uint32_t xorshift32( uint32_t x )
@@ -91,16 +87,19 @@ static uint32_t xorshift32( uint32_t x )
     return x;
 }
 
-static bit_t PointToBit(const point_t * const point)
+static bit_t PointToBit(const pointf16_t * const point)
 {
-    ASSERT(point->x < LCD_COLUMNS);
-    ASSERT(point->y < (LCD_ROWS * LCD_PAGES));
+    uint8_t x = QMath_Int16ToUInt8(point->x, 1U);
+    uint8_t y = QMath_Int16ToUInt8(point->y, 2U);
+
+    ASSERT(x < LCD_COLUMNS);
+    ASSERT(y < (LCD_ROWS * LCD_PAGES));
     
     bit_t bit =
     {
-        .col   = point->x,
-        .page  = point->y >> 3,
-        .bit   = point->y & ( LCD_ROWS - 1U ),
+        .col   = x,
+        .page  = y >> 3,
+        .bit   = y & ( LCD_ROWS - 1U ),
     };
 
     return bit;
@@ -122,12 +121,12 @@ static bird_state_t NextState(const bird_t * const b)
 {
     bird_state_t next_state = BirdState_Idle;
 
-    uint8_t r = LCD_COLUMNS - EDGE;
-    uint8_t l = 0U + EDGE;
-    uint8_t u = 0U + EDGE;
-    uint8_t d = LCD_FULL_ROWS - EDGE;
+    int16_t r = QMath_SubSat(Q15_MAX, EDGE, Q_NUM);
+    int16_t l = QMath_AddSat(Q15_MIN, EDGE, Q_NUM);
+    int16_t u = QMath_AddSat(Q15_MIN, EDGE, Q_NUM);
+    int16_t d = QMath_SubSat(Q15_MAX, EDGE, Q_NUM);
 
-    const point_t * const p = &b->pos;
+    const pointf16_t * const p = &b->p;
 
     if( (p->x < l) )
     {
@@ -156,8 +155,11 @@ static bird_state_t NextState(const bird_t * const b)
 
 static void ScreenWrap(bird_t * const b)
 {
+    (void)b;
+    /*
         b->pos.x = b->pos.x & (LCD_COLUMNS - 1U);
         b->pos.y = b->pos.y & (LCD_FULL_ROWS - 1U);
+    */
 }
 
 extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
@@ -170,32 +172,30 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
     for( uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         rng = xorshift32(rng);
-        uint8_t x = (uint8_t)(rng >> 24U);
-        uint8_t y = (uint8_t)(rng >> 16U);
+        int16_t x = (int16_t)(rng >> 16U);
+        rng = xorshift32(rng);
+        int16_t y = (int16_t)(rng >> 16U);
         bird[idx].angle = (uint16_t)(rng >> 8U);
         //bird[idx].angle = 24U;
         bird[idx].state = BirdState_Idle;
 
-        bird[idx].pos.x = x & ( (LCD_COLUMNS) - 1U);
-        bird[idx].pos.y = y & ( (LCD_FULL_ROWS) - 1U);
-        
-        ASSERT(bird[idx].pos.x < LCD_COLUMNS);
-        ASSERT(bird[idx].pos.y < LCD_FULL_ROWS);
+        bird[idx].p.x = x;
+        bird[idx].p.y = y;
     }
 
     update_fn = fn;
 }
 
-static bool IsPointInSquare8(const point_t * const b, const point_t * const c, uint8_t square_size)
+static bool IsPointInSquare8(const pointf16_t * const b, const pointf16_t * const c, int16_t square_size)
 {
-    uint8_t ss_2 = square_size >> 0U;
+    int16_t ss_2 = square_size >> 0U;
     ASSERT(ss_2 > 0);
     
     bool result = false;
-    uint8_t r = c->x + ss_2;
-    uint8_t l = c->x - ss_2;
-    uint8_t u = c->y - ss_2;
-    uint8_t d = c->y + ss_2;
+    int16_t r = QMath_AddSat(c->x, ss_2, Q_NUM);
+    int16_t l = QMath_SubSat(c->x, ss_2, Q_NUM);
+    int16_t u = QMath_SubSat(c->y, ss_2, Q_NUM);
+    int16_t d = QMath_AddSat(c->y, ss_2, Q_NUM);
 
     if(u >= LCD_FULL_ROWS)
     {
@@ -216,19 +216,19 @@ static bool IsPointInSquare8(const point_t * const b, const point_t * const c, u
     return result;
 }
 
-static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, uint16_t square_size)
+static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, int16_t square_size)
 {
     ASSERT(near_birds != NULL);
-    ASSERT(square_size > 1U);
+    ASSERT(square_size > 1);
 
-    const point_t * const c = &current_bird->pos;
+    const pointf16_t * const c = &current_bird->p;
     near_birds->num = 0U;
 
     for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
         if(current_bird != &bird[idx])
         {
-            const point_t * const b = &bird[idx].pos;
+            const pointf16_t * const b = &bird[idx].p;
             
             if(IsPointInSquare8(b, c, square_size))
             {
@@ -240,7 +240,7 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
 
 }
 
-static quadrant_t WhichQuadrant(const point_t * const a, const point_t * const b)
+static quadrant_t WhichQuadrant(const pointf16_t * const a, const pointf16_t * const b)
 {
     quadrant_t quadrant = Quad_0;
     if(a->x < b->x)
@@ -269,30 +269,30 @@ static quadrant_t WhichQuadrant(const point_t * const a, const point_t * const b
     return quadrant;
 }
 
-extern point16_t AveragePoint(const nearby_t * const nearby)
+extern pointf16_t AveragePoint(const nearby_t * const nearby)
 {
-    point16_t result ={.x = 0, .y = 0};
+    pointf16_t result ={.x = 0, .y = 0};
     
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
-        point16_t prev = 
+        pointf16_t prev = 
         {
             .x = result.x,
             .y = result.y,
         };
 
         uint8_t nearby_idx = nearby->bird[idx];
-        point16_t pos = 
-        { 
-            .x = Q_UPSCALE(bird[nearby_idx].pos.x, Q_SCALE),
-            .y = Q_UPSCALE(bird[nearby_idx].pos.y, Q_SCALE),
-        };
+        pointf16_t * pos = &bird[nearby_idx].p;
         
-        int16_t diff_x = QMath_Sub(pos.x, prev.x, Q_NUM);
-        int16_t diff_y = QMath_Sub(pos.y, prev.y, Q_NUM);
+        int16_t diff_x = QMath_Sub(pos->x, prev.x, Q_NUM);
+        int16_t diff_y = QMath_Sub(pos->y, prev.y, Q_NUM);
 
-        result.x = pos.x - QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
-        result.y = pos.y - QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
+        diff_x = QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
+        diff_x = QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
+
+
+        result.x = QMath_SubSat(pos->x, diff_x, Q_NUM);
+        result.y = QMath_SubSat(pos->y, diff_y, Q_NUM);
     }
 
     return result;
@@ -328,13 +328,9 @@ extern void Idle( bird_t * const b)
     {
         /* Handle separation */
         /* Determine angle from quadrant */
-        const point16_t avg_pos = AveragePoint(&nearby_sep); 
-        const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
-        const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
-        const point_t avg = {.x=avg_x, .y=avg_y};
-        quadrant_t q = WhichQuadrant(&b->pos, &avg);
-        uint8_t a = TRIG_ATan2(&b->pos, &avg);
-
+        const pointf16_t avg = AveragePoint(&nearby_sep); 
+        quadrant_t q = WhichQuadrant(&b->p, &avg);
+        uint8_t a = TRIG_ATan2(&b->p, &avg);
         switch(q)
         {
             case Quad_0:
@@ -381,16 +377,13 @@ extern void Idle( bird_t * const b)
         //TRIG_Translate(&b->pos, b->angle, SPEED_INC);
         ScreenWrap(b);
     }
-    else if(nearby_else.num > 0U)
+    if(nearby_else.num > 0U)
     {
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
-        const point16_t avg_pos = AveragePoint(&nearby_else);
-        const uint8_t avg_x = Q_DNSCALE(avg_pos.x, Q_SCALE);
-        const uint8_t avg_y = Q_DNSCALE(avg_pos.y, Q_SCALE);
-        const point_t avg = {.x=avg_x, .y=avg_y};
-        quadrant_t q = WhichQuadrant(&b->pos, &avg);
-        uint8_t a = TRIG_ATan2(&b->pos, &avg);
+        const pointf16_t avg = AveragePoint(&nearby_else);
+        quadrant_t q = WhichQuadrant(&b->p, &avg);
+        uint8_t a = TRIG_ATan2(&b->p, &avg);
         quad = q;
         switch(q)
         {
@@ -442,9 +435,10 @@ extern void Idle( bird_t * const b)
      * -> Move
      * -> Update state machine
      * -> Screen wrap */
-    rng_seed = xorshift32(rng_seed);
-    uint32_t speed = (rng_seed & 0x00FF) + 0x00FF;
-    TRIG_Translate(&b->pos, b->angle, speed);
+    /* TODO - Fix */
+    //rng_seed = xorshift32(rng_seed);
+    //uint32_t speed = (rng_seed & 0x00FF) + 0x00FF;
+    TRIG_Translate16(&b->p, b->angle, SPEED_INC);
     ScreenWrap(b);
 
 
@@ -526,7 +520,7 @@ static void Turning(bird_t * const b)
             ASSERT(false);
             break;
     }
-    TRIG_Translate(&b->pos, b->angle, SPEED_INC);
+    TRIG_Translate16(&b->p, b->angle, SPEED_INC);
     ScreenWrap(b);
 }
 
@@ -536,7 +530,7 @@ extern void Bird_Tick( void )
     {
 
         bird_t * const b = &bird[idx];
-        bit_t prev_bit = PointToBit(&b->pos);
+        bit_t prev_bit = PointToBit(&b->p);
         Set(display_buffer, false, &prev_bit);
         
         switch(b->state)
@@ -558,7 +552,7 @@ extern void Bird_Tick( void )
         b->state = NextState(b);
 
         /* Draw */
-        bit_t bit = PointToBit(&b->pos);
+        bit_t bit = PointToBit(&b->p);
         Set(display_buffer, true, &bit);
     }
     update_fn();

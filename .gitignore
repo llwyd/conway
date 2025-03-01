@@ -9,3 +9,4 @@ Makefile
 bin/
 cmake_install.cmake
 Unity
+.gdb_history
