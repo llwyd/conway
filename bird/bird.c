@@ -9,18 +9,18 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (32U)
 
-#define SEP_RADIUS8 (0x0010)
-#define COH_RADIUS8 (0x0002)
+#define SEP_RADIUS8 (0x0040)
+#define COH_RADIUS8 (0x0200)
 
-#define SEP_ANGLE 0x06U
+#define SEP_ANGLE 0x08U
 #define COH_ANGLE 0x04U;
 #define EDGE_ANGLE 0x33U;
 
-#define SPEED_INC (0x0400)
-#define DELTA_FRACT (0x101F)
-#define ALPHA_POINT (0x101F)
-#define ALPHA (0x10FF)
-#define EDGE (0x0005U)
+#define SPEED_INC (0x0444)
+#define DELTA_FRACT (0x001F)
+#define ALPHA_POINT (0x001F)
+#define ALPHA (0x00FF)
+#define EDGE (0x0100)
 
 typedef struct
 {
@@ -122,10 +122,10 @@ static bird_state_t NextState(const bird_t * const b)
 {
     bird_state_t next_state = BirdState_Idle;
 
-    int16_t r = LCD_COLUMNS - EDGE;
-    int16_t l = 0U + EDGE;
-    int16_t u = 0U + EDGE;
-    int16_t d = LCD_FULL_ROWS - EDGE;
+    int16_t r = Q_FLOAT_TO_Q(0.9999, Q_NUM) - EDGE;
+    int16_t l = Q_FLOAT_TO_Q(-1.0, Q_NUM) + EDGE;
+    int16_t u = Q_FLOAT_TO_Q(-1.0, Q_NUM) + EDGE;
+    int16_t d = Q_FLOAT_TO_Q(0.9999, Q_NUM) - EDGE;
 
     const pointf16_t * const p = &b->p;
 
