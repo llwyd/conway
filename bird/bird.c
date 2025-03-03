@@ -39,15 +39,6 @@ typedef enum
 }
 bird_state_t;
 
-typedef enum
-{
-    Quad_0,
-    Quad_1,
-    Quad_2,
-    Quad_3,
-}
-quadrant_t;
-
 typedef struct
 {
     uint8_t angle;
@@ -240,35 +231,6 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
 
 }
 
-static quadrant_t WhichQuadrant(const pointf16_t * const a, const pointf16_t * const b)
-{
-    quadrant_t quadrant = Quad_0;
-    if(a->x < b->x)
-    {
-       if(a->y < b->y)
-       {
-            quadrant = Quad_0;
-       }
-       else
-       {
-            quadrant = Quad_3;
-       }
-    }
-    else
-    {
-       if(a->y < b->y)
-       {
-            quadrant = Quad_1;
-       }
-       else
-       {
-            quadrant = Quad_2;
-       }
-    }
-
-    return quadrant;
-}
-
 extern pointf16_t AveragePoint(const nearby_t * const nearby)
 {
     pointf16_t result ={.x = 0, .y = 0};
@@ -329,12 +291,12 @@ extern void Idle( bird_t * const b)
         /* Handle separation */
         /* Determine angle from quadrant */
         const pointf16_t avg = AveragePoint(&nearby_sep); 
-        quadrant_t q = WhichQuadrant(&b->p, &avg);
+        quadrant_t q = TRIG_WhichQuadrant(&b->p, &avg);
         uint8_t a = TRIG_ATan2(&b->p, &avg);
         switch(q)
         {
             case Quad_0:
-                if(a > 160)
+                if((a > DEG_225) || (a < DEG_45))
                 {
                     b->angle -= SEP_ANGLE;
                 }
@@ -344,7 +306,7 @@ extern void Idle( bird_t * const b)
                 }
                 break;
             case Quad_3:
-                if(a < 96)
+                if((a < DEG_135) || (a > DEG_315))
                 {
                     b->angle += SEP_ANGLE;
                 }
@@ -354,7 +316,7 @@ extern void Idle( bird_t * const b)
                 }
                 break;
             case Quad_1:
-                if(a < 96 )
+                if( (a < DEG_135) || (a > DEG_315) )
                 {
                     b->angle -= SEP_ANGLE;
                 }
@@ -364,7 +326,7 @@ extern void Idle( bird_t * const b)
                 }
                 break;
             case Quad_2:
-                if(a > 160 )
+                if((a > DEG_225) || (a < DEG_45) )
                 {
                     b->angle += SEP_ANGLE;
                 }
@@ -382,13 +344,13 @@ extern void Idle( bird_t * const b)
         /* Handle Alignment + Cohesion */
         /* Determine angle from quadrant */
         const pointf16_t avg = AveragePoint(&nearby_else);
-        quadrant_t q = WhichQuadrant(&b->p, &avg);
+        quadrant_t q = TRIG_WhichQuadrant(&b->p, &avg);
         uint8_t a = TRIG_ATan2(&b->p, &avg);
         quad = q;
         switch(q)
         {
             case Quad_0:
-                if(a > 160)
+                if((a > DEG_225) || (a < DEG_45))
                 {
                     b->angle += COH_ANGLE;
                 }
@@ -398,7 +360,7 @@ extern void Idle( bird_t * const b)
                 }
                 break;
             case Quad_3:
-                if(a < 96)
+                if((a < DEG_135) || (a > DEG_315))
                 {
                     b->angle -= COH_ANGLE;
                 }
@@ -408,7 +370,7 @@ extern void Idle( bird_t * const b)
                 }
                 break;
             case Quad_1:
-                if(a < 96 )
+                if( (a < DEG_135) || (a > DEG_315) )
                 {
                     b->angle += COH_ANGLE;
                 }
@@ -418,7 +380,7 @@ extern void Idle( bird_t * const b)
                 }
                 break;
             case Quad_2:
-                if(a > 160 )
+                if((a > DEG_225) || (a < DEG_45) )
                 {
                     b->angle -= COH_ANGLE;
                 }

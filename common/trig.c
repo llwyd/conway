@@ -119,3 +119,33 @@ extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b
 
     return angle;
 }
+
+extern quadrant_t TRIG_WhichQuadrant(const pointf16_t * const a, const pointf16_t * const b)
+{
+    quadrant_t quadrant = Quad_0;
+    if(a->x < b->x)
+    {
+       if(a->y < b->y)
+       {
+            quadrant = Quad_0;
+       }
+       else
+       {
+            quadrant = Quad_3;
+       }
+    }
+    else
+    {
+       if(a->y < b->y)
+       {
+            quadrant = Quad_1;
+       }
+       else
+       {
+            quadrant = Quad_2;
+       }
+    }
+
+    return quadrant;
+}
+
