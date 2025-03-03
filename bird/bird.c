@@ -10,16 +10,16 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (128U)
 
 #define SEP_RADIUS8 (0x0080)
-#define COH_RADIUS8 (0x0F00)
+#define COH_RADIUS8 (0x2000)
 
 #define SEP_ANGLE 0x04U
 #define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x13U;
+#define EDGE_ANGLE 0x1FU;
 
-#define SPEED_INC (0x05F4)
-#define ALPHA_POINT (0x31FF)
+#define SPEED_INC (0x05FF)
+#define ALPHA_POINT (0x07FF)
 #define ALPHA (0x01FF)
-#define EDGE (0x0900)
+#define EDGE (0x0100)
 
 typedef struct
 {
@@ -71,7 +71,7 @@ static bird_t bird[NUM_BIRDS];
 static nearby_t nearby_sep;
 static nearby_t nearby_else;
 
-//static uint32_t rng_seed = 0x13121312;
+static uint32_t rng_seed = 0x13121312;
 
 void ( *update_fn )( void );
 
@@ -436,9 +436,9 @@ extern void Idle( bird_t * const b)
      * -> Update state machine
      * -> Screen wrap */
     /* TODO - Fix */
-    //rng_seed = xorshift32(rng_seed);
-    //uint32_t speed = (rng_seed & 0x00FF) + 0x00FF;
-    TRIG_Translate16(&b->p, b->angle, SPEED_INC);
+    rng_seed = xorshift32(rng_seed);
+    uint32_t speed = (rng_seed & 0x07FF) + 0x01FF;
+    TRIG_Translate16(&b->p, b->angle, speed);
     ScreenWrap(b);
 
 
