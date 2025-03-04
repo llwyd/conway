@@ -223,8 +223,11 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
             
             if(IsPointInSquare8(b, c, square_size))
             {
-                near_birds->bird[near_birds->num] = idx;
-                near_birds->num++;
+                if(bird[idx].state == BirdState_Idle)
+                {
+                    near_birds->bird[near_birds->num] = idx;
+                    near_birds->num++;
+                }
             }
         }
     }
