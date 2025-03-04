@@ -411,7 +411,7 @@ extern void Idle( bird_t * const b)
     {
         uint16_t near_angle = AverageAngle(&nearby_else);
         uint8_t near_angle8 = Q_UDNSCALE(near_angle, Q_SCALE);
-        uint16_t delta = ((uint16_t)b->angle + (uint16_t)near_angle8) >> 1U;
+        uint8_t delta = TRIG_SAM(b->angle, near_angle8);
         switch(quad)
         {
             case Quad_0:
