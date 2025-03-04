@@ -7,19 +7,19 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (128U)
+#define NUM_BIRDS (72U)
 
-#define SEP_RADIUS8 (0x0080)
+#define SEP_RADIUS8 (0x0040)
 #define COH_RADIUS8 (0x2000)
 
 #define SEP_ANGLE 0x04U
 #define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x1FU;
+#define EDGE_ANGLE 0x10U;
 
 #define SPEED_INC (0x05FF)
-#define ALPHA_POINT (0x07FF)
-#define ALPHA (0x01FF)
-#define EDGE (0x0100)
+#define ALPHA_POINT (0x03FF)
+#define ALPHA (0x007F)
+#define EDGE (0x0120)
 
 typedef struct
 {
@@ -409,18 +409,18 @@ extern void Idle( bird_t * const b)
     }
     else if(nearby_else.num > 0U)
     {
-        uint16_t angle = Q_UUPSCALE(b->angle, Q_SCALE);
         uint16_t near_angle = AverageAngle(&nearby_else);
-        uint16_t delta = (angle + near_angle) >> 1U;
+        uint8_t near_angle8 = Q_UDNSCALE(near_angle, Q_SCALE);
+        uint16_t delta = ((uint16_t)b->angle + (uint16_t)near_angle8) >> 1U;
         switch(quad)
         {
             case Quad_0:
             case Quad_3:
-                b->angle = Q_UDNSCALE(delta, Q_SCALE);
+                b->angle = (uint8_t) delta;
                 break;
             case Quad_1:
             case Quad_2:
-                b->angle = Q_UDNSCALE(delta, Q_SCALE);
+                b->angle = (uint8_t)delta;
                 break;
         }
     }
