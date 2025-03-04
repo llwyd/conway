@@ -9,7 +9,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (72U)
 
-#define SEP_RADIUS8 (0x0040)
+#define SEP_RADIUS8 (0x0080)
 #define COH_RADIUS8 (0x2000)
 
 #define SEP_ANGLE 0x04U
@@ -223,8 +223,11 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
             
             if(IsPointInSquare8(b, c, square_size))
             {
-                near_birds->bird[near_birds->num] = idx;
-                near_birds->num++;
+                if(bird[idx].state == BirdState_Idle)
+                {
+                    near_birds->bird[near_birds->num] = idx;
+                    near_birds->num++;
+                }
             }
         }
     }
