@@ -132,6 +132,36 @@ static void test_TRIG_ATan2_315Deg()
     TEST_ASSERT_FLOAT_WITHIN(2.0, 315.0, f_angle);
 }
 
+static void test_TRIG_SAM_0_90(void)
+{
+    uint8_t a = DEG_0;
+    uint8_t b = DEG_90;
+
+    uint8_t mp = TRIG_SAM(a, b);
+
+    TEST_ASSERT_UINT8_WITHIN(1, DEG_45, mp);
+}
+
+static void test_TRIG_SAM_135_225(void)
+{
+    uint8_t a = DEG_135;
+    uint8_t b = DEG_225;
+
+    uint8_t mp = TRIG_SAM(a, b);
+
+    TEST_ASSERT_UINT8_WITHIN(1, DEG_180, mp);
+}
+
+static void test_TRIG_SAM_315_45(void)
+{
+    uint8_t a = DEG_315;
+    uint8_t b = DEG_45;
+
+    uint8_t mp = TRIG_SAM(a, b);
+
+    TEST_ASSERT_UINT8_WITHIN(2, DEG_0, mp);
+}
+
 extern void TRIG_TestsRun(void)
 {
     RUN_TEST(test_TRIG_ATan2_0Deg);
@@ -142,4 +172,8 @@ extern void TRIG_TestsRun(void)
     RUN_TEST(test_TRIG_ATan2_225Deg);
     RUN_TEST(test_TRIG_ATan2_270Deg);
     RUN_TEST(test_TRIG_ATan2_315Deg);
+    
+    RUN_TEST(test_TRIG_SAM_0_90);
+    RUN_TEST(test_TRIG_SAM_135_225);
+    RUN_TEST(test_TRIG_SAM_315_45);
 }

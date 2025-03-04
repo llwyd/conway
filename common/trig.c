@@ -149,3 +149,42 @@ extern quadrant_t TRIG_WhichQuadrant(const pointf16_t * const a, const pointf16_
     return quadrant;
 }
 
+extern uint8_t TRIG_SAM(uint8_t a, uint8_t b)
+{
+    uint8_t midpoint = a;
+
+    uint16_t a16 = (uint16_t)a;
+    uint16_t b16 = (uint16_t)b;
+    if(a16 < b16)
+    {
+        uint16_t delta_0 = b16 - a16;
+        uint16_t delta_1 = (a16 + UINT8_MAX + 1) - b16;
+
+        if(delta_0 < delta_1)
+        {
+            midpoint = (a + b) >> 1U;
+        }
+        else
+        {
+            midpoint = (uint8_t)((a16 + UINT8_MAX + 1 + b16) >> 1U);
+        }
+    }
+    else
+    {
+        uint16_t delta_0 = a16 - b16;
+        uint16_t delta_1 = (b16 + UINT8_MAX + 1) - a16;
+
+        if(delta_0 < delta_1)
+        {
+            midpoint = (a + b) >> 1U;
+        }
+        else
+        {
+            midpoint = (uint8_t)((a16 + UINT8_MAX + 1 + b16) >> 1U);
+        }
+    }
+    //midpoint = (a + b) >> 1U;
+
+    return midpoint;
+}
+

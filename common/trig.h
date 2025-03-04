@@ -50,5 +50,8 @@ extern point_t TRIG_FixedTo8Bit(pointf16_t * p, uint16_t x_max, uint16_t y_max);
 
 extern quadrant_t TRIG_WhichQuadrant(const pointf16_t * const a, const pointf16_t * const b);
 
+/* Shortest angle midpoint */
+extern uint8_t TRIG_SAM(uint8_t a, uint8_t b);
+
 #endif /* TRIG_H_ */
 
