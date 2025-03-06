@@ -402,7 +402,7 @@ extern void Idle( bird_t * const b)
      * -> Screen wrap */
     /* TODO - Fix */
     rng_seed = xorshift32(rng_seed);
-    uint32_t speed = (rng_seed & 0x07FF) + 0x01FF;
+    uint32_t speed = (rng_seed & 0x07FF) + 0x03FF;
     TRIG_Translate16(&b->p, b->angle, speed);
     ScreenWrap(b);
 
