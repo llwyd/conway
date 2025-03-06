@@ -70,11 +70,23 @@ extern void TRIG_Translate16(pointf16_t * const p, uint8_t angle, int16_t inc)
 extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b)
 {
     /* TODO - make safe */
-    int16_t diff_x = a->x - b->x;
-    int16_t diff_y = a->y - b->y;
+    uint8_t a_x = QMath_Int16ToUInt8(a->x, 1U); 
+    uint8_t a_y = QMath_Int16ToUInt8(a->y, 1U); 
+    uint8_t b_x = QMath_Int16ToUInt8(b->x, 1U); 
+    uint8_t b_y = QMath_Int16ToUInt8(b->y, 1U); 
+    
+    int16_t diff_x = (int16_t)a_x - (int16_t)b_x;
+    int16_t diff_y = (int16_t)a_y - (int16_t)b_y;
 
     int16_t abs_x = ABS(diff_x);
     int16_t abs_y = ABS(diff_y);
+    
+    ASSERT(abs_x <= UINT8_MAX);
+    ASSERT(abs_x >= 0);
+    
+    ASSERT(abs_y <= UINT8_MAX);
+    ASSERT(abs_y >= 0);
+
     uint16_t cordic_angle = 0;
     int16_t d = -1;
 
