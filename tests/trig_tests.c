@@ -132,6 +132,48 @@ static void test_TRIG_ATan2_315Deg()
     TEST_ASSERT_FLOAT_WITHIN(2.0, 315.0, f_angle);
 }
 
+static void test_TRIG_ATan2_Extreme_xy()
+{
+    TEST_ASSERT_TRUE(true);
+    pointf16_t a = {.x = Q_FLOAT_TO_Q(0.5, Q_NUM), .y = Q_FLOAT_TO_Q(0.5, Q_NUM)};
+    pointf16_t b = {.x = Q_FLOAT_TO_Q(-0.5, Q_NUM), .y = Q_FLOAT_TO_Q(-0.5, Q_NUM)};
+
+    uint8_t angle = TRIG_ATan2(&a, &b);
+
+    TEST_ASSERT_UINT8_WITHIN(2, 1 * (1 << 5), angle);
+
+    float32_t f_angle = Bin2Deg(angle);
+    TEST_ASSERT_FLOAT_WITHIN(2.0, 45.0, f_angle);
+}
+
+static void test_TRIG_ATan2_Extreme_xy_2()
+{
+    TEST_ASSERT_TRUE(true);
+    pointf16_t a = {.x = Q_FLOAT_TO_Q(-0.5, Q_NUM), .y = Q_FLOAT_TO_Q(-0.5, Q_NUM)};
+    pointf16_t b = {.x = Q_FLOAT_TO_Q(0.5, Q_NUM), .y = Q_FLOAT_TO_Q(0.5, Q_NUM)};
+
+    uint8_t angle = TRIG_ATan2(&a, &b);
+
+    TEST_ASSERT_UINT8_WITHIN(2, 5 * (1 << 5), angle);
+
+    float32_t f_angle = Bin2Deg(angle);
+    TEST_ASSERT_FLOAT_WITHIN(2.0, 225.0, f_angle);
+}
+
+static void test_TRIG_ATan2_Extreme_xy_3()
+{
+    TEST_ASSERT_TRUE(true);
+    pointf16_t a = {.x = Q_FLOAT_TO_Q(0.9999, Q_NUM), .y = Q_FLOAT_TO_Q(0.9999, Q_NUM)};
+    pointf16_t b = {.x = Q_FLOAT_TO_Q(-1.0, Q_NUM), .y = Q_FLOAT_TO_Q(-1.0, Q_NUM)};
+
+    uint8_t angle = TRIG_ATan2(&a, &b);
+
+    TEST_ASSERT_UINT8_WITHIN(2, 1 * (1 << 5), angle);
+
+    float32_t f_angle = Bin2Deg(angle);
+    TEST_ASSERT_FLOAT_WITHIN(2.0, 45.0, f_angle);
+}
+
 static void test_TRIG_SAM_0_90(void)
 {
     uint8_t a = DEG_0;
@@ -182,6 +224,9 @@ extern void TRIG_TestsRun(void)
     RUN_TEST(test_TRIG_ATan2_225Deg);
     RUN_TEST(test_TRIG_ATan2_270Deg);
     RUN_TEST(test_TRIG_ATan2_315Deg);
+    RUN_TEST(test_TRIG_ATan2_Extreme_xy);
+    RUN_TEST(test_TRIG_ATan2_Extreme_xy_2);
+    RUN_TEST(test_TRIG_ATan2_Extreme_xy_3);
     
     RUN_TEST(test_TRIG_SAM_0_90);
     RUN_TEST(test_TRIG_SAM_135_225);
