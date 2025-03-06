@@ -12,7 +12,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define SEP_RADIUS8 (0x0080)
 #define COH_RADIUS8 (0x2000)
 
-#define SEP_ANGLE 0x04U
+#define SEP_ANGLE 0x0FU
 #define COH_ANGLE 0x01U;
 #define EDGE_ANGLE 0x10U;
 
@@ -406,11 +406,7 @@ extern void Idle( bird_t * const b)
     TRIG_Translate16(&b->p, b->angle, speed);
     ScreenWrap(b);
 
-
-    if(nearby_sep.num > 0U)
-    {
-    }
-    else if(nearby_else.num > 0U)
+    if(nearby_else.num > 0U)
     {
         uint16_t near_angle = AverageAngle(&nearby_else);
         uint8_t near_angle8 = Q_UDNSCALE(near_angle, Q_SCALE);
