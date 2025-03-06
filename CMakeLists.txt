@@ -77,6 +77,7 @@ target_compile_options( conway.out
 
 target_compile_options( bird.out
                         PUBLIC
+                        -O3
                         -Wfatal-errors
                         -Wall
                         -Wextra
@@ -87,6 +88,7 @@ target_compile_options( bird.out
 
 target_compile_options( tests.out
                         PUBLIC
+                        -O3
                         -Wfatal-errors
                         #-Wall
                         #-Wextra
