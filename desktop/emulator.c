@@ -50,15 +50,15 @@ void UpdateDisplay ( void )
     unsigned char (*buffer)[LCD_COLUMNS] = Bird_GetBuffer();
 #endif
 
-    for( int i = 0; i < LCD_PAGES; i++ )
+    for( uint8_t i = 0; i < LCD_PAGES; i++ )
     {
-        for( int j = 0; j < LCD_COLUMNS; j++ )
+        for( uint8_t j = 0; j < LCD_COLUMNS; j++ )
         {
-            for( int k = 0; k < LCD_ROWS; k++ )
+            for( uint8_t k = 0; k < LCD_ROWS; k++ )
             {
                 bool alive = (bool)( ( buffer[i][j] >> k ) & 0x1 );
                 uint8_t x_loc = j;
-                uint8_t y_loc = k + (8 * i );
+                uint8_t y_loc = (uint8_t)(k + (8 * i ));
 
                 if( alive )
                 {

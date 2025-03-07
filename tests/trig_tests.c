@@ -7,7 +7,7 @@ typedef float float32_t;
 
 static float32_t Bin2Deg(uint8_t x)
 {
-    float result = (1.0 / (float)(1 << 7)) * (180.0/ M_PI) * (M_PI) * (float)x;
+    float result = (float)((1.0 / (float)(1 << 7)) * (180.0/ M_PI) * (M_PI) * (float)x);
 
     return result;
 }

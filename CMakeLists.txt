@@ -84,17 +84,19 @@ target_compile_options( bird.out
                         -Werror
                         -Wpedantic
                         -Wpointer-arith
+                        -Wconversion
                         -g)
 
 target_compile_options( tests.out
                         PUBLIC
                         -O0
                         -Wfatal-errors
-                        #-Wall
-                        #-Wextra
-                        #-Werror
-                        #-Wpedantic
-                        #-Wpointer-arith
+                        -Wall
+                        -Wextra
+                        -Werror
+                        -Wpedantic
+                        -Wpointer-arith
+                        -Wconversion
                         -g
                         -DUNIT_TESTS
                         -DUNITY_OUTPUT_COLOR )

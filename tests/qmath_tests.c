@@ -8,7 +8,7 @@ static void test_QMATH_Q15_Sanity(void)
     int16_t x = Q_FLOAT_TO_Q(xf, Q_NUM15);
     TEST_ASSERT_EQUAL_INT16(0x0000, x);
     
-    xf = 0.99999;
+    xf = (float32_t)0.99999;
     x = Q_FLOAT_TO_Q(xf, Q_NUM15);
     TEST_ASSERT_EQUAL_INT16(0x7FFF, x); 
     

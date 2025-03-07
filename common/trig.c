@@ -28,7 +28,7 @@ static int16_t ABS(int16_t x)
     return result;
 }
 
-extern void TRIG_Translate(point_t * const p, uint8_t angle, uint16_t inc)
+extern void TRIG_Translate(point_t * const p, uint8_t angle, int16_t inc)
 {
     ASSERT(p!=NULL);
     int16_t x = 0U;
@@ -111,8 +111,16 @@ extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b
         next.y = c.y + (d * (c.x >> idx)) ;
         */
         c = next;
-        
-        cordic_angle += (d < 0) ? lut_atanpi2[idx] : -lut_atanpi2[idx];
+       
+        if( d < 0)
+        {
+            cordic_angle += lut_atanpi2[idx]; 
+        }
+        else
+        {
+            cordic_angle -= lut_atanpi2[idx];
+        }
+
         d = (c.y < 0) ? Q_FLOAT_TO_Q(0.9999, Q_NUM) : Q_FLOAT_TO_Q(-1.f, Q_NUM);
     }
     
@@ -171,11 +179,11 @@ extern uint8_t TRIG_SAM(uint8_t a, uint8_t b)
     if(a16 < b16)
     {
         uint16_t delta_0 = b16 - a16;
-        uint16_t delta_1 = (a16 + UINT8_MAX + 1) - b16;
+        uint16_t delta_1 = ((uint16_t)(a16 + UINT8_MAX + 1) - b16);
 
         if(delta_0 < delta_1)
         {
-            midpoint = (a + b) >> 1U;
+            midpoint = (uint8_t)((a16 + b16) >> 1U);
         }
         else
         {
@@ -185,11 +193,11 @@ extern uint8_t TRIG_SAM(uint8_t a, uint8_t b)
     else
     {
         uint16_t delta_0 = a16 - b16;
-        uint16_t delta_1 = (b16 + UINT8_MAX + 1) - a16;
+        uint16_t delta_1 = (uint16_t)((b16 + UINT8_MAX + 1) - a16);
 
         if(delta_0 < delta_1)
         {
-            midpoint = (a + b) >> 1U;
+            midpoint = (uint8_t)((a16 + b16) >> 1U);
         }
         else
         {

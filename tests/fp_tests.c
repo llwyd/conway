@@ -28,7 +28,7 @@ static void test_FP_2_DisplayN(void)
 
 static void test_FP_2_DisplayE(void)
 {
-    float32_t xf = 0.99999;
+    float32_t xf = (float32_t)0.99999;
     float32_t yf = 0.0;
     
     pointf16_t p =
@@ -48,7 +48,7 @@ static void test_FP_2_DisplayE(void)
 static void test_FP_2_DisplayS(void)
 {
     float32_t xf = 0.0;
-    float32_t yf = 0.99999;
+    float32_t yf = (float32_t)0.99999;
     
     pointf16_t p =
     {
@@ -105,7 +105,7 @@ static void test_FP_2_DisplaySE_2(void)
 static void test_FP_2_DisplaySW(void)
 {
     float32_t xf = -1.0;
-    float32_t yf = 0.99999;
+    float32_t yf = (float32_t)0.99999;
     
     pointf16_t p =
     {

@@ -17,9 +17,9 @@ _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x0FU)
-#define COH_ANGLE   (0x01U)
-#define EDGE_ANGLE  (0x12U)
+#define SEP_ANGLE   (0x0F)
+#define COH_ANGLE   (0x01)
+#define EDGE_ANGLE  (0x12)
 
 _Static_assert(SEP_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE > 0, "Must be > 0");
@@ -63,8 +63,8 @@ bird_t;
 /* Used to collect info of nearby birds based on index */
 typedef struct
 {
-    uint8_t bird[NUM_BIRDS];
-    uint8_t num;
+    uint32_t bird[NUM_BIRDS];
+    uint32_t num;
 }
 nearby_t;
 
@@ -113,11 +113,11 @@ static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t *
 {    
     if( set )
     {
-        display[bit->page][bit->col] |= ( 1U << bit->bit);
+        display[bit->page][bit->col] |= (uint8_t)( 1U << bit->bit);
     }
     else
     {
-        display[bit->page][bit->col] &= ~(1U << bit->bit);
+        display[bit->page][bit->col] &= ~((uint8_t)(1U << bit->bit));
     }
 }
 
@@ -179,7 +179,8 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         int16_t x = (int16_t)(rng >> 16U);
         rng = xorshift32(rng);
         int16_t y = (int16_t)(rng >> 16U);
-        bird[idx].angle = (uint16_t)(rng >> 8U);
+        rng = xorshift32(rng);
+        bird[idx].angle = (uint8_t)(rng >> 24U);
         //bird[idx].angle = 24U;
         bird[idx].state = BirdState_Idle;
 
@@ -259,7 +260,7 @@ extern pointf16_t AveragePoint(const nearby_t * const nearby)
             .y = result.y,
         };
 
-        uint8_t nearby_idx = nearby->bird[idx];
+        uint32_t nearby_idx = nearby->bird[idx];
         pointf16_t * pos = &bird[nearby_idx].p;
         
         int16_t diff_x = QMath_Sub(pos->x, prev.x, Q_NUM);
@@ -284,7 +285,7 @@ extern uint16_t AverageAngle(const nearby_t * const nearby)
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
         uint16_t prev_y = y;
-        uint8_t nearby_idx = nearby->bird[idx];
+        uint32_t nearby_idx = nearby->bird[idx];
         uint16_t angle = Q_UUPSCALE(bird[nearby_idx].angle,Q_SCALE);
         uint16_t diff = QMath_USub(angle, prev_y, Q_NUM);
         y = angle - QMath_UMul(ALPHA, diff, Q_NUM);
@@ -415,7 +416,8 @@ extern void Idle( bird_t * const b)
      * -> Screen wrap */
     /* TODO - Fix */
     rng_seed = xorshift32(rng_seed);
-    uint32_t speed = (rng_seed & 0x07FF) + 0x03FF;
+    int16_t rng16 = (int16_t)rng_seed;
+    int16_t speed = (rng16 & 0x07FF) + 0x03FF;
     TRIG_Translate16(&b->p, b->angle, speed);
     ScreenWrap(b);
 
