@@ -3,13 +3,13 @@
 
 #define MAX_BITS (32)
 #define MAX_Q (MAX_BITS >> 1U)
-#define HALF (0x8000)
+#define HALF (0x4000)
 
 uint8_t QMath_Int16ToUInt8(int16_t x, uint8_t scale)
 {
     ASSERT(scale > 0);
     uint8_t result = 0;
-    int16_t half = (int16_t)(HALF >> scale);
+    int16_t half = (int16_t)(HALF >> (scale - 1));
 
     int16_t x_scaled = x >> scale;
     x_scaled = QMath_Add(x_scaled, half, Q_NUM15);
