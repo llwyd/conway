@@ -9,17 +9,30 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (72U)
 
-#define COH_RADIUS8 Q_FLOAT_TO_Q(0.175, Q_NUM)
+/* 0.175 ~= 0x1666 */
+#define COH_RADIUS8 (0x1866)
 #define SEP_RADIUS8 (COH_RADIUS8 >> 3)
 
-#define SEP_ANGLE 0x0FU
-#define COH_ANGLE 0x01U;
-#define EDGE_ANGLE 0x12U;
+_Static_assert(COH_RADIUS8 > 0, "Must be > 0");
+_Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
+_Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
+
+#define SEP_ANGLE   (0x0FU)
+#define COH_ANGLE   (0x01U)
+#define EDGE_ANGLE  (0x12U)
+
+_Static_assert(SEP_ANGLE > 0, "Must be > 0");
+_Static_assert(COH_ANGLE > 0, "Must be > 0");
+_Static_assert(EDGE_ANGLE > 0, "Must be > 0");
+_Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 
 #define SPEED_INC (0x05FF)
 #define ALPHA_POINT (0x03FF)
 #define ALPHA (0x007F)
-#define EDGE Q_FLOAT_TO_Q(0.075, Q_NUM)
+
+/* 0.075 ~= 0x0999 */
+#define EDGE (0x0999)
+_Static_assert(EDGE > 0, "Must be > 0");
 
 typedef struct
 {
