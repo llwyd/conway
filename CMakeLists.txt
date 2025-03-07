@@ -88,7 +88,7 @@ target_compile_options( bird.out
 
 target_compile_options( tests.out
                         PUBLIC
-                        -O3
+                        -O0
                         -Wfatal-errors
                         #-Wall
                         #-Wextra
