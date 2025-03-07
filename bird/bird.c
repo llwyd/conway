@@ -9,7 +9,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 #define NUM_BIRDS (72U)
 
-#define COH_RADIUS8 Q_FLOAT_TO_Q(0.125, Q_NUM)
+#define COH_RADIUS8 Q_FLOAT_TO_Q(0.175, Q_NUM)
 #define SEP_RADIUS8 (COH_RADIUS8 >> 3)
 
 #define SEP_ANGLE 0x0FU
