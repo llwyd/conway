@@ -85,6 +85,7 @@ target_compile_options( bird.out
                         -Wpedantic
                         -Wpointer-arith
                         -Wconversion
+                        -fsanitize=undefined
                         -g)
 
 target_compile_options( tests.out
@@ -104,4 +105,6 @@ target_compile_options( tests.out
 target_link_libraries( conway.out X11)
 
 target_link_libraries( bird.out X11)
+
+target_link_options(bird.out PUBLIC -fsanitize=undefined)
 

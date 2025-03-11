@@ -101,8 +101,8 @@ extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b
             break;
         }
 
-        int16_t d_y = QMath_Mul(d, c.y >> idx, Q_NUM);
-        int16_t d_x = QMath_Mul(d, c.x >> idx, Q_NUM);
+        int16_t d_y = QMath_Mul(d, (int16_t)(c.y >> idx), Q_NUM);
+        int16_t d_x = QMath_Mul(d, (int16_t)(c.x >> idx), Q_NUM);
         
         next.x = QMath_SubSat(c.x, d_y, Q_NUM);
         next.y = QMath_AddSat(c.y, d_x, Q_NUM);

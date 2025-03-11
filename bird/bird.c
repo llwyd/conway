@@ -117,7 +117,7 @@ static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t *
     }
     else
     {
-        display[bit->page][bit->col] &= ~((uint8_t)(1U << bit->bit));
+        display[bit->page][bit->col] &= (uint8_t)(~((uint8_t)(1U << bit->bit)));
     }
 }
 

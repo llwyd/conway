@@ -11,7 +11,7 @@ uint8_t QMath_Int16ToUInt8(int16_t x, uint8_t scale)
     uint8_t result = 0;
     int16_t half = (int16_t)(HALF >> (scale - 1));
 
-    int16_t x_scaled = x >> scale;
+    int16_t x_scaled = (int16_t)(x >> scale);
     x_scaled = QMath_Add(x_scaled, half, Q_NUM15);
     
     /* Scale down to int8 */
