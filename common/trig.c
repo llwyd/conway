@@ -95,7 +95,6 @@ extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b
     
     for(uint32_t idx = 0; idx < CORDIC_ITS; idx++)
     {
-        pointf16_t next;
         if(c.y == 0)
         {
             break;
@@ -104,13 +103,8 @@ extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b
         int16_t d_y = QMath_Mul(d, (int16_t)(c.y >> idx), Q_NUM);
         int16_t d_x = QMath_Mul(d, (int16_t)(c.x >> idx), Q_NUM);
         
-        next.x = QMath_SubSat(c.x, d_y, Q_NUM);
-        next.y = QMath_AddSat(c.y, d_x, Q_NUM);
-        /*
-        next.x = c.x - (d * (c.y >> idx)) ;
-        next.y = c.y + (d * (c.x >> idx)) ;
-        */
-        c = next;
+        c.x = QMath_SubSat(c.x, d_y, Q_NUM);
+        c.y = QMath_AddSat(c.y, d_x, Q_NUM);
        
         if( d < 0)
         {
