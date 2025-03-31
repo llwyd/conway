@@ -30,8 +30,8 @@ _Static_assert(EDGE_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 
 #define SPEED_INC (0x05FF)
-#define ALPHA_POINT (0x03FF)
-#define ALPHA (0x007F)
+#define ALPHA_POINT (0x00FF)
+#define ALPHA (0x000F)
 
 /* 0.075 ~= 0x0999 */
 #define EDGE (0x0799)
