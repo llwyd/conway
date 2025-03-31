@@ -7,10 +7,13 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (72U)
+#define NUM_BIRDS (48U)
+
+/* Cap number of nearby birds */
+#define MAX_NEARBY (16U)
 
 /* 0.175 ~= 0x1666 */
-#define COH_RADIUS8 (0x1CFF)
+#define COH_RADIUS8 (0x1FFF)
 #define SEP_RADIUS8 (COH_RADIUS8 >> 6)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
@@ -229,8 +232,10 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
     const pointf16_t * const c = &current_bird->p;
     near_birds->num = 0U;
 
-    for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
+
+    for(uint32_t idx = 0, collected = 0; (idx < NUM_BIRDS) && (collected < MAX_NEARBY); idx++)
     {
+        ASSERT(near_birds->num < MAX_NEARBY);
         if(current_bird != &bird[idx])
         {
             const pointf16_t * const b = &bird[idx].p;
@@ -241,6 +246,7 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
                 {
                     near_birds->bird[near_birds->num] = idx;
                     near_birds->num++;
+                    collected++;
                 }
             }
         }
