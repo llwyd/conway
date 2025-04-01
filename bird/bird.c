@@ -20,8 +20,8 @@ _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x07)
-#define COH_ANGLE   (0x03)
+#define SEP_ANGLE   (0x0A)
+#define COH_ANGLE   (SEP_ANGLE >> 1U)
 #define EDGE_ANGLE  (0x08)
 
 _Static_assert(SEP_ANGLE > 0, "Must be > 0");
@@ -30,7 +30,7 @@ _Static_assert(EDGE_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 
 #define SPEED_INC (0x05FF)
-#define ALPHA_POINT (0x00FF)
+#define ALPHA_POINT (0x003F)
 #define ALPHA (0x003F)
 
 /* 0.075 ~= 0x0999 */
@@ -242,7 +242,7 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
             
             if(IsPointInSquare8(b, c, square_size))
             {
-                if(bird[idx].state == BirdState_Idle)
+                //if(bird[idx].state == BirdState_Idle)
                 {
                     near_birds->bird[near_birds->num] = idx;
                     near_birds->num++;
