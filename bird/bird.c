@@ -52,6 +52,7 @@ typedef enum
     BirdState_TurningE,
     BirdState_TurningS,
     BirdState_TurningW,
+    BirdState_PostTurning,
 }
 bird_state_t;
 
@@ -448,11 +449,15 @@ extern void Idle( bird_t * const b)
 
 static void Turning(bird_t * const b)
 {
-    switch(b->state)
+    const pointf16_t avg = {.x=0,.y=0};
+    quadrant_t q = TRIG_WhichQuadrant(&b->p, &avg);
+    uint8_t a = TRIG_ATan2(&b->p, &avg);
+    
+    a += DEG_180;
+    switch(q)
     {
-        case BirdState_TurningS:
-        {
-            if( (b->angle > DEG_90) && (b->angle < DEG_270))
+        case Quad_0:
+            if((a > DEG_225) || (a < DEG_45))
             {
                 b->angle += EDGE_ANGLE;
             }
@@ -461,10 +466,8 @@ static void Turning(bird_t * const b)
                 b->angle -= EDGE_ANGLE;
             }
             break;
-        }
-        case BirdState_TurningN:
-        {
-            if( (b->angle > DEG_90) && (b->angle < DEG_270))
+        case Quad_3:
+            if((a < DEG_135) || (a > DEG_315))
             {
                 b->angle -= EDGE_ANGLE;
             }
@@ -473,10 +476,8 @@ static void Turning(bird_t * const b)
                 b->angle += EDGE_ANGLE;
             }
             break;
-        }
-        case BirdState_TurningE:
-        {
-            if( (b->angle > DEG_0) && (b->angle < DEG_180))
+        case Quad_1:
+            if( (a < DEG_135) || (a > DEG_315) )
             {
                 b->angle += EDGE_ANGLE;
             }
@@ -485,10 +486,8 @@ static void Turning(bird_t * const b)
                 b->angle -= EDGE_ANGLE;
             }
             break;
-        }
-        case BirdState_TurningW:
-        {
-            if( (b->angle > DEG_0) && (b->angle < DEG_180))
+        case Quad_2:
+            if((a > DEG_225) || (a < DEG_45) )
             {
                 b->angle -= EDGE_ANGLE;
             }
@@ -496,14 +495,16 @@ static void Turning(bird_t * const b)
             {
                 b->angle += EDGE_ANGLE;
             }
-            break;
-        }
-        default:
-            ASSERT(false);
             break;
     }
-    TRIG_Translate16(&b->p, b->angle, SPEED_INC);
-    ScreenWrap(b);
+    
+    rng_seed = xorshift32(rng_seed);
+    int16_t rng16 = (int16_t)rng_seed;
+    int16_t speed = (rng16 & 0x07FF) + 0x03FF;
+    TRIG_Translate16(&b->p, b->angle, speed);
+    
+    uint8_t delta = TRIG_SAM(b->angle, a + DEG_180);
+    b->angle = (uint8_t)delta;
 }
 
 extern void Bird_Tick( void )
