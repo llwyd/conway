@@ -14,7 +14,7 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 /* 0.175 ~= 0x1666 */
 #define COH_RADIUS8 (0x1000)
-#define SEP_RADIUS8 (COH_RADIUS8 >> 4)
+#define SEP_RADIUS8 (COH_RADIUS8 >> 3)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
@@ -449,7 +449,7 @@ extern void Idle( bird_t * const b)
 
 static void Turning(bird_t * const b)
 {
-    const pointf16_t avg = {.x=0,.y=0};
+    pointf16_t avg = {.x=0,.y=0};
     quadrant_t q = TRIG_WhichQuadrant(&b->p, &avg);
     uint8_t a = TRIG_ATan2(&b->p, &avg);
     
@@ -503,7 +503,7 @@ static void Turning(bird_t * const b)
     int16_t speed = (rng16 & 0x07FF) + 0x03FF;
     TRIG_Translate16(&b->p, b->angle, speed);
     
-    uint8_t delta = TRIG_SAM(b->angle, a + DEG_180);
+    uint8_t delta = TRIG_SAM(b->angle, a);
     b->angle = (uint8_t)delta;
 }
 
