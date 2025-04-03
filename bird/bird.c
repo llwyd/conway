@@ -10,18 +10,18 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (48U)
 
 /* Cap number of nearby birds */
-#define MAX_NEARBY (8U)
+#define MAX_NEARBY (16U)
 
 /* 0.2 ~= 0x1999 */
 #define COH_RADIUS8 (0x2000)
-#define SEP_RADIUS8 (COH_RADIUS8 >> 2)
+#define SEP_RADIUS8 (0x0600)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x0C)
-#define COH_ANGLE   (SEP_ANGLE >> 3U)
+#define SEP_ANGLE   (0x10)
+#define COH_ANGLE   (0x01)
 #define EDGE_ANGLE  (0x08)
 
 _Static_assert(SEP_ANGLE > 0, "Must be > 0");
