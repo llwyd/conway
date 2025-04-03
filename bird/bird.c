@@ -10,10 +10,10 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define NUM_BIRDS (48U)
 
 /* Cap number of nearby birds */
-#define MAX_NEARBY (16U)
+#define MAX_NEARBY (8U)
 
 /* 0.175 ~= 0x1666 */
-#define COH_RADIUS8 (0x1000)
+#define COH_RADIUS8 Q_FLOAT_TO_Q(0.2, Q_NUM)
 #define SEP_RADIUS8 (COH_RADIUS8 >> 3)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
@@ -21,7 +21,7 @@ _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
 #define SEP_ANGLE   (0x0A)
-#define COH_ANGLE   (SEP_ANGLE >> 1U)
+#define COH_ANGLE   (SEP_ANGLE >> 3U)
 #define EDGE_ANGLE  (0x08)
 
 _Static_assert(SEP_ANGLE > 0, "Must be > 0");
@@ -30,11 +30,11 @@ _Static_assert(EDGE_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 
 #define SPEED_INC (0x05FF)
-#define ALPHA_POINT (0x003F)
+#define ALPHA_POINT (0x001F)
 #define ALPHA (0x003F)
 
 /* 0.075 ~= 0x0999 */
-#define EDGE (0x0799)
+#define EDGE Q_FLOAT_TO_Q(0.15, Q_NUM)
 _Static_assert(EDGE > 0, "Must be > 0");
 
 typedef struct
@@ -136,19 +136,19 @@ static bird_state_t NextState(const bird_t * const b)
 
     const pointf16_t * const p = &b->p;
 
-    if( (p->x < l) )
+    if( (p->x <= l) )
     {
         next_state = BirdState_TurningW;
     }
-    else if( (p->x > r) )
+    else if( (p->x >= r) )
     {
         next_state = BirdState_TurningE;
     }
-    else if( (p->y < u) )
+    else if( (p->y <= u) )
     {
         next_state = BirdState_TurningN;
     }
-    else if( (p->y > d) )
+    else if( (p->y >= d) )
     {
         next_state = BirdState_TurningS;
     }
@@ -454,57 +454,16 @@ static void Turning(bird_t * const b)
     uint8_t a = TRIG_ATan2(&b->p, &avg);
     
     a += DEG_180;
-    switch(q)
-    {
-        case Quad_0:
-            if((a > DEG_225) || (a < DEG_45))
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            break;
-        case Quad_3:
-            if((a < DEG_135) || (a > DEG_315))
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            break;
-        case Quad_1:
-            if( (a < DEG_135) || (a > DEG_315) )
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            break;
-        case Quad_2:
-            if((a > DEG_225) || (a < DEG_45) )
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            break;
-    }
-    
     rng_seed = xorshift32(rng_seed);
     int16_t rng16 = (int16_t)rng_seed;
     int16_t speed = (rng16 & 0x07FF) + 0x03FF;
-    TRIG_Translate16(&b->p, b->angle, speed);
     
     uint8_t delta = TRIG_SAM(b->angle, a);
+    delta = TRIG_SAM(b->angle, delta);
+    delta = TRIG_SAM(b->angle, delta);
     b->angle = (uint8_t)delta;
+    
+    TRIG_Translate16(&b->p, b->angle, speed);
 }
 
 extern void Bird_Tick( void )
