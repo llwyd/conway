@@ -12,8 +12,8 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 /* Cap number of nearby birds */
 #define MAX_NEARBY (8U)
 
-/* 0.175 ~= 0x1666 */
-#define COH_RADIUS8 Q_FLOAT_TO_Q(0.2, Q_NUM)
+/* 0.2 ~= 0x1999 */
+#define COH_RADIUS8 (0x2000)
 #define SEP_RADIUS8 (COH_RADIUS8 >> 2)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
@@ -33,8 +33,8 @@ _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 #define ALPHA_POINT (0x001F)
 #define ALPHA (0x003F)
 
-/* 0.075 ~= 0x0999 */
-#define EDGE Q_FLOAT_TO_Q(0.15, Q_NUM)
+/* 0.15 ~= 0x1333 */
+#define EDGE (0x1333)
 _Static_assert(EDGE > 0, "Must be > 0");
 
 typedef struct
