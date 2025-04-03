@@ -14,13 +14,13 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 
 /* 0.175 ~= 0x1666 */
 #define COH_RADIUS8 Q_FLOAT_TO_Q(0.2, Q_NUM)
-#define SEP_RADIUS8 (COH_RADIUS8 >> 3)
+#define SEP_RADIUS8 (COH_RADIUS8 >> 2)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x0A)
+#define SEP_ANGLE   (0x0C)
 #define COH_ANGLE   (SEP_ANGLE >> 3U)
 #define EDGE_ANGLE  (0x08)
 
@@ -34,7 +34,7 @@ _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 #define ALPHA (0x003F)
 
 /* 0.075 ~= 0x0999 */
-#define EDGE Q_FLOAT_TO_Q(0.15, Q_NUM)
+#define EDGE Q_FLOAT_TO_Q(0.125, Q_NUM)
 _Static_assert(EDGE > 0, "Must be > 0");
 
 typedef struct
@@ -450,7 +450,6 @@ extern void Idle( bird_t * const b)
 static void Turning(bird_t * const b)
 {
     pointf16_t avg = {.x=0,.y=0};
-    quadrant_t q = TRIG_WhichQuadrant(&b->p, &avg);
     uint8_t a = TRIG_ATan2(&b->p, &avg);
     
     a += DEG_180;
