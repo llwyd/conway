@@ -13,8 +13,8 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define MAX_NEARBY (8U)
 
 /* 0.2 ~= 0x1999 */
-#define COH_RADIUS8 (0x2400)
-#define SEP_RADIUS8 (0x0200)
+#define COH_RADIUS8 (0x2400 >> 0)
+#define SEP_RADIUS8 (0x0200 >> 1)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
