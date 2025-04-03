@@ -20,7 +20,7 @@ _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x15)
+#define SEP_ANGLE   (0x1A)
 #define COH_ANGLE   (SEP_ANGLE >> 3U)
 #define EDGE_ANGLE  (0x08)
 
