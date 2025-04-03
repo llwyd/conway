@@ -130,7 +130,7 @@ int main( void )
             }
         }
 
-        usleep( 50000 );
+        usleep( 5000 );
     }
 
     return 0;

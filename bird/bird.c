@@ -7,19 +7,22 @@ _Static_assert(LCD_PAGES <= UINT8_MAX, "invalid num of pages");
 _Static_assert(LCD_COLUMNS <= UINT8_MAX, "invalid cols");
 _Static_assert(LCD_ROWS == 8U, "must be u8");
 
-#define NUM_BIRDS (72U)
+#define NUM_BIRDS (48U)
 
-/* 0.175 ~= 0x1666 */
-#define COH_RADIUS8 (0x1CFF)
-#define SEP_RADIUS8 (COH_RADIUS8 >> 6)
+/* Cap number of nearby birds */
+#define MAX_NEARBY (8U)
+
+/* 0.2 ~= 0x1999 */
+#define COH_RADIUS8 (0x2000)
+#define SEP_RADIUS8 (COH_RADIUS8 >> 2)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x0F)
-#define COH_ANGLE   (0x01)
-#define EDGE_ANGLE  (0x14)
+#define SEP_ANGLE   (0x0C)
+#define COH_ANGLE   (SEP_ANGLE >> 3U)
+#define EDGE_ANGLE  (0x08)
 
 _Static_assert(SEP_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE > 0, "Must be > 0");
@@ -27,11 +30,11 @@ _Static_assert(EDGE_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 
 #define SPEED_INC (0x05FF)
-#define ALPHA_POINT (0x03FF)
-#define ALPHA (0x007F)
+#define ALPHA_POINT (0x001F)
+#define ALPHA (0x003F)
 
-/* 0.075 ~= 0x0999 */
-#define EDGE (0x0999)
+/* 0.15 ~= 0x1333 */
+#define EDGE (0x1333)
 _Static_assert(EDGE > 0, "Must be > 0");
 
 typedef struct
@@ -49,6 +52,7 @@ typedef enum
     BirdState_TurningE,
     BirdState_TurningS,
     BirdState_TurningW,
+    BirdState_PostTurning,
 }
 bird_state_t;
 
@@ -132,19 +136,19 @@ static bird_state_t NextState(const bird_t * const b)
 
     const pointf16_t * const p = &b->p;
 
-    if( (p->x < l) )
+    if( (p->x <= l) )
     {
         next_state = BirdState_TurningW;
     }
-    else if( (p->x > r) )
+    else if( (p->x >= r) )
     {
         next_state = BirdState_TurningE;
     }
-    else if( (p->y < u) )
+    else if( (p->y <= u) )
     {
         next_state = BirdState_TurningN;
     }
-    else if( (p->y > d) )
+    else if( (p->y >= d) )
     {
         next_state = BirdState_TurningS;
     }
@@ -229,18 +233,21 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
     const pointf16_t * const c = &current_bird->p;
     near_birds->num = 0U;
 
-    for(uint32_t idx = 0; idx < NUM_BIRDS; idx++)
+
+    for(uint32_t idx = 0, collected = 0; (idx < NUM_BIRDS) && (collected < MAX_NEARBY); idx++)
     {
+        ASSERT(near_birds->num < MAX_NEARBY);
         if(current_bird != &bird[idx])
         {
             const pointf16_t * const b = &bird[idx].p;
             
             if(IsPointInSquare8(b, c, square_size))
             {
-                if(bird[idx].state == BirdState_Idle)
+                //if(bird[idx].state == BirdState_Idle)
                 {
                     near_birds->bird[near_birds->num] = idx;
                     near_birds->num++;
+                    collected++;
                 }
             }
         }
@@ -442,62 +449,20 @@ extern void Idle( bird_t * const b)
 
 static void Turning(bird_t * const b)
 {
-    switch(b->state)
-    {
-        case BirdState_TurningS:
-        {
-            if( (b->angle > DEG_90) && (b->angle < DEG_270))
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            break;
-        }
-        case BirdState_TurningN:
-        {
-            if( (b->angle > DEG_90) && (b->angle < DEG_270))
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            break;
-        }
-        case BirdState_TurningE:
-        {
-            if( (b->angle > DEG_0) && (b->angle < DEG_180))
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            break;
-        }
-        case BirdState_TurningW:
-        {
-            if( (b->angle > DEG_0) && (b->angle < DEG_180))
-            {
-                b->angle -= EDGE_ANGLE;
-            }
-            else
-            {
-                b->angle += EDGE_ANGLE;
-            }
-            break;
-        }
-        default:
-            ASSERT(false);
-            break;
-    }
-    TRIG_Translate16(&b->p, b->angle, SPEED_INC);
-    ScreenWrap(b);
+    pointf16_t avg = {.x=0,.y=0};
+    uint8_t a = TRIG_ATan2(&b->p, &avg);
+    
+    a += DEG_180;
+    rng_seed = xorshift32(rng_seed);
+    int16_t rng16 = (int16_t)rng_seed;
+    int16_t speed = (rng16 & 0x07FF) + 0x03FF;
+    
+    uint8_t delta = TRIG_SAM(b->angle, a);
+    delta = TRIG_SAM(b->angle, delta);
+    delta = TRIG_SAM(b->angle, delta);
+    b->angle = (uint8_t)delta;
+    
+    TRIG_Translate16(&b->p, b->angle, speed);
 }
 
 extern void Bird_Tick( void )
