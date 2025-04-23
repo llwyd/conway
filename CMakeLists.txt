@@ -6,7 +6,9 @@ set (CMAKE_C_STANDARD 11 )
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/ )
 set (CMAKE_BUILD_TYPE Debug )
 
-link_directories(/opt/X11/lib)
+if(TARGET_MAC)
+	link_directories(/opt/X11/lib)
+endif()
 
 add_executable( conway.out
                 desktop/emulator.c
