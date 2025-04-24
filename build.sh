@@ -4,6 +4,6 @@ if [ ! bin/ ]; then
     mkdir bin
 fi
 
-cmake .
-cmake --build .
+cmake -DTARGET_MAC=ON .
+cmake --build  .
 
