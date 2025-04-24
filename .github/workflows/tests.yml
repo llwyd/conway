@@ -18,6 +18,6 @@ jobs:
     - name: install xlib
       run: sudo apt install libx11-dev
     - name: build
-      run: ./build.sh
+      run: ./build_tests.sh
     - name: run tests
       run: ./bin/tests.out
