@@ -81,7 +81,7 @@ static nearby_t nearby_else;
 
 static uint32_t rng_seed = 0x13121312;
 
-void ( *update_fn )( void );
+static void ( *update_fn )( void );
 
 static bit_t PointToBit(const pointf16_t * const point);
 static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t * const bit );
