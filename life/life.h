@@ -26,7 +26,7 @@ _Static_assert((LCD_COLUMNS & (LCD_COLUMNS - 1)) == 0U, "Must be power of 2!");
 _Static_assert((LCD_ROWS & (LCD_ROWS - 1)) == 0U, "Must be power of 2!");
 _Static_assert((LCD_PAGES & (LCD_PAGES - 1)) == 0U, "Must be power of 2!");
 
-extern void Life_Init( void ( *fn)( void ), uint32_t initial_seed );
+extern void Life_Init( uint32_t initial_seed );
 extern void Life_Tick( void );
 extern void Life_Seed( void );
 extern uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS];

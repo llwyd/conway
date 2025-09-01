@@ -81,8 +81,6 @@ static nearby_t nearby_else;
 
 static uint32_t rng_seed = 0x13121312;
 
-static void ( *update_fn )( void );
-
 static bit_t PointToBit(const pointf16_t * const point);
 static void Set( uint8_t (* const display)[LCD_COLUMNS], bool set, const bit_t * const bit );
 
@@ -170,9 +168,8 @@ static void ScreenWrap(bird_t * const b)
     */
 }
 
-extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
+extern void Bird_Init( uint32_t initial_seed )
 {
-    ASSERT(fn != NULL);
     ASSERT(initial_seed != 0U);
     
     uint32_t rng = 0x13121312;
@@ -191,8 +188,6 @@ extern void Bird_Init( void ( *fn)( void ), uint32_t initial_seed )
         bird[idx].p.x = x;
         bird[idx].p.y = y;
     }
-
-    update_fn = fn;
 }
 
 static bool IsPointInSquare8(const pointf16_t * const b, const pointf16_t * const c, int16_t square_size)
@@ -496,7 +491,6 @@ extern void Bird_Tick( void )
         bit_t bit = PointToBit(&b->p);
         Set(display_buffer, true, &bit);
     }
-    update_fn();
 }
 
 extern uint8_t (*Bird_GetBuffer( void ))[LCD_COLUMNS]

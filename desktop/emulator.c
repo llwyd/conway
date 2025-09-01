@@ -84,9 +84,9 @@ int main( void )
     
     Init();
 #ifdef SIM_GOL
-    Life_Init( &UpdateDisplay, 0x12345678 );
+    Life_Init( 0x12345678 );
 #else
-    Bird_Init( &UpdateDisplay, 0x12345678 );
+    Bird_Init( 0x12345678 );
 #endif
     XNextEvent( d, &e );
 
@@ -126,6 +126,7 @@ int main( void )
 #else
                 Bird_Tick();
 #endif
+                UpdateDisplay();
                 usleep(25000);
             }
         }
