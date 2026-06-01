@@ -129,7 +129,7 @@ extern uint8_t TRIG_ATan2(const pointf16_t * const a, const pointf16_t * const b
     }
     else if(diff_y < 0)
     {
-        angle = (uint8_t)UINT8_MAX - angle + 1u;
+        angle = UINT8_MAX - angle + 1;
     }
 
     return angle;
