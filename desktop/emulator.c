@@ -11,6 +11,7 @@
 #include "assert.h"
 #include "life.h"
 #include "bird.h"
+#include "gerono.h"
 
 static Display * d;
 static int screen;
@@ -46,8 +47,12 @@ void UpdateDisplay ( void )
 {
 #ifdef SIM_GOL
     unsigned char (*buffer)[LCD_COLUMNS] = Life_GetBuffer();
-#else
+#elif SIM_BIRD
     unsigned char (*buffer)[LCD_COLUMNS] = Bird_GetBuffer();
+#elif SIM_GERONO
+    unsigned char (*buffer)[LCD_COLUMNS] = Gerono_GetBuffer();
+#else
+    _Static_assert(false, "project not defined");
 #endif
 
     for( uint8_t i = 0; i < LCD_PAGES; i++ )
@@ -85,8 +90,12 @@ int main( void )
     Init();
 #ifdef SIM_GOL
     Life_Init( 0x12345678 );
-#else
+#elif SIM_BIRD
     Bird_Init( 0x12345678 );
+#elif SIM_GERONO
+    Gerono_Init( );
+#else
+    _Static_assert(false, "project not defined");
 #endif
     XNextEvent( d, &e );
 
@@ -123,8 +132,12 @@ int main( void )
             {
 #ifdef SIM_GOL
                 Life_Tick();
-#else
+#elif SIM_BIRD
                 Bird_Tick();
+#elif SIM_GERONO
+                Gerono_Tick();
+#else
+    _Static_assert(false, "project not defined");
 #endif
                 UpdateDisplay();
                 usleep(25000);

@@ -10,3 +10,4 @@ bin/
 cmake_install.cmake
 Unity
 .gdb_history
+.DS_Store
