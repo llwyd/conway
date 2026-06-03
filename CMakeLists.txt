@@ -40,6 +40,18 @@ add_executable( gerono.out
                 common/lut.c
                 )
 
+add_executable( heart.out
+                desktop/emulator.c
+                heart/heart.c
+                heart/heart.h
+                common/trig.h
+                common/trig.c
+                common/qmath.h
+                common/qmath.c
+                common/lut.h
+                common/lut.c
+                )
+
 if(UNIT_TESTS)
 add_executable( tests.out
                 tests/tests.c
@@ -94,6 +106,9 @@ target_compile_definitions(bird.out PRIVATE SIM_BIRD)
 target_compile_definitions(gerono.out PRIVATE TARGET_DESKTOP)
 target_compile_definitions(gerono.out PRIVATE SIM_GERONO)
 
+target_compile_definitions(heart.out PRIVATE TARGET_DESKTOP)
+target_compile_definitions(heart.out PRIVATE SIM_HEART)
+
 
 include_directories( conway.out PRIVATE desktop )
 include_directories( conway.out PRIVATE life )
@@ -109,6 +124,11 @@ include_directories( gerono.out PRIVATE gerono )
 include_directories( gerono.out PRIVATE common )
 include_directories( gerono.out PRIVATE /opt/X11/include )
 
+include_directories( heart.out PRIVATE desktop )
+include_directories( heart.out PRIVATE heart )
+include_directories( heart.out PRIVATE common )
+include_directories( heart.out PRIVATE /opt/X11/include )
+
 target_compile_options( conway.out
                         PUBLIC
                         -Wfatal-errors
@@ -120,6 +140,16 @@ target_compile_options( conway.out
                         -g)
 
 target_compile_options( gerono.out
+                        PUBLIC
+                        -Wfatal-errors
+                        #                        -Wall
+                        #-Wextra
+                        #-Werror
+                        #-Wpedantic
+                        #-Wpointer-arith
+                        -g)
+
+target_compile_options( heart.out
                         PUBLIC
                         -Wfatal-errors
                         #                        -Wall
@@ -145,6 +175,7 @@ target_compile_options( bird.out
 target_link_libraries( conway.out X11)
 target_link_libraries( bird.out X11)
 target_link_libraries( gerono.out X11)
+target_link_libraries( heart.out X11)
 
 target_link_options(bird.out PUBLIC -fsanitize=undefined)
 

@@ -11,6 +11,8 @@ This repo contains graphical simulations that are designed to run on a microcont
     - This is my implementation of Conway's game of life with cycle detection to automatically restart the game when the automation reaches a steady state. 
 - gerono
     - _Gerono Lemniscate_ implementation in fixed point (Figure 8/infinity curve).
+- heart
+    - Fixed point drawing of a love heart.
 - tests
     - Sanity checks for some of the maths/algorithms involved
 

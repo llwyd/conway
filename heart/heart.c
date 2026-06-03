@@ -59,7 +59,7 @@ static bit_t PointToBit(const pointf16_t * const point)
     return bit;
 }
 
-extern void Gerono_Init( void )
+extern void Heart_Init( void )
 {
     uint8_t angle = 0;
     for(uint32_t idx = 0; idx < NUM_WISPS; idx++)
@@ -71,7 +71,7 @@ extern void Gerono_Init( void )
     }
 }
 
-extern void Gerono_Tick( void )
+extern void Heart_Tick( void )
 {
     for(uint32_t idx = 0; idx < NUM_WISPS; idx++)
     {
@@ -79,10 +79,38 @@ extern void Gerono_Tick( void )
         bit_t prev_bit = PointToBit(&w->p);
         Set(display_buffer, false, &prev_bit);
 
-        /* Gerono Lemniscate */
-        int16_t x = QMath_Mul(Q15_MAX, qsin[w->angle], Q_NUM);
-        int16_t y = QMath_Mul(Q15_MAX, qsin[w->angle], Q_NUM);
-        y = QMath_Mul(y, qcos[w->angle], Q_NUM);
+        /* Heart */
+
+        /* Is angle over 180 deg? */
+        uint8_t sign_bit = w->angle >> 7;
+
+        /* only use 0 -> pi */
+        uint8_t angle = w->angle & 0x7f;
+
+        /* sin^3(x) */
+        int16_t x = QMath_Mul(qsin[angle], qsin[angle], Q_NUM);
+        x = QMath_Mul(x, qsin[angle], Q_NUM);
+
+        /* _ * 0.5 */
+        x = QMath_Mul(0x3FFF, x, Q_NUM);
+       
+        x = QMath_Mul(0x7FFF + sign_bit, x, Q_NUM);
+       
+
+        uint8_t y_angle = angle ^ ((UINT8_MAX >> 1) * (sign_bit ^ 0x1));
+
+        int16_t a = QMath_Mul(0x6800, qcos[y_angle * 1], Q_NUM);
+        int16_t b = QMath_Mul(0x2800, qcos[y_angle * 2], Q_NUM);
+        int16_t c = QMath_Mul(0x1000, qcos[y_angle * 3], Q_NUM);
+        int16_t d = QMath_Mul(0x0800, qcos[y_angle * 4], Q_NUM);
+
+
+        int16_t y = QMath_SubSat(a, b, Q_NUM);
+        y = QMath_SubSat(y, c, Q_NUM);
+        y = QMath_SubSat(y, d, Q_NUM);
+
+        /* Invert y axis */
+        y = QMath_Mul(y, 0x8001, Q_NUM);
 
         w->p.x = x;
         w->p.y = y;
@@ -95,7 +123,7 @@ extern void Gerono_Tick( void )
     }
 }
 
-extern uint8_t (*Gerono_GetBuffer( void ))[LCD_COLUMNS]
+extern uint8_t (*Heart_GetBuffer( void ))[LCD_COLUMNS]
 {
     return display_buffer;
 }

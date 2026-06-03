@@ -12,6 +12,7 @@
 #include "life.h"
 #include "bird.h"
 #include "gerono.h"
+#include "heart.h"
 
 static Display * d;
 static int screen;
@@ -51,6 +52,8 @@ void UpdateDisplay ( void )
     unsigned char (*buffer)[LCD_COLUMNS] = Bird_GetBuffer();
 #elif SIM_GERONO
     unsigned char (*buffer)[LCD_COLUMNS] = Gerono_GetBuffer();
+#elif SIM_HEART
+    unsigned char (*buffer)[LCD_COLUMNS] = Heart_GetBuffer();
 #else
     _Static_assert(false, "project not defined");
 #endif
@@ -94,6 +97,8 @@ int main( void )
     Bird_Init( 0x12345678 );
 #elif SIM_GERONO
     Gerono_Init( );
+#elif SIM_HEART
+    Heart_Init( );
 #else
     _Static_assert(false, "project not defined");
 #endif
@@ -136,6 +141,8 @@ int main( void )
                 Bird_Tick();
 #elif SIM_GERONO
                 Gerono_Tick();
+#elif SIM_HEART
+                Heart_Tick();
 #else
     _Static_assert(false, "project not defined");
 #endif
