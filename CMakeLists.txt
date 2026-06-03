@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.5)
 
 project( conway )
 
@@ -56,6 +56,7 @@ add_executable( tests.out
                 common/qmath.h
                 common/qmath.c
                 common/lut.h
+                common/lut.c
                 Unity/src/unity.c
                 Unity/src/unity.h
                 Unity/src/unity_internals.h ) 
