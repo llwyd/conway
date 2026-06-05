@@ -107,9 +107,6 @@ bool CheckForCycle( void )
     tort = tort & ( HASH_BUFFER_SIZE - 1U );
     hare = hare & ( HASH_BUFFER_SIZE - 1U );
 
-    uint8_t mu = 0U;
-    uint8_t lam = 1;
-
     uint8_t firstCount = 0;
 
     /* 1. Tortoise moves single step, hare moves double step */
@@ -146,8 +143,6 @@ bool CheckForCycle( void )
         
             tort = tort & ( HASH_BUFFER_SIZE - 1U );
             hare = hare & ( HASH_BUFFER_SIZE - 1U );
-
-            mu++;
         }
   
         if( secondMatch )
@@ -167,7 +162,6 @@ bool CheckForCycle( void )
                 hare++;
                 hare = hare & ( HASH_BUFFER_SIZE - 1U );
 
-                lam++;
             }
 
             if( thirdMatch )
@@ -247,7 +241,7 @@ static point_t BitToPoint(const bit_t * const bit)
     point_t point = 
     {
         .x = bit->col,
-        .y = bit->bit + (8 * bit->page),
+        .y = bit->bit + (uint8_t)(8u * bit->page),
     };
 
     return point;
@@ -285,11 +279,11 @@ static void Set( uint8_t (* const life_cells)[LCD_COLUMNS], bool alive, const bi
 {    
     if( alive )
     {
-        life_cells[bit->page][bit->col] |= ( 1U << bit->bit);
+        life_cells[bit->page][bit->col] |= (uint8_t)( 1U << bit->bit);
     }
     else
     {
-        life_cells[bit->page][bit->col] &= ~(1U << bit->bit);
+        life_cells[bit->page][bit->col] &= (uint8_t)~(1U << bit->bit);
     }
 }
 
@@ -307,7 +301,7 @@ static uint8_t CountLiveSurroundingCells(const point_t * const point, uint8_t (*
         const bit_t bit = PointToBit(&p);
 
         uint8_t value = life_cells[bit.page][bit.col];
-        bool alive = (bool) ( (value >> bit.bit) & 1U );
+        bool alive = (bool) ( (value >> bit.bit) & 0x1 );
         if( alive )
         {
             num_alive++;
@@ -336,7 +330,7 @@ extern void Life_Tick( void )
                     .bit = k,
                 };
 
-                bool alive = (bool)((ping[i][j] >> k )& 1U);
+                bool alive = (bool)((ping[i][j] >> k )& 0x1);
 
                 const point_t current_pos = BitToPoint(&current_bit);
                 

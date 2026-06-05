@@ -13,16 +13,16 @@ _Static_assert(LCD_ROWS == 8U, "must be u8");
 #define MAX_NEARBY (8U)
 
 /* 0.2 ~= 0x1999 */
-#define COH_RADIUS8 (0x2800 >> 0)
-#define SEP_RADIUS8 (COH_RADIUS8 >> 4)
+#define COH_RADIUS8 (0x4000 >> 0)
+#define SEP_RADIUS8 (0x0280)
 
 _Static_assert(COH_RADIUS8 > 0, "Must be > 0");
 _Static_assert(SEP_RADIUS8 > 0, "Must be > 0");
 _Static_assert(COH_RADIUS8 > SEP_RADIUS8, "Coh > Sep");
 
-#define SEP_ANGLE   (0x08)
+#define SEP_ANGLE   (0x0A)
 #define COH_ANGLE   (0x01)
-#define EDGE_ANGLE  (0x10)
+#define EDGE_ANGLE  (0x04)
 
 _Static_assert(SEP_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE > 0, "Must be > 0");
@@ -30,8 +30,8 @@ _Static_assert(EDGE_ANGLE > 0, "Must be > 0");
 _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 
 #define SPEED_INC (0x05FF)
-#define ALPHA_POINT (0x001F)
-#define ALPHA (0x003F)
+#define ALPHA_POINT (0x3FFF)
+#define ALPHA_ANGLE (0x3FFF)
 
 /* 0.15 ~= 0x1333 */
 #define EDGE (0x1333)
@@ -264,36 +264,28 @@ extern pointf16_t AveragePoint(const nearby_t * const nearby)
 
         uint32_t nearby_idx = nearby->bird[idx];
         pointf16_t * pos = &bird[nearby_idx].p;
-        
-        int16_t diff_x = QMath_Sub(pos->x, prev.x, Q_NUM);
-        int16_t diff_y = QMath_Sub(pos->y, prev.y, Q_NUM);
 
-        diff_x = QMath_Mul(ALPHA_POINT, diff_x, Q_NUM);
-        diff_x = QMath_Mul(ALPHA_POINT, diff_y, Q_NUM);
-
-
-        result.x = QMath_SubSat(pos->x, diff_x, Q_NUM);
-        result.y = QMath_SubSat(pos->y, diff_y, Q_NUM);
+        result.x = QMath_Avg(prev.x, pos->x, ALPHA_POINT, Q_NUM);
+        result.y = QMath_Avg(prev.y, pos->y, ALPHA_POINT, Q_NUM);
     }
 
     return result;
 }
 
-extern uint16_t AverageAngle(const nearby_t * const nearby)
+extern uint8_t AverageAngle(const nearby_t * const nearby)
 {
-    uint16_t result = 0;
-    uint16_t y = 0;
+    uint8_t result = 0;
+    int16_t y = 0;
 
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
-        uint16_t prev_y = y;
         uint32_t nearby_idx = nearby->bird[idx];
-        uint16_t angle = Q_UUPSCALE(bird[nearby_idx].angle,Q_SCALE);
-        uint16_t diff = QMath_USub(angle, prev_y, Q_NUM);
-        y = angle - QMath_UMul(ALPHA, diff, Q_NUM);
+        int16_t angle = (int16_t)bird[nearby_idx].angle;
+        y = QMath_Avg(y, angle, ALPHA_ANGLE, Q_NUM); 
     }
 
-    result = y;
+    ASSERT(y <= UINT8_MAX);
+    result = (uint8_t)y;
     return result;
 }
 
@@ -425,8 +417,7 @@ extern void Idle( bird_t * const b)
 
     if(nearby_else.num > 0U)
     {
-        uint16_t near_angle = AverageAngle(&nearby_else);
-        uint8_t near_angle8 = Q_UDNSCALE(near_angle, Q_SCALE);
+        uint8_t near_angle8 = AverageAngle(&nearby_else);
         uint8_t delta = TRIG_SAM(b->angle, near_angle8);
         switch(quad)
         {

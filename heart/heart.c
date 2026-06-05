@@ -110,7 +110,7 @@ extern void Heart_Tick( void )
         y = QMath_SubSat(y, d, Q_NUM);
 
         /* Invert y axis */
-        y = QMath_Mul(y, 0x8001, Q_NUM);
+        y = QMath_Mul(y, -32767, Q_NUM);
 
         w->p.x = x;
         w->p.y = y;

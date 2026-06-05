@@ -36,6 +36,8 @@ int16_t QMath_Sub(int16_t a, int16_t b, uint16_t q);
 int16_t QMath_SubSat(int16_t a, int16_t b, uint16_t q);
 int16_t QMath_Div(int16_t a, int16_t b, uint16_t q);
 
+int16_t QMath_Avg(int16_t p, int16_t x, int16_t alpha, uint16_t q);
+
 uint16_t QMath_UMul(uint16_t a, uint16_t b, uint16_t q);
 uint16_t QMath_UAdd(uint16_t a, uint16_t b, uint16_t q);
 uint16_t QMath_USub(uint16_t a, uint16_t b, uint16_t q);

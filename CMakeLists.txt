@@ -131,32 +131,41 @@ include_directories( heart.out PRIVATE /opt/X11/include )
 
 target_compile_options( conway.out
                         PUBLIC
+                        -O3
                         -Wfatal-errors
-                        #                        -Wall
-                        #-Wextra
-                        #-Werror
-                        #-Wpedantic
-                        #-Wpointer-arith
+                        -Wall
+                        -Wextra
+                        -Werror
+                        -Wpedantic
+                        -Wpointer-arith
+                        -Wconversion
+                        -fsanitize=undefined
                         -g)
 
 target_compile_options( gerono.out
                         PUBLIC
+                        -O3
                         -Wfatal-errors
-                        #                        -Wall
-                        #-Wextra
-                        #-Werror
-                        #-Wpedantic
-                        #-Wpointer-arith
+                        -Wall
+                        -Wextra
+                        -Werror
+                        -Wpedantic
+                        -Wpointer-arith
+                        -Wconversion
+                        -fsanitize=undefined
                         -g)
 
 target_compile_options( heart.out
                         PUBLIC
+                        -O3
                         -Wfatal-errors
-                        #                        -Wall
-                        #-Wextra
-                        #-Werror
-                        #-Wpedantic
-                        #-Wpointer-arith
+                        -Wall
+                        -Wextra
+                        -Werror
+                        -Wpedantic
+                        -Wpointer-arith
+                        -Wconversion
+                        -fsanitize=undefined
                         -g)
 
 target_compile_options( bird.out
@@ -178,4 +187,7 @@ target_link_libraries( gerono.out X11)
 target_link_libraries( heart.out X11)
 
 target_link_options(bird.out PUBLIC -fsanitize=undefined)
+target_link_options(conway.out PUBLIC -fsanitize=undefined)
+target_link_options(gerono.out PUBLIC -fsanitize=undefined)
+target_link_options(heart.out PUBLIC -fsanitize=undefined)
 

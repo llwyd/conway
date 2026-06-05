@@ -96,6 +96,16 @@ int16_t QMath_Div(int16_t a, int16_t b, uint16_t q)
     return result;
 }
 
+int16_t QMath_Avg(int16_t p, int16_t x, int16_t alpha, uint16_t q)
+{
+    int16_t diff = QMath_SubSat(p, x, q);
+    int16_t z = QMath_Mul(alpha, diff, q);
+
+    int16_t y = QMath_AddSat(x, z, q);
+
+    return y;
+}
+
 uint16_t QMath_UMul(uint16_t a, uint16_t b, uint16_t q)
 {
     ASSERT(q < MAX_Q);
