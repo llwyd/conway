@@ -33,6 +33,11 @@ _Static_assert(COH_ANGLE < SEP_ANGLE, "Must be < 0");
 #define ALPHA_POINT (0x3FFF)
 #define ALPHA_ANGLE (0x3FFF)
 
+_Static_assert(ALPHA_POINT <= 0x7FFF, "Must be <= 0x7FFF");
+_Static_assert(ALPHA_ANGLE <= 0x7FFF, "Must be <= 0x7FFF");
+_Static_assert(ALPHA_POINT > 0x0, "Must be > 0");
+_Static_assert(ALPHA_ANGLE > 0x0, "Must be > 0");
+
 /* 0.15 ~= 0x1333 */
 #define EDGE (0x1333)
 _Static_assert(EDGE > 0, "Must be > 0");
@@ -59,6 +64,7 @@ bird_state_t;
 typedef struct
 {
     uint8_t angle;
+    uint8_t avg_angle;
     pointf16_t p;
     bird_state_t state;
 }
@@ -181,8 +187,10 @@ extern void Bird_Init( uint32_t initial_seed )
         rng = xorshift32(rng);
         int16_t y = (int16_t)(rng >> 16U);
         rng = xorshift32(rng);
-        bird[idx].angle = (uint8_t)(rng >> 24U);
-        //bird[idx].angle = 24U;
+
+        bird[idx].angle = (uint8_t)(rng >> 24U); 
+        bird[idx].avg_angle = bird[idx].angle;
+        
         bird[idx].state = BirdState_Idle;
 
         bird[idx].p.x = x;
@@ -250,7 +258,7 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
 
 }
 
-extern pointf16_t AveragePoint(const nearby_t * const nearby)
+static pointf16_t AveragePoint(const nearby_t * const nearby)
 {
     pointf16_t result ={.x = 0, .y = 0};
     
@@ -272,10 +280,10 @@ extern pointf16_t AveragePoint(const nearby_t * const nearby)
     return result;
 }
 
-extern uint8_t AverageAngle(const nearby_t * const nearby)
+static uint8_t AverageAngle(uint8_t prev_avg,const nearby_t * const nearby)
 {
     uint8_t result = 0;
-    int16_t y = 0;
+    int16_t y = (int16_t)prev_avg;
 
     for(uint32_t idx = 0; idx < nearby->num; idx++)
     {
@@ -290,7 +298,7 @@ extern uint8_t AverageAngle(const nearby_t * const nearby)
 }
 
 
-extern void Idle( bird_t * const b)
+static void Idle( bird_t * const b)
 {
     quadrant_t quad = Quad_0;
     /* Collect nearby birds */
@@ -417,8 +425,8 @@ extern void Idle( bird_t * const b)
 
     if(nearby_else.num > 0U)
     {
-        uint8_t near_angle8 = AverageAngle(&nearby_else);
-        uint8_t delta = TRIG_SAM(b->angle, near_angle8);
+        b->avg_angle = AverageAngle(b->avg_angle, &nearby_else);
+        uint8_t delta = TRIG_SAM(b->angle, b->avg_angle);
         switch(quad)
         {
             case Quad_0:
