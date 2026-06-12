@@ -67,9 +67,9 @@ static uint8_t hash_counter = 0;
 static uint32_t seed; 
 static uint32_t original_seed;
 
-extern uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
+extern const uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
 {
-    return ping;
+    return (const uint8_t (*)[LCD_COLUMNS])ping;
 }
 
 /* (Thanks wikipedia :) ) */

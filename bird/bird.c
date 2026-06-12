@@ -492,8 +492,8 @@ extern void Bird_Tick( void )
     }
 }
 
-extern uint8_t (*Bird_GetBuffer( void ))[LCD_COLUMNS]
+extern const uint8_t (*Bird_GetBuffer( void ))[LCD_COLUMNS]
 {
-    return display_buffer;
+    return (const uint8_t (*)[LCD_COLUMNS])display_buffer;
 }
 

@@ -47,13 +47,13 @@ void Init( void )
 void UpdateDisplay ( void )
 {
 #ifdef SIM_GOL
-    unsigned char (*buffer)[LCD_COLUMNS] = Life_GetBuffer();
+    const uint8_t (*buffer)[LCD_COLUMNS] = Life_GetBuffer();
 #elif SIM_BIRD
-    unsigned char (*buffer)[LCD_COLUMNS] = Bird_GetBuffer();
+    const uint8_t (*buffer)[LCD_COLUMNS] = Bird_GetBuffer();
 #elif SIM_GERONO
-    unsigned char (*buffer)[LCD_COLUMNS] = Gerono_GetBuffer();
+    uint8_t (*buffer)[LCD_COLUMNS] = Gerono_GetBuffer();
 #elif SIM_HEART
-    unsigned char (*buffer)[LCD_COLUMNS] = Heart_GetBuffer();
+    uint8_t (*buffer)[LCD_COLUMNS] = Heart_GetBuffer();
 #else
     _Static_assert(false, "project not defined");
 #endif
