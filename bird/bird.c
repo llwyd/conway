@@ -165,20 +165,11 @@ static bird_state_t NextState(const bird_t * const b)
     return next_state;
 }
 
-static void ScreenWrap(bird_t * const b)
-{
-    (void)b;
-    /*
-        b->pos.x = b->pos.x & (LCD_COLUMNS - 1U);
-        b->pos.y = b->pos.y & (LCD_FULL_ROWS - 1U);
-    */
-}
-
 extern void Bird_Init( uint32_t initial_seed )
 {
     ASSERT(initial_seed != 0U);
     
-    uint32_t rng = 0x13121312;
+    uint32_t rng = initial_seed;
 
     for( uint32_t idx = 0; idx < NUM_BIRDS; idx++)
     {
@@ -355,8 +346,6 @@ static void Idle( bird_t * const b)
                 }
                 break;
         }
-        //TRIG_Translate(&b->pos, b->angle, SPEED_INC);
-        ScreenWrap(b);
     }
     if(nearby_else.num > 0U)
     {
@@ -421,7 +410,6 @@ static void Idle( bird_t * const b)
     int16_t rng16 = (int16_t)rng_seed;
     int16_t speed = (rng16 & 0x07FF) + 0x03FF;
     TRIG_Translate16(&b->p, b->angle, speed);
-    ScreenWrap(b);
 
     if(nearby_else.num > 0U)
     {
