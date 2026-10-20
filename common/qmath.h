@@ -1,7 +1,7 @@
 #ifndef QMATH_
 #define QMATH_
 
-#include <assert.h>
+#include "life_assert.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
