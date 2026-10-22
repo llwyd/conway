@@ -1,4 +1,5 @@
 #include "life.h"
+#include "cycle.h"
 
 /* If violated there be dragons, code works on assumption of 8bit storage */
 _Static_assert(sizeof(uint8_t) == 1U, "invalid u8 size");
@@ -65,7 +66,6 @@ static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
 static uint8_t hash_counter = 0;
 
 static uint32_t seed; 
-static uint32_t original_seed;
 
 extern const uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
 {
@@ -90,86 +90,11 @@ static uint8_t UpdateHash( uint8_t current_hash, uint8_t value )
 
 bool CheckForCycle( void )
 {
-    bool firstMatch = false;
-    bool secondMatch = false;
-    bool thirdMatch = false;
-
-    bool cycleDetected = false;
-    bool startNewGame = false;
-
     /* Number of consecutive times a cycle is detected */
     static uint8_t cycleDetectedCount = 0U;
-
-    /* Tortoise and Hare algorithm to detect cycle */
-    uint8_t tort = hash_counter + 1;
-    uint8_t hare = tort + 1;
-
-    tort = tort & ( HASH_BUFFER_SIZE - 1U );
-    hare = hare & ( HASH_BUFFER_SIZE - 1U );
-
-    uint8_t firstCount = 0;
-
-    /* 1. Tortoise moves single step, hare moves double step */
-    for( uint8_t idx = 2; idx < HASH_BUFFER_SIZE; idx+=2 )
-    {
-        if( hash_buffer[tort] == hash_buffer[hare] )
-        {
-            firstMatch = true;
-            firstCount = idx;
-            break;
-        }
-
-        tort++;
-        hare+=2;
-        
-        tort = tort & ( HASH_BUFFER_SIZE - 1U );
-        hare = hare & ( HASH_BUFFER_SIZE - 1U );
-    }
-
-    if( firstMatch )
-    {
-        /* 2. Move Tortoise back to start and move both single step */
-        tort = hash_counter;
-        for( uint8_t idx = firstCount; idx < HASH_BUFFER_SIZE; idx++ )
-        {
-            if( hash_buffer[tort] == hash_buffer[hare] )
-            {
-                secondMatch = true;
-                break;
-            }
-
-            tort++;
-            hare++;
-        
-            tort = tort & ( HASH_BUFFER_SIZE - 1U );
-            hare = hare & ( HASH_BUFFER_SIZE - 1U );
-        }
-  
-        if( secondMatch )
-        {
-            /* 3. Move Hare to tortoise, single step hare */
-
-            hare = tort + 1;
-            hare = hare & ( HASH_BUFFER_SIZE - 1U );
-
-            for( uint8_t idx = 0; idx < HASH_BUFFER_SIZE; idx++ )
-            {
-                if( hash_buffer[tort] == hash_buffer[hare] )
-                {
-                    thirdMatch = true;
-                    break;
-                }
-                hare++;
-                hare = hare & ( HASH_BUFFER_SIZE - 1U );
-
-            }
-
-            if( thirdMatch )
-            {
-                cycleDetected = true;
-            }
-        }
-    }
+    
+    bool cycleDetected = Cycle_Check8(hash_buffer, hash_counter, HASH_BUFFER_SIZE);
+    bool startNewGame = false;
 
     if( cycleDetected )
     {
@@ -193,9 +118,6 @@ extern void Life_Seed( void )
 {
     ping = ping_status;
     pong = pong_status;
-
-    /* This is to diagnose and reproduce bugs :) */
-    original_seed = seed;
 
     uint32_t rnd = xorshift32( seed );
 
