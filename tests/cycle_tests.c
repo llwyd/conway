@@ -3,7 +3,7 @@
 
 static void test_CYCLE_0()
 {
-    uint8_t test_data[8] = {1,1,1,1,1,1,1,1};
+    uint8_t test_data[8] = {1,2,1,2,1,2,1,2};
     TEST_ASSERT_TRUE(Cycle_Check8(test_data, 8u));
 }
 

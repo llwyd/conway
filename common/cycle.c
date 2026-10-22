@@ -10,8 +10,8 @@ extern bool Cycle_Check8(const uint8_t * const data, uint32_t len)
     bool second_match = false;
     bool third_match = false;
     
-    uint32_t tort = 0;
-    uint32_t hare = 1;
+    uint32_t tort = 1;
+    uint32_t hare = 2;
     
     /* 1. Tortoise moves single step, hare moves double step */
     uint8_t firstCount = 0;
@@ -31,10 +31,6 @@ extern bool Cycle_Check8(const uint8_t * const data, uint32_t len)
         tort = 0;
         for( uint8_t idx = firstCount; idx < len; idx++, tort++, hare++ )
         {
-            if(hare > len)
-            {
-                hare = 0;
-            }
             if( data[tort] == data[hare] )
             {
                 second_match = true;
