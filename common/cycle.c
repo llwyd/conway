@@ -1,6 +1,8 @@
 #include "cycle.h"
 #include "life_assert.h"
 
+/* Slow and steady wins the race... */
+
 extern bool Cycle_Check8(const uint8_t * const data, uint32_t start_idx, uint32_t len)
 {
     ASSERT(data != NULL);
