@@ -3,6 +3,7 @@
 #include "movement_tests.h"
 #include "qmath_tests.h"
 #include "fp_tests.h"
+#include "cycle_tests.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,6 +23,7 @@ int main( void )
     MOVE_TestsRun();
     QMATH_TestsRun();
     FP_TestsRun();
+    CYCLE_TestsRun();
     
     return UNITY_END();
 }

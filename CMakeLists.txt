@@ -14,6 +14,8 @@ add_executable( conway.out
                 desktop/emulator.c
                 life/life.c
                 life/life.h
+                common/cycle.c
+                common/cycle.h
                 )
 
 add_executable( bird.out
@@ -63,12 +65,16 @@ add_executable( tests.out
                 tests/movement_tests.c
                 tests/fp_tests.h
                 tests/fp_tests.c
+                tests/cycle_tests.c
+                tests/cycle_tests.h
                 common/trig.h
                 common/trig.c
                 common/qmath.h
                 common/qmath.c
                 common/lut.h
                 common/lut.c
+                common/cycle.c
+                common/cycle.h
                 Unity/src/unity.c
                 Unity/src/unity.h
                 Unity/src/unity_internals.h ) 
