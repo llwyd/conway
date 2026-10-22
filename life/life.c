@@ -65,7 +65,6 @@ static uint8_t hash_buffer[ HASH_BUFFER_SIZE];
 static uint8_t hash_counter = 0;
 
 static uint32_t seed; 
-static uint32_t original_seed;
 
 extern const uint8_t (*Life_GetBuffer( void ))[LCD_COLUMNS]
 {
@@ -193,9 +192,6 @@ extern void Life_Seed( void )
 {
     ping = ping_status;
     pong = pong_status;
-
-    /* This is to diagnose and reproduce bugs :) */
-    original_seed = seed;
 
     uint32_t rnd = xorshift32( seed );
 

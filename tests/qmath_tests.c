@@ -120,7 +120,7 @@ static void test_QMATH_ADD_25x25(void)
     TEST_ASSERT_INT16_WITHIN(1, exp, result);
 }
 
-static int16_t calculate_qaverage( int16_t * data, uint32_t num, int16_t alpha, int16_t error)
+static void calculate_qaverage( int16_t * data, uint32_t num, int16_t alpha, int16_t error)
 {
     TEST_ASSERT_TRUE(num > 0u);
     TEST_ASSERT_TRUE(alpha > 0);
@@ -261,7 +261,7 @@ static void test_QMATH_Avg9(void)
     calculate_qaverage(z, 8u, alpha,Q_FLOAT_TO_Q(error, Q_NUM));
 }
 
-static int16_t calculate_average_angle( uint8_t * data, uint32_t num, int16_t alpha, uint8_t error)
+static void calculate_average_angle( uint8_t * data, uint32_t num, int16_t alpha, uint8_t error)
 {
     TEST_ASSERT_TRUE(num > 0u);
     TEST_ASSERT_TRUE(alpha > 0);
