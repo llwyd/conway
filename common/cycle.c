@@ -7,7 +7,7 @@ extern bool Cycle_Check8(const uint8_t * const data, uint32_t start_idx, uint32_
 {
     ASSERT(data != NULL);
     ASSERT(len > 0u);
-
+    ASSERT(start_idx < len);
     /* Must be power of 2 for the bit-modulo */
     ASSERT((len & (len - 1)) == 0U);
 
