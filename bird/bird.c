@@ -189,25 +189,15 @@ extern void Bird_Init( uint32_t initial_seed )
     }
 }
 
-static bool IsPointInSquare8(const pointf16_t * const b, const pointf16_t * const c, int16_t square_size)
+static bool IsPointInSquare(const pointf16_t * const b, const pointf16_t * const c, int16_t square_size)
 {
-    int16_t ss_2 = square_size >> 0U;
-    ASSERT(ss_2 > 0);
+    ASSERT(square_size > 0);
     
     bool result = false;
-    int16_t r = QMath_AddSat(c->x, ss_2, Q_NUM);
-    int16_t l = QMath_SubSat(c->x, ss_2, Q_NUM);
-    int16_t u = QMath_SubSat(c->y, ss_2, Q_NUM);
-    int16_t d = QMath_AddSat(c->y, ss_2, Q_NUM);
-
-    if(u >= LCD_FULL_ROWS)
-    {
-        u = 0;
-    }
-    if(l >= LCD_COLUMNS)
-    {
-        l = 0;
-    }
+    int16_t r = QMath_AddSat(c->x, square_size, Q_NUM);
+    int16_t l = QMath_SubSat(c->x, square_size, Q_NUM);
+    int16_t u = QMath_SubSat(c->y, square_size, Q_NUM);
+    int16_t d = QMath_AddSat(c->y, square_size, Q_NUM);
 
     if((b->x > l) && (b->x < r))
     {
@@ -219,7 +209,7 @@ static bool IsPointInSquare8(const pointf16_t * const b, const pointf16_t * cons
     return result;
 }
 
-static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const near_birds, int16_t square_size)
+static void CollectNearbyBirds(bird_t * const current_bird, nearby_t * const near_birds, int16_t square_size)
 {
     ASSERT(near_birds != NULL);
     ASSERT(square_size > 1);
@@ -235,7 +225,7 @@ static void CollectNearbyBirds8(bird_t * const current_bird, nearby_t * const ne
         {
             const pointf16_t * const b = &bird[idx].p;
             
-            if(IsPointInSquare8(b, c, square_size))
+            if(IsPointInSquare(b, c, square_size))
             {
                 if(bird[idx].state == BirdState_Idle)
                 {
@@ -291,10 +281,9 @@ static uint8_t AverageAngle(uint8_t prev_avg,const nearby_t * const nearby)
 
 static void Idle( bird_t * const b)
 {
-    quadrant_t quad = Quad_0;
     /* Collect nearby birds */
-    CollectNearbyBirds8(b, &nearby_sep, SEP_RADIUS8);
-    CollectNearbyBirds8(b, &nearby_else, COH_RADIUS8);
+    CollectNearbyBirds(b, &nearby_sep, SEP_RADIUS8);
+    CollectNearbyBirds(b, &nearby_else, COH_RADIUS8);
 
     if(nearby_sep.num > 0U)
     {
@@ -354,7 +343,6 @@ static void Idle( bird_t * const b)
         const pointf16_t avg = AveragePoint(&nearby_else);
         quadrant_t q = TRIG_WhichQuadrant(&b->p, &avg);
         uint8_t a = TRIG_ATan2(&b->p, &avg);
-        quad = q;
         switch(q)
         {
             case Quad_0:
@@ -404,8 +392,7 @@ static void Idle( bird_t * const b)
     /* Update bird
      * -> Move
      * -> Update state machine
-     * -> Screen wrap */
-    /* TODO - Fix */
+     */
     rng_seed = xorshift32(rng_seed);
     int16_t rng16 = (int16_t)rng_seed;
     int16_t speed = (rng16 & 0x07FF) + 0x03FF;
@@ -415,17 +402,7 @@ static void Idle( bird_t * const b)
     {
         b->avg_angle = AverageAngle(b->avg_angle, &nearby_else);
         uint8_t delta = TRIG_SAM(b->angle, b->avg_angle);
-        switch(quad)
-        {
-            case Quad_0:
-            case Quad_3:
-                b->angle = (uint8_t) delta;
-                break;
-            case Quad_1:
-            case Quad_2:
-                b->angle = (uint8_t)delta;
-                break;
-        }
+        b->angle = (uint8_t) delta;
     }
 }
 
